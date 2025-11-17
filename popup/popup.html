@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Izy Focus</title>
+    <link rel="stylesheet" href="/popup/popup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div id="main-view" class="view">
+            <header>
+                <h1 id="main-header-title">Izy Focus</h1>
+                <div class="header-actions">
+                    <a href="#" id="garden-btn" title="Meu Jardim"><img src="/assets/icons/plant.svg" alt="Meu Jardim"></a>
+                    <a href="#" id="stats-btn" title="Estatísticas"><img src="/assets/icons/stats.svg" alt="Estatísticas"></a>
+                    <a href="#" id="settings-btn" title="Configurações"><img src="/assets/icons/settings.svg" alt="Configurações"></a>
+                </div>
+            </header>
+            
+            <div id="home-container">
+                <div class="bento-grid">
+                    <div class="card card-main-action"><p>Comece a focar agora</p><div id="quick-start-buttons"></div></div>
+                    <div class="card card-stat"><div class="stat-icon">🌱</div><div class="stat-value" id="seed-count">0</div><div class="stat-label">Sementes</div></div>
+                    <div class="card card-stat"><div class="stat-icon"><img src="/assets/icons/stone.svg" width="24" height="24"></div><div class="stat-value" id="stone-count">0</div><div class="stat-label">Pedras</div></div>
+                </div>
+                <div class="intention-wrapper"><input type="text" id="intention-input" placeholder="Qual é a sua intenção para hoje?"></div>
+            </div>
+
+            <div id="timer-wrapper">
+                <div class="timer-container">
+                    <svg class="progress-ring" width="200" height="200"><circle class="progress-ring__track" r="90" cx="100" cy="100"/><circle class="progress-ring__bar" r="90" cx="100" cy="100"/></svg>
+                    <div class="timer-overlay">
+                        <div id="plant-container"><svg id="growing-plant" viewBox="0 0 100 100"><path class="stem" d="M50 95V40C50 30 55 30 55 40V60"/><path class="leaf leaf-1" d="M55 50 C40 50 40 60 55 60"/><path class="leaf leaf-2" d="M55 40 C70 40 70 50 55 50"/></svg></div>
+                        <h1 id="timer-display">00:00</h1><p id="current-task-label"></p>
+                    </div>
+                </div>
+                <div class="sound-section">
+                    <button id="sound-toggle-btn" class="sound-toggle">🎵 Sons Ambiente</button>
+                    <div id="sound-list" class="sound-list"></div>
+                </div>
+                <div class="timer-actions">
+                    <button id="emergency-stop-btn">Interromper Foco</button>
+                </div>
+            </div>
+
+            <div id="completed-wrapper">
+                <div class="completed-icon">🎉</div>
+                <h2>Ciclo Concluído!</h2>
+                <p>Você ganhou <strong>1 Semente de Foco</strong> 🌱. O que você gostaria de fazer agora?</p>
+                <div class="completed-actions">
+                    <button id="start-next-cycle-btn">Iniciar Próximo Ciclo</button>
+                    <button id="finish-session-btn" class="button-secondary">Finalizar e Voltar ao Início</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/popup/popup.js"></script>
+</body>
+</html>
