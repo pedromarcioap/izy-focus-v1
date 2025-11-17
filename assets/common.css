@@ -1,0 +1,71 @@
+:root {
+    --dark-navy: #0F172A;
+    --emerald-green: #10B981;
+    --amber-orange: #F59E0B;
+    --light-red: #EF4444;
+    --neutral-gray-light: #94A3B8;
+    --neutral-gray-dark: #334155;
+    --neutral-gray-darker: #1E293B;
+    --background-color: var(--dark-navy);
+    --text-color: #F8FAFC;
+    --font-family: 'Figtree', sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    margin: 0;
+}
+
+/* Layout principal compartilhado */
+.app-container {
+    width: 350px; /* Largura padrão do popup */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Estilo de cabeçalho compartilhado */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.main-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+    text-align: left;
+}
+
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-icons a, .back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    color: var(--neutral-gray-light);
+    text-decoration: none;
+}
+
+.header-icons a:hover, .back-btn:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+}
+
+.header-icons img {
+    width: 20px;
+    height: 20px;
+}
+
+.back-btn {
+    font-size: 28px;
+    font-weight: bold;
+}
