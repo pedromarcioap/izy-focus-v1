@@ -1,13 +1,39 @@
-:root { --dark-navy: #0F172A; --emerald-green: #10B981; --amber-orange: #F59E0B; --neutral-gray-light: #94A3B8; --neutral-gray-dark: #334155; --neutral-gray-darker: #1E293B; --background-color: var(--dark-navy); --text-color: #F8FAFC; --font-family: 'Figtree', sans-serif; }
-body { background-color: var(--background-color); color: var(--text-color); font-family: var(--font-family); margin: 0; width: 320px; }
-#app { padding: 20px; text-align: center; box-sizing: border-box; }
-.view { display: block; }
-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-header h1 { font-size: 22px; font-weight: 600; margin: 0; text-align: left;}
-.header-actions { display: flex; align-items: center; gap: 12px; }
-.header-actions a { display: flex; align-items: center; justify-content: center; transition: opacity 0.2s ease, transform 0.2s ease; }
-.header-actions a:hover { opacity: 0.8; transform: scale(1.1); }
-.header-actions a img { width: 20px; height: 20px; }
+/* Estilos específicos para o popup.css */
+
+#app {
+    padding: 20px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.view {
+    display: block;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-actions a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.header-actions a:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+}
+
+.header-actions a img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Restante dos estilos específicos do popup... */
 #timer-wrapper, #completed-wrapper { display: none; flex-direction: column; align-items: center; }
 #app.session-active #home-container { display: none; }
 #home-container, #timer-wrapper, #completed-wrapper { transition: opacity 0.3s ease; }

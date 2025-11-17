@@ -1,0 +1,52 @@
+:root {
+    --primary-dark: #2c3e50;
+    --primary-light: #3498db;
+    --secondary-green: #2ecc71;
+    --secondary-orange: #f39c12;
+    --neutral-white: #ecf0f1;
+    --neutral-gray-super-light: #f0f3f4;
+    --neutral-gray-light: #bdc3c7;
+    --neutral-gray: #95a5a6;
+    --neutral-dark: #7f8c8d;
+    --danger-red: #e74c3c;
+    --font-family: 'Arial', sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--neutral-white);
+    color: var(--primary-dark);
+    margin: 0;
+}
+
+.app-container {
+    width: 350px; /* Largura padrão do popup */
+    background-color: var(--neutral-white);
+    box-sizing: border-box;
+}
+
+.main-header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centraliza o título por padrão */
+    padding: 15px;
+    background-color: var(--neutral-gray-super-light);
+    border-bottom: 1px solid var(--neutral-gray-light);
+    position: relative;
+}
+
+.main-header h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.back-btn {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    text-decoration: none;
+    color: var(--neutral-gray);
+}
