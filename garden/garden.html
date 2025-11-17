@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Jardim - Izy Focus</title>
+    <link rel="stylesheet" href="garden.css">
+</head>
+<body>
+    <header>
+        <h1>Meu Jardim de Foco</h1>
+        <p>Plante as sementes que você ganha ao completar ciclos de foco. Veja-as crescer a cada sessão concluída!</p>
+    </header>
+
+    <main class="garden-container">
+        <div id="garden-grid" class="garden-grid">
+            <!-- As células do jardim serão geradas dinamicamente aqui -->
+        </div>
+
+        <aside id="inventory" class="inventory">
+            <h2>Inventário</h2>
+            <div id="seeds-inventory" class="inventory-section">
+                <h3>Sementes 🌱</h3>
+                <ul id="seeds-list">
+                    <!-- As sementes do usuário serão listadas aqui -->
+                </ul>
+            </div>
+            <div id="stones-inventory" class="inventory-section">
+                <h3>Pedras 🪨</h3>
+                <p id="stone-count">0</p>
+                <small>Use as pedras para decorar seu jardim.</small>
+            </div>
+        </aside>
+    </main>
+
+    <script src="garden.js"></script>
+</body>
+</html>

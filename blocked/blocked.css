@@ -1,0 +1,38 @@
+:root {
+    --dark-navy: #0F172A;
+    --text-color: #F8FAFC;
+    --font-family: 'Figtree', sans-serif; /* Lembre-se de importar a fonte */
+}
+
+body {
+    background-color: var(--dark-navy);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    text-align: center;
+}
+
+.content h1 {
+    font-size: 3em;
+}
+
+.content p {
+    font-size: 1.2em;
+    color: #94A3B8;
+    max-width: 400px;
+}
+
+.plant-icon {
+    font-size: 4em;
+    margin: 20px 0;
+    animation: grow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes grow {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+}
