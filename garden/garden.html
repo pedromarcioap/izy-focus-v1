@@ -1,46 +1,38 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Jardim - Izy Focus</title>
-    <link rel="stylesheet" href="/garden/garden.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="garden.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Meu Jardim da Intenção</h1>
-            <p>Plante suas sementes de foco e coloque suas pedras de pausa para cultivar sua jornada.</p>
-        </header>
+    <header>
+        <h1>Meu Jardim de Foco</h1>
+        <p>Plante as sementes que você ganha ao completar ciclos de foco. Veja-as crescer a cada sessão concluída!</p>
+    </header>
 
-        <div class="toolbar">
-            <div class="inventory">
-                <div class="tool-item active" id="tool-select" data-tool="select" title="Selecionar (Pressione 'Esc' para ativar)">
-                    <span class="icon">🖐️</span>
-                    <span class="label">Selecionar</span>
-                </div>
-                <div class="tool-item" id="tool-seed" data-tool="seed" title="Plantar Semente">
-                    <span class="icon">🌱</span>
-                    <span class="label">Sementes</span>
-                    <span class="count" id="seed-count">0</span>
-                </div>
-                <div class="tool-item" id="tool-stone" data-tool="stone" title="Colocar Pedra">
-                    <span class="icon"><img src="/assets/icons/stone.svg" width="20" height="20"></span>
-                    <span class="label">Pedras</span>
-                    <span class="count" id="stone-count">0</span>
-                </div>
-            </div>
-            <div class="garden-actions">
-                <button id="reset-garden-btn" class="button button-danger">Limpar Jardim</button>
-            </div>
+    <main class="garden-container">
+        <div id="garden-grid" class="garden-grid">
+            <!-- As células do jardim serão geradas dinamicamente aqui -->
         </div>
 
-        <main id="garden-grid">
-            <!-- As células do jardim serão geradas pelo JavaScript -->
-        </main>
-    </div>
-    <script src="/garden/garden.js"></script>
+        <aside id="inventory" class="inventory">
+            <h2>Inventário</h2>
+            <div id="seeds-inventory" class="inventory-section">
+                <h3>Sementes 🌱</h3>
+                <ul id="seeds-list">
+                    <!-- As sementes do usuário serão listadas aqui -->
+                </ul>
+            </div>
+            <div id="stones-inventory" class="inventory-section">
+                <h3>Pedras 🪨</h3>
+                <p id="stone-count">0</p>
+                <small>Use as pedras para decorar seu jardim.</small>
+            </div>
+        </aside>
+    </main>
+
+    <script src="garden.js"></script>
 </body>
 </html>
