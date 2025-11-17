@@ -2,60 +2,106 @@ const STORAGE_KEYS = { TIMER_STATE: 'timerState', FOCUS_LISTS: 'focusLists', BLO
 const ALARM_NAME = 'izyFocusTimer';
 const BLOCK_RULE_ID = 1;
 
-// --- LÓGICA DE BLOQUEIO ATIVA ---
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (!changeInfo.url) return;
-    const { [STORAGE_KEYS.TIMER_STATE]: timerState, [STORAGE_KEYS.WHITELISTS]: whitelists } = await chrome.storage.local.get([STORAGE_KEYS.TIMER_STATE, STORAGE_KEYS.WHITELISTS]);
-    if (!timerState || !timerState.isActive || timerState.currentPhase !== 'focus' || timerState.blockMode !== 'whitelist') return;
-    const list = whitelists.find(l => l.id === timerState.associatedListId);
-    if (!list || !list.sites || list.sites.length === 0) return;
-    const tabHostname = new URL(tab.url).hostname.replace(/^www\./, '');
-    const extensionUrl = `chrome-extension://${chrome.runtime.id}`;
-    if (!list.sites.includes(tabHostname) && !tab.url.startsWith(extensionUrl)) {
-        try { await chrome.tabs.update(tabId, { url: chrome.runtime.getURL('blocked/blocked.html') }); } catch (error) { console.warn(`Error updating tab: ${error.message}`); }
+// --- LÓGICA DE BLOQUEIO ---
+async function synchronizeBlockingState() {
+    const data = await chrome.storage.local.get([STORAGE_KEYS.TIMER_STATE, STORAGE_KEYS.BLOCK_LISTS, STORAGE_KEYS.WHITELISTS]);
+    const { [STORAGE_KEYS.TIMER_STATE]: timerState, [STORAGE_KEYS.BLOCK_LISTS]: blockLists = [], [STORAGE_KEYS.WHITELISTS]: whitelists = [] } = data;
+
+    // --- Condições para desativar o bloqueio ---
+    if (!timerState || !timerState.isActive || timerState.currentPhase !== 'focus') {
+        await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [BLOCK_RULE_ID] });
+        return;
     }
-});
+
+    const { blockMode, associatedListId } = timerState;
+    let newRule = null;
+
+    if (blockMode === 'blocklist') {
+        const list = blockLists.find(l => l.id === associatedListId);
+        if (list && list.sites && list.sites.length > 0) {
+            newRule = {
+                id: BLOCK_RULE_ID,
+                priority: 1,
+                action: { type: 'redirect', redirect: { extensionPath: '/blocked/blocked.html' } },
+                condition: { requestDomains: list.sites, resourceTypes: ['main_frame'] }
+            };
+        }
+    } else if (blockMode === 'whitelist') {
+        const list = whitelists.find(l => l.id === associatedListId);
+        // Bloqueia tudo EXCETO os sites na whitelist
+        if (list && list.sites && list.sites.length > 0) {
+            newRule = {
+                id: BLOCK_RULE_ID,
+                priority: 1,
+                action: { type: 'redirect', redirect: { extensionPath: '/blocked/blocked.html' } },
+                condition: {
+                    // Aplica a regra a todos os domínios...
+                    requestDomains: ["*"],
+                    // ...exceto os que estão na whitelist.
+                    excludedRequestDomains: list.sites,
+                    resourceTypes: ['main_frame']
+                }
+            };
+        }
+    }
+
+    // --- Aplica a nova regra ou limpa as regras existentes ---
+    if (newRule) {
+        try {
+            await chrome.declarativeNetRequest.updateDynamicRules({
+                removeRuleIds: [BLOCK_RULE_ID],
+                addRules: [newRule]
+            });
+        } catch (error) {
+            console.error("Erro ao atualizar as regras de bloqueio:", error);
+            // Opcional: Tentar limpar as regras em caso de erro para não deixar o usuário bloqueado
+            await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [BLOCK_RULE_ID] });
+        }
+    } else {
+        // Se nenhuma regra for criada (ex: lista vazia), garante que as regras antigas sejam removidas
+        await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [BLOCK_RULE_ID] });
+    }
+}
+
+// --- INICIALIZAÇÃO E CICLO DE VIDA ---
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
     const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
     if (!timerState || !timerState.isActive || timerState.currentPhase !== 'focus') return;
+
     try {
         const tab = await chrome.tabs.get(activeInfo.tabId);
-        if (!tab.url || !tab.url.startsWith('http')) return;
+        if (!tab.url || !tab.url.startsWith('http')) return; // Ignora URLs internas ou inválidas
+
         const data = await chrome.storage.local.get([STORAGE_KEYS.BLOCK_LISTS, STORAGE_KEYS.WHITELISTS]);
         const tabHostname = new URL(tab.url).hostname.replace(/^www\./, '');
         let shouldBlock = false;
+
         if (timerState.blockMode === 'whitelist') {
             const whitelists = data[STORAGE_KEYS.WHITELISTS] || [];
             const list = whitelists.find(l => l.id === timerState.associatedListId);
             const sitesToAllow = list ? list.sites : [];
-            if (sitesToAllow.length > 0 && !sitesToAllow.includes(tabHostname)) shouldBlock = true;
-        } else {
+            // Bloqueia se a whitelist estiver ativa e o site não estiver nela
+            if (sitesToAllow.length > 0 && !sitesToAllow.includes(tabHostname)) {
+                shouldBlock = true;
+            }
+        } else { // blocklist mode
             const blockLists = data[STORAGE_KEYS.BLOCK_LISTS] || [];
             const list = blockLists.find(l => l.id === timerState.associatedListId);
             const sitesToBlock = list ? list.sites : [];
-            if (sitesToBlock.some(blockedSite => tabHostname.includes(blockedSite))) shouldBlock = true;
+            // Bloqueia se o site estiver na blocklist
+            if (sitesToBlock.includes(tabHostname)) {
+                shouldBlock = true;
+            }
         }
-        if (shouldBlock) await chrome.tabs.update(tab.id, { url: chrome.runtime.getURL('blocked/blocked.html') });
-    } catch (error) { console.warn(`Could not check activated tab: ${error.message}`); }
-});
-async function synchronizeBlockingState() {
-    const data = await chrome.storage.local.get([STORAGE_KEYS.TIMER_STATE, STORAGE_KEYS.BLOCK_LISTS]);
-    const timerState = data[STORAGE_KEYS.TIMER_STATE];
-    if (!timerState || !timerState.isActive || timerState.currentPhase === 'break' || timerState.blockMode === 'whitelist') {
-        await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [BLOCK_RULE_ID] });
-        return;
-    }
-    const blockLists = data[STORAGE_KEYS.BLOCK_LISTS] || [];
-    const list = blockLists.find(l => l.id === timerState.associatedListId);
-    if (!list || !list.sites || list.sites.length === 0) {
-        await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [BLOCK_RULE_ID] });
-        return;
-    }
-    const newRule = { id: BLOCK_RULE_ID, priority: 1, action: { type: 'redirect', redirect: { extensionPath: '/blocked/blocked.html' } }, condition: { requestDomains: list.sites, resourceTypes: ['main_frame'] } };
-    await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [BLOCK_RULE_ID], addRules: [newRule] });
-}
 
-// --- INICIALIZAÇÃO E CICLO DE VIDA ---
+        if (shouldBlock) {
+            await chrome.tabs.update(tab.id, { url: chrome.runtime.getURL('blocked/blocked.html') });
+        }
+    } catch (error) {
+        console.warn(`Não foi possível verificar a aba ativa: ${error.message}`);
+    }
+});
+
 synchronizeBlockingState();
 chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.local.get(null, (result) => {
@@ -114,19 +160,24 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     if (alarm.name !== ALARM_NAME) return;
     const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
     if (!timerState || !timerState.isActive) return;
+
     if (timerState.currentPhase === 'focus') {
         playNotificationSound('focus_complete.mp3');
         await startBreak(timerState);
     } else if (timerState.currentPhase === 'break') {
-        playNotificationSound('break_complete.mp3');
-        await logBreakCompletion(timerState);
-        await chrome.alarms.clear(ALARM_NAME);
-        await processCompletedSession(timerState);
-        const completedState = { ...timerState, currentPhase: 'completed' };
-        await chrome.storage.local.set({ [STORAGE_KEYS.TIMER_STATE]: completedState });
-        sendStateToPopup();
+        await completeSession(timerState);
     }
 });
+
+async function completeSession(timerState) {
+    playNotificationSound('break_complete.mp3');
+    await logBreakCompletion(timerState);
+    await chrome.alarms.clear(ALARM_NAME);
+    await processCompletedSession(timerState);
+    const completedState = { ...timerState, currentPhase: 'completed' };
+    await chrome.storage.local.set({ [STORAGE_KEYS.TIMER_STATE]: completedState });
+    sendStateToPopup();
+}
 
 async function startFocusSession(listId) {
     const { focusLists } = await chrome.storage.local.get('focusLists');
