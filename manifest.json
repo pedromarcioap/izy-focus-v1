@@ -15,7 +15,7 @@
   "icons": { "16": "assets/icons/icon16.png", "48": "assets/icons/icon48.png", "128": "assets/icons/icon128.png" },
   "web_accessible_resources": [
     {
-      "resources": [ "assets/icons/*", "assets/sounds/*", "stats/*", "history/*", "options/*", "garden/*", "blocked/blocked.html", "offscreen.html", "popup/popup.html" ],
+      "resources": [ "assets/*", "stats/*", "history/*", "options/*", "garden/*", "blocked/blocked.html", "offscreen.html", "popup/*" ],
       "matches": [ "<all_urls>" ]
     }
   ]
