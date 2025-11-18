@@ -1,25 +1,101 @@
-:root { --dark-navy: #0F172A; --emerald-green: #10B981; --amber-orange: #F59E0B; --light-red: #EF4444; --neutral-gray-light: #94A3B8; --neutral-gray-dark: #334155; --neutral-gray-darker: #1E293B; --background-color: var(--dark-navy); --text-color: #F8FAFC; --font-family: 'Figtree', sans-serif; }
-body { background-color: var(--background-color); color: var(--text-color); font-family: var(--font-family); margin: 0; padding: 30px; }
-.container { max-width: 900px; margin: 0 auto; }
-header { text-align: center; margin-bottom: 40px; }
-header h1 { font-size: 32px; margin: 0 0 8px 0; }
-header p { font-size: 16px; color: var(--neutral-gray-light); margin: 0; }
+/* Estilos específicos para a página do jardim */
 
-.toolbar { display: flex; justify-content: space-between; align-items: center; background-color: var(--neutral-gray-darker); padding: 12px; border-radius: 12px; margin-bottom: 30px; border: 1px solid var(--neutral-gray-dark); }
-.inventory { display: flex; gap: 8px; }
-.tool-item { display: flex; align-items: center; gap: 8px; background-color: var(--neutral-gray-dark); padding: 8px 16px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s ease; }
-.tool-item:hover { border-color: var(--neutral-gray-light); }
-.tool-item.active { border-color: var(--emerald-green); background-color: var(--neutral-gray-darker); }
-.tool-item.disabled { opacity: 0.5; cursor: not-allowed; }
-.tool-item .icon { font-size: 20px; }
-.tool-item .label { font-weight: 600; }
-.tool-item .count { background-color: var(--neutral-gray-darker); padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+.garden-page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-.button { padding: 10px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
-.button-danger { background-color: var(--light-red); color: white; }
-.button-danger:hover { background-color: #d93e3e; }
+.garden-main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 15px;
+}
 
-#garden-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; }
-.garden-cell { width: 100%; padding-bottom: 100%; /* Aspect ratio 1:1 */ position: relative; background-color: var(--neutral-gray-darker); border: 1px dashed var(--neutral-gray-dark); border-radius: 8px; cursor: pointer; transition: background-color 0.2s; }
-.garden-cell:hover { background-color: var(--neutral-gray-dark); }
-.garden-cell .content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+.inventory {
+    width: 100%;
+    padding: 16px; /* Alinhado com o estilo de card */
+}
+
+.inventory h3 {
+    font-size: 16px;
+    color: var(--neutral-gray-light);
+    margin: 0 0 12px 0;
+    text-align: center;
+    font-weight: 500;
+}
+
+#seeds-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+#seeds-list li {
+    padding: 8px 12px;
+    background-color: var(--neutral-gray-dark);
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: grab;
+    user-select: none;
+}
+
+#seeds-list li:hover {
+    background-color: var(--emerald-green);
+}
+
+#seeds-list li.dragging {
+    opacity: 0.5;
+}
+
+.inventory-section {
+    text-align: center;
+}
+
+#stone-count {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.garden-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 8px;
+    padding: 16px; /* Alinhado com o estilo de card */
+    aspect-ratio: 1 / 1; /* Mantém o grid quadrado */
+}
+
+.garden-cell {
+    width: 100%;
+    height: 100%;
+    background-color: var(--neutral-gray-dark);
+    border: 1px dashed var(--neutral-gray-light);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.plant, .stone {
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: grab;
+}
+
+.plant.withered {
+    filter: grayscale(80%);
+    opacity: 0.6;
+}
