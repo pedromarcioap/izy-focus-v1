@@ -121,9 +121,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Carregamento da Home ---
     async function initializeHomePage() {
         const data = await chrome.storage.local.get(['focusLists', 'dayIntention', 'gardenInventory']);
-        const inventory = data.gardenInventory || { seeds: 0, stones: 0 };
-        seedCountDisplay.textContent = inventory.seeds;
-        stoneCountDisplay.textContent = inventory.stones;
+        const inventory = data.gardenInventory || { seeds: {}, stones: 0 };
+
+        // Calcula o total de sementes somando as quantidades de cada tipo
+        let totalSeeds = 0;
+        if (typeof inventory.seeds === 'object' && inventory.seeds !== null) {
+            totalSeeds = Object.values(inventory.seeds).reduce((sum, count) => sum + count, 0);
+        }
+
+        seedCountDisplay.textContent = totalSeeds;
+        stoneCountDisplay.textContent = inventory.stones || 0;
         
         quickStartButtonsContainer.innerHTML = '';
         if (data.focusLists && data.focusLists.length > 0) {
