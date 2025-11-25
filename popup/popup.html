@@ -3,28 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>Izy Focus</title>
-    <link rel="stylesheet" href="/popup/popup.css">
+    <link rel="stylesheet" href="../assets/common.css">
+    <link rel="stylesheet" href="popup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="app">
+    <div id="app" class="app-container">
         <div id="main-view" class="view">
-            <header>
+            <header class="main-header">
                 <h1 id="main-header-title">Izy Focus</h1>
-                <div class="header-actions">
-                    <a href="#" id="garden-btn" title="Meu Jardim"><img src="/assets/icons/plant.svg" alt="Meu Jardim"></a>
-                    <a href="#" id="stats-btn" title="Estatísticas"><img src="/assets/icons/stats.svg" alt="Estatísticas"></a>
-                    <a href="#" id="settings-btn" title="Configurações"><img src="/assets/icons/settings.svg" alt="Configurações"></a>
+                <div class="header-icons">
+                    <a href="#" id="garden-btn" title="Meu Jardim"><img src="../assets/icons/plant.svg" alt="Meu Jardim"></a>
+                    <a href="#" id="stats-btn" title="Estatísticas"><img src="../assets/icons/stats.svg" alt="Estatísticas"></a>
+                    <a href="#" id="settings-btn" title="Configurações"><img src="../assets/icons/settings.svg" alt="Configurações"></a>
                 </div>
             </header>
             
             <div id="home-container">
                 <div class="bento-grid">
                     <div class="card card-main-action"><p>Comece a focar agora</p><div id="quick-start-buttons"></div></div>
-                    <div class="card card-stat"><div class="stat-icon">🌱</div><div class="stat-value" id="seed-count">0</div><div class="stat-label">Sementes</div></div>
-                    <div class="card card-stat"><div class="stat-icon"><img src="/assets/icons/stone.svg" width="24" height="24"></div><div class="stat-value" id="stone-count">0</div><div class="stat-label">Pedras</div></div>
+                    <div class="card card-stat">
+                        <div class="stat-icon"><img src="../assets/images/garden/icon-seed.svg" alt="Sementes" width="24" height="24"></div>
+                        <div class="stat-value" id="seed-count">0</div>
+                        <div class="stat-label">Sementes</div>
+                    </div>
+                    <div class="card card-stat">
+                        <div class="stat-icon"><img src="../assets/images/garden/icon-stone.svg" alt="Pedras" width="24" height="24"></div>
+                        <div class="stat-value" id="stone-count">0</div>
+                        <div class="stat-label">Pedras</div>
+                    </div>
                 </div>
                 <div class="intention-wrapper"><input type="text" id="intention-input" placeholder="Qual é a sua intenção para hoje?"></div>
             </div>
@@ -57,6 +66,6 @@
             </div>
         </div>
     </div>
-    <script src="/popup/popup.js"></script>
+    <script src="popup.js"></script>
 </body>
 </html>

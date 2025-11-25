@@ -1,0 +1,7 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Caule Murcho -->
+  <path d="M 16 28 C 16 20, 20 20, 18 14" stroke="#5d4037" stroke-width="2" fill="none" />
+  <!-- Folhas Caídas -->
+  <path d="M 18 18 C 16 20, 14 18, 12 20" fill="#a1887f" />
+  <path d="M 18 22 C 20 24, 22 22, 24 24" fill="#a1887f" />
+</svg>
