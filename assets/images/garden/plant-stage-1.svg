@@ -1,0 +1,7 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w.org/2000/svg">
+  <!-- Caule -->
+  <rect x="15" y="18" width="2" height="10" fill="#388e3c" />
+  <!-- Folhas -->
+  <path d="M 16 20 C 12 18, 12 14, 16 16" fill="#81c784" />
+  <path d="M 16 22 C 20 20, 20 16, 16 18" fill="#81c784" />
+</svg>

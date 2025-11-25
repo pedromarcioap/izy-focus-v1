@@ -1,13 +1,17 @@
 :root {
-    --dark-navy: #0F172A;
-    --text-color: #F8FAFC;
-    --font-family: 'Figtree', sans-serif; /* Lembre-se de importar a fonte */
+    /* Cores e Fontes do Guia de Estilo */
+    --background-primary: #2c3e50;
+    --text-primary: #ecf0f1;
+    --text-soft: #bdc3c7;
+    --accent-secondary: #f1c40f;
+    --font-title: 'Press Start 2P', cursive;
+    --font-body: 'Roboto', sans-serif;
 }
 
 body {
-    background-color: var(--dark-navy);
-    color: var(--text-color);
-    font-family: var(--font-family);
+    background-color: var(--background-primary);
+    color: var(--text-primary);
+    font-family: var(--font-body);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,23 +20,43 @@ body {
     text-align: center;
 }
 
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
 .content h1 {
-    font-size: 3em;
+    font-family: var(--font-title);
+    font-size: 2.5em;
+    color: var(--accent-secondary);
+    text-shadow: 3px 3px 0px #253342;
 }
 
 .content p {
     font-size: 1.2em;
-    color: #94A3B8;
+    color: var(--text-soft);
     max-width: 400px;
+    line-height: 1.6;
+}
+
+.brand-name {
+    font-family: var(--font-title);
+    font-size: 1em;
+    color: var(--text-primary);
+    margin-top: 24px;
 }
 
 .plant-icon {
-    font-size: 4em;
-    margin: 20px 0;
-    animation: grow 1.5s ease-in-out infinite alternate;
+    width: 128px;
+    height: 128px;
+    image-rendering: pixelated;
+    animation: bob 3s ease-in-out infinite;
 }
 
-@keyframes grow {
-    from { transform: scale(1); }
-    to { transform: scale(1.1); }
+@keyframes bob {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
 }
