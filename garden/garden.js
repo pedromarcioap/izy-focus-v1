@@ -1,106 +1,144 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const gardenGrid = document.getElementById('garden-grid');
-    const seedCountEl = document.getElementById('seed-count');
-    const stoneCountEl = document.getElementById('stone-count');
-    const toolSelect = document.getElementById('tool-select');
-    const toolSeed = document.getElementById('tool-seed');
-    const toolStone = document.getElementById('tool-stone');
-    const resetGardenBtn = document.getElementById('reset-garden-btn');
+    // --- Referências de Elementos ---
+    const inventoryList = document.getElementById('inventory-list');
+    const gardenDisplay = document.getElementById('garden-display');
+    const editGardenBtn = document.getElementById('edit-garden-btn');
 
-    let inventory = { seeds: 0, stones: 0 };
-    let gardenLayout = {};
-    let activeTool = 'select'; 
-    const gridSize = 100; 
+    let gardenData = { layout: [], inventory: { seeds: {}, stones: 0 } };
+    let isEditMode = false;
+    let draggedItem = null;
 
-    async function initializeGarden() {
-        const data = await chrome.storage.local.get(['gardenInventory', 'gardenLayout']);
-        // Correção de segurança: garante que inventory existe
-        inventory = data.gardenInventory || { seeds: 0, stones: 0 };
-        gardenLayout = data.gardenLayout || {};
-        render();
+    // --- Inicialização ---
+    async function init() {
+        await loadData();
+        renderAll();
+        addEventListeners();
     }
 
-    function render() {
-        seedCountEl.textContent = inventory.seeds;
-        stoneCountEl.textContent = inventory.stones;
-        toolSeed.classList.toggle('disabled', inventory.seeds === 0);
-        toolStone.classList.toggle('disabled', inventory.stones === 0);
+    async function loadData() {
+        if (typeof chrome === 'undefined' || !chrome.storage) {
+            console.log("API do Chrome não disponível. Usando dados mocados para o jardim.");
+            gardenData = {
+                layout: [
+                    { type: 'plant', seedType: 'Estudo', growthStage: 2 },
+                    { type: 'plant', seedType: 'Trabalho', growthStage: 1 },
+                    { type: 'stone' },
+                    { type: 'plant', seedType: 'Pessoal', growthStage: 0, withered: true },
+                ],
+                inventory: { seeds: { 'Estudo': 2, 'Lazer': 5 }, stones: 3 }
+            };
+            return;
+        }
+        const data = await chrome.storage.local.get(['gardenLayout', 'gardenInventory']);
+        gardenData.layout = data.gardenLayout || [];
+        gardenData.inventory = data.gardenInventory || { seeds: {}, stones: 0 };
+    }
 
-        gardenGrid.innerHTML = '';
-        for (let i = 0; i < gridSize; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'garden-cell';
-            cell.dataset.id = i;
-            const content = document.createElement('div');
-            content.className = 'content';
-            
-            if (gardenLayout[i] === 'tree') {
-                content.textContent = '🌳';
-            } else if (gardenLayout[i] === 'stone') {
-                // Usar o SVG da pedra em vez do emoji
-                const img = document.createElement('img');
-                img.src = '/assets/icons/stone.svg';
-                img.style.width = '32px';
-                img.style.height = '32px';
-                content.appendChild(img);
+    async function saveData() {
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            await chrome.storage.local.set({
+                gardenLayout: gardenData.layout,
+                gardenInventory: gardenData.inventory
+            });
+        }
+    }
+
+    // --- Renderização ---
+    function renderAll() {
+        renderInventory();
+        renderGarden();
+    }
+
+    function renderInventory() {
+        inventoryList.innerHTML = '';
+        if (!gardenData.inventory) return;
+
+        if (gardenData.inventory.seeds) {
+            for (const [seedType, count] of Object.entries(gardenData.inventory.seeds)) {
+                if (count > 0) {
+                    const item = createInventoryItem(`Semente ${seedType} (x${count})`, 'seed', seedType);
+                    inventoryList.appendChild(item);
+                }
             }
-            
-            if (gardenLayout[i] !== 'stone') cell.appendChild(content);
-            else cell.appendChild(content); // (Redundante, mas mantém lógica)
-            
-            gardenGrid.appendChild(cell);
+        }
+
+        if (gardenData.inventory.stones > 0) {
+            const item = createInventoryItem(`Pedra (x${gardenData.inventory.stones})`, 'stone');
+            inventoryList.appendChild(item);
         }
     }
 
-    function setActiveTool(tool) {
-        if (tool === 'seed' && inventory.seeds === 0) return;
-        if (tool === 'stone' && inventory.stones === 0) return;
-        activeTool = tool;
-        document.querySelectorAll('.tool-item').forEach(el => el.classList.remove('active'));
-        document.getElementById(`tool-${tool}`).classList.add('active');
+    function createInventoryItem(text, type, seedType = null) {
+        const li = document.createElement('li');
+        li.className = 'inventory-item';
+        li.textContent = text;
+        li.draggable = true;
+        li.dataset.itemType = type;
+        if (seedType) li.dataset.seedType = seedType;
+        return li;
     }
 
-    toolSelect.addEventListener('click', () => setActiveTool('select'));
-    toolSeed.addEventListener('click', () => setActiveTool('seed'));
-    toolStone.addEventListener('click', () => setActiveTool('stone'));
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setActiveTool('select'); });
+    function renderGarden() {
+        gardenDisplay.innerHTML = '';
+        gardenData.layout.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'garden-item ' + item.type;
+            div.dataset.index = index;
 
-    gardenGrid.addEventListener('click', async (e) => {
-        const cell = e.target.closest('.garden-cell');
-        if (!cell) return;
-        const cellId = cell.dataset.id;
-        let changed = false;
+            if (item.type === 'plant') {
+                div.dataset.growth = item.growthStage || 0;
+                if (item.withered) div.classList.add('withered');
+            }
+            gardenDisplay.appendChild(div);
+        });
+    }
 
-        if (activeTool === 'seed' && inventory.seeds > 0 && !gardenLayout[cellId]) {
-            gardenLayout[cellId] = 'tree'; inventory.seeds--; changed = true;
-        } else if (activeTool === 'stone' && inventory.stones > 0 && !gardenLayout[cellId]) {
-            gardenLayout[cellId] = 'stone'; inventory.stones--; changed = true;
-        } else if (activeTool === 'select' && gardenLayout[cellId]) {
-            if (gardenLayout[cellId] === 'tree') inventory.seeds++;
-            else if (gardenLayout[cellId] === 'stone') inventory.stones++;
-            delete gardenLayout[cellId]; changed = true;
-        }
+    // --- Lógica de Interação ---
+    function addEventListeners() {
+        editGardenBtn.addEventListener('click', toggleEditMode);
         
-        if (changed) {
-            await chrome.storage.local.set({ gardenLayout, gardenInventory: inventory });
-            render();
-            if (activeTool !== 'select') setActiveTool('select');
-        }
-    });
-
-    resetGardenBtn.addEventListener('click', async () => {
-        if (confirm('Tem certeza que deseja limpar seu jardim?')) {
-            let seedsInGarden = 0; let stonesInGarden = 0;
-            for (const id in gardenLayout) {
-                if (gardenLayout[id] === 'tree') seedsInGarden++;
-                if (gardenLayout[id] === 'stone') stonesInGarden++;
+        inventoryList.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('inventory-item')) {
+                draggedItem = { type: e.target.dataset.itemType, seedType: e.target.dataset.seedType };
+                e.target.classList.add('dragging');
             }
-            inventory.seeds += seedsInGarden; inventory.stones += stonesInGarden;
-            gardenLayout = {};
-            await chrome.storage.local.set({ gardenLayout, gardenInventory: inventory });
-            render();
-        }
-    });
+        });
 
-    initializeGarden();
+        inventoryList.addEventListener('dragend', (e) => {
+            draggedItem = null;
+            if (e.target.classList.contains('inventory-item')) {
+                e.target.classList.remove('dragging');
+            }
+        });
+
+        gardenDisplay.addEventListener('dragover', (e) => e.preventDefault());
+        gardenDisplay.addEventListener('dragenter', () => gardenDisplay.classList.add('drop-target'));
+        gardenDisplay.addEventListener('dragleave', () => gardenDisplay.classList.remove('drop-target'));
+
+        gardenDisplay.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            gardenDisplay.classList.remove('drop-target');
+            if (!draggedItem) return;
+
+            if (draggedItem.type === 'seed' && gardenData.inventory.seeds[draggedItem.seedType] > 0) {
+                gardenData.inventory.seeds[draggedItem.seedType]--;
+                gardenData.layout.push({ type: 'plant', seedType: draggedItem.seedType, growthStage: 0 });
+            } else if (draggedItem.type === 'stone' && gardenData.inventory.stones > 0) {
+                gardenData.inventory.stones--;
+                gardenData.layout.push({ type: 'stone' });
+            }
+
+            await saveData();
+            renderAll();
+            draggedItem = null;
+        });
+    }
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        gardenDisplay.classList.toggle('edit-mode', isEditMode);
+        editGardenBtn.textContent = isEditMode ? 'Salvar' : 'Editar';
+    }
+
+    init();
 });
