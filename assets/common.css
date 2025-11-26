@@ -1,0 +1,124 @@
+/* --- Guia de Estilo Central: "Minimalista Vibrante" --- */
+:root {
+    /* Paleta de Cores (Tema Escuro) */
+    --background-primary: #1e293b;
+    --background-secondary: #334155;
+    --border: #475569;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-vibrant: #10b981;
+    --success: #22c55e;
+    --alert: #f59e0b;
+    --error: #ef4444;
+
+    /* Tipografia */
+    --font-family: 'Inter', sans-serif;
+
+    /* Raio da Borda */
+    --border-radius-sm: 4px;
+    --border-radius-md: 6px;
+    --border-radius-lg: 8px;
+
+    /* Sombras */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.15), 0 2px 4px -2px rgb(0 0 0 / 0.15);
+}
+
+/* --- Estilos Base --- */
+body {
+    background-color: var(--background-primary);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    margin: 0;
+    font-size: 14px;
+}
+
+/* --- Layouts Compartilhados --- */
+.container {
+    width: 350px; /* Largura padrão para popup */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* --- Componentes Compartilhados --- */
+
+/* Cabeçalho */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+}
+
+.main-header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.header-icons {
+    display: flex;
+    gap: 16px;
+}
+
+.header-icons a {
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+    display: flex;
+}
+.header-icons a:hover {
+    color: var(--accent-vibrant);
+}
+.header-icons img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Cards */
+.card {
+    background-color: var(--background-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius-lg);
+    padding: 16px;
+}
+
+/* Botões */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--border-radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.btn:active {
+    transform: scale(0.98);
+}
+.btn-primary {
+    background-color: var(--accent-vibrant);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+.btn-primary:hover {
+    filter: brightness(110%);
+}
+.btn-secondary {
+    background-color: transparent;
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+.btn-secondary:hover {
+    background-color: var(--border);
+}
