@@ -1,106 +1,199 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const gardenGrid = document.getElementById('garden-grid');
+    // --- Referências do DOM ---
+    const gardenPlot = document.getElementById('garden-plot');
     const seedCountEl = document.getElementById('seed-count');
     const stoneCountEl = document.getElementById('stone-count');
-    const toolSelect = document.getElementById('tool-select');
-    const toolSeed = document.getElementById('tool-seed');
-    const toolStone = document.getElementById('tool-stone');
+    const toolSeedBtn = document.getElementById('tool-seed');
+    const toolStoneBtn = document.getElementById('tool-stone');
+    const editGardenBtn = document.getElementById('edit-garden-btn');
     const resetGardenBtn = document.getElementById('reset-garden-btn');
 
+    // --- Estado da Aplicação ---
     let inventory = { seeds: 0, stones: 0 };
-    let gardenLayout = {};
-    let activeTool = 'select'; 
-    const gridSize = 100; 
+    let gardenLayout = []; // Array de objetos { id, type, x, y }
+    let activeTool = null;
+    let isEditMode = false;
+    let draggedElement = null;
 
+    // --- Inicialização ---
     async function initializeGarden() {
         const data = await chrome.storage.local.get(['gardenInventory', 'gardenLayout']);
-        // Correção de segurança: garante que inventory existe
         inventory = data.gardenInventory || { seeds: 0, stones: 0 };
-        gardenLayout = data.gardenLayout || {};
+        gardenLayout = data.gardenLayout || [];
         render();
     }
 
+    // --- Lógica de Renderização ---
     function render() {
+        // Atualiza o inventário
         seedCountEl.textContent = inventory.seeds;
         stoneCountEl.textContent = inventory.stones;
-        toolSeed.classList.toggle('disabled', inventory.seeds === 0);
-        toolStone.classList.toggle('disabled', inventory.stones === 0);
 
-        gardenGrid.innerHTML = '';
-        for (let i = 0; i < gridSize; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'garden-cell';
-            cell.dataset.id = i;
-            const content = document.createElement('div');
-            content.className = 'content';
-            
-            if (gardenLayout[i] === 'tree') {
-                content.textContent = '🌳';
-            } else if (gardenLayout[i] === 'stone') {
-                // Usar o SVG da pedra em vez do emoji
-                const img = document.createElement('img');
-                img.src = '/assets/icons/stone.svg';
-                img.style.width = '32px';
-                img.style.height = '32px';
-                content.appendChild(img);
-            }
-            
-            if (gardenLayout[i] !== 'stone') cell.appendChild(content);
-            else cell.appendChild(content); // (Redundante, mas mantém lógica)
-            
-            gardenGrid.appendChild(cell);
-        }
+        // Limpa o jardim antes de redesenhar
+        gardenPlot.innerHTML = '<div class="garden-background"></div>';
+
+        // Renderiza cada elemento do jardim
+        gardenLayout.forEach(item => {
+            const element = document.createElement('div');
+            element.className = 'garden-element';
+            element.dataset.id = item.id;
+            element.style.left = `${item.x}px`;
+            element.style.top = `${item.y}px`;
+
+            const img = document.createElement('img');
+            img.src = item.type === 'seed' ? '../assets/icons/plant.svg' : '../assets/images/Stone-sembg.png';
+            img.style.width = item.type === 'seed' ? '40px' : '50px'; // Tamanhos diferentes
+
+            element.appendChild(img);
+            gardenPlot.appendChild(element);
+        });
+
+        updateEditModeState();
     }
 
+    // --- Lógica de Interação ---
     function setActiveTool(tool) {
-        if (tool === 'seed' && inventory.seeds === 0) return;
-        if (tool === 'stone' && inventory.stones === 0) return;
-        activeTool = tool;
-        document.querySelectorAll('.tool-item').forEach(el => el.classList.remove('active'));
-        document.getElementById(`tool-${tool}`).classList.add('active');
+        if (isEditMode) return; // Não permite selecionar ferramentas no modo de edição
+
+        // Desativa a ferramenta se for clicada novamente
+        if (activeTool === tool) {
+            activeTool = null;
+        } else {
+            if (tool === 'seed' && inventory.seeds > 0) activeTool = 'seed';
+            else if (tool === 'stone' && inventory.stones > 0) activeTool = 'stone';
+            else activeTool = null;
+        }
+
+        // Atualiza a UI dos botões
+        toolSeedBtn.classList.toggle('active', activeTool === 'seed');
+        toolStoneBtn.classList.toggle('active', activeTool === 'stone');
+        gardenPlot.style.cursor = activeTool ? 'crosshair' : 'default';
     }
 
-    toolSelect.addEventListener('click', () => setActiveTool('select'));
-    toolSeed.addEventListener('click', () => setActiveTool('seed'));
-    toolStone.addEventListener('click', () => setActiveTool('stone'));
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setActiveTool('select'); });
+    gardenPlot.addEventListener('click', (e) => {
+        if (isEditMode || !activeTool || e.target === gardenPlot === false) return;
 
-    gardenGrid.addEventListener('click', async (e) => {
-        const cell = e.target.closest('.garden-cell');
-        if (!cell) return;
-        const cellId = cell.dataset.id;
-        let changed = false;
+        const rect = gardenPlot.getBoundingClientRect();
+        const x = e.clientX - rect.left - 20; // Ajuste para centralizar o item
+        const y = e.clientY - rect.top - 20;
 
-        if (activeTool === 'seed' && inventory.seeds > 0 && !gardenLayout[cellId]) {
-            gardenLayout[cellId] = 'tree'; inventory.seeds--; changed = true;
-        } else if (activeTool === 'stone' && inventory.stones > 0 && !gardenLayout[cellId]) {
-            gardenLayout[cellId] = 'stone'; inventory.stones--; changed = true;
-        } else if (activeTool === 'select' && gardenLayout[cellId]) {
-            if (gardenLayout[cellId] === 'tree') inventory.seeds++;
-            else if (gardenLayout[cellId] === 'stone') inventory.stones++;
-            delete gardenLayout[cellId]; changed = true;
-        }
-        
-        if (changed) {
-            await chrome.storage.local.set({ gardenLayout, gardenInventory: inventory });
-            render();
-            if (activeTool !== 'select') setActiveTool('select');
-        }
+        const newItem = {
+            id: Date.now(),
+            type: activeTool,
+            x: x,
+            y: y,
+        };
+
+        gardenLayout.push(newItem);
+        inventory[activeTool === 'seed' ? 'seeds' : 'stones']--;
+
+        saveState();
+        render();
+        setActiveTool(activeTool); // Desativa a ferramenta após o uso
     });
 
-    resetGardenBtn.addEventListener('click', async () => {
-        if (confirm('Tem certeza que deseja limpar seu jardim?')) {
-            let seedsInGarden = 0; let stonesInGarden = 0;
-            for (const id in gardenLayout) {
-                if (gardenLayout[id] === 'tree') seedsInGarden++;
-                if (gardenLayout[id] === 'stone') stonesInGarden++;
+    // --- Modo Edição ---
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        activeTool = null; // Garante que nenhuma ferramenta esteja ativa
+        toolSeedBtn.classList.remove('active');
+        toolStoneBtn.classList.remove('active');
+        gardenPlot.style.cursor = 'default';
+        updateEditModeState();
+    }
+
+    function updateEditModeState() {
+        gardenPlot.classList.toggle('edit-mode', isEditMode);
+        editGardenBtn.textContent = isEditMode ? 'Salvar Jardim' : 'Modo Edição';
+
+        document.querySelectorAll('.garden-element').forEach(el => {
+            if (isEditMode) {
+                el.addEventListener('mousedown', onDragStart);
+                el.addEventListener('dblclick', onElementRemove);
+            } else {
+                el.removeEventListener('mousedown', onDragStart);
+                el.removeEventListener('dblclick', onElementRemove);
             }
-            inventory.seeds += seedsInGarden; inventory.stones += stonesInGarden;
-            gardenLayout = {};
-            await chrome.storage.local.set({ gardenLayout, gardenInventory: inventory });
+        });
+    }
+
+    function onElementRemove(e) {
+        const element = e.currentTarget;
+        const id = parseInt(element.dataset.id);
+        const item = gardenLayout.find(i => i.id === id);
+        
+        if (item) {
+            inventory[item.type === 'seed' ? 'seeds' : 'stones']++;
+            gardenLayout = gardenLayout.filter(i => i.id !== id);
+            saveState();
+            render();
+        }
+    }
+
+    // --- Lógica de Arrastar e Soltar (Drag and Drop) ---
+    function onDragStart(e) {
+        if (!isEditMode) return;
+        e.preventDefault();
+        draggedElement = e.currentTarget;
+
+        const rect = draggedElement.getBoundingClientRect();
+        const plotRect = gardenPlot.getBoundingClientRect();
+
+        const shiftX = e.clientX - rect.left;
+        const shiftY = e.clientY - rect.top;
+
+        function onMouseMove(moveEvent) {
+            let newX = moveEvent.clientX - plotRect.left - shiftX;
+            let newY = moveEvent.clientY - plotRect.top - shiftY;
+
+            // Limita o movimento dentro do gardenPlot
+            newX = Math.max(0, Math.min(newX, plotRect.width - rect.width));
+            newY = Math.max(0, Math.min(newY, plotRect.height - rect.height));
+
+            draggedElement.style.left = `${newX}px`;
+            draggedElement.style.top = `${newY}px`;
+        }
+
+        function onMouseUp() {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+
+            const id = parseInt(draggedElement.dataset.id);
+            const item = gardenLayout.find(i => i.id === id);
+            if (item) {
+                item.x = parseInt(draggedElement.style.left);
+                item.y = parseInt(draggedElement.style.top);
+                saveState();
+            }
+            draggedElement = null;
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    }
+
+    // --- Ações Adicionais ---
+    resetGardenBtn.addEventListener('click', async () => {
+        if (confirm('Tem certeza que deseja limpar seu jardim? Todos os itens voltarão para o inventário.')) {
+            gardenLayout.forEach(item => {
+                inventory[item.type === 'seed' ? 'seeds' : 'stones']++;
+            });
+            gardenLayout = [];
+            await saveState();
             render();
         }
     });
 
+    // --- Funções Utilitárias ---
+    async function saveState() {
+        await chrome.storage.local.set({ gardenLayout, gardenInventory: inventory });
+    }
+
+    // --- Event Listeners ---
+    toolSeedBtn.addEventListener('click', () => setActiveTool('seed'));
+    toolStoneBtn.addEventListener('click', () => setActiveTool('stone'));
+    editGardenBtn.addEventListener('click', toggleEditMode);
+
+    // --- Chamada Inicial ---
     initializeGarden();
 });
