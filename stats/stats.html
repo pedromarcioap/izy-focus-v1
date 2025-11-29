@@ -3,43 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <title>Estatísticas - Izy Focus</title>
-    <link rel="stylesheet" href="../assets/common.css">
-    <link rel="stylesheet" href="stats.css">
+    <link rel="stylesheet" href="/stats/stats.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="page-container">
-        <header class="main-header">
-            <a href="../popup/popup.html" class="back-link">← Voltar</a>
-            <h1>Estatísticas</h1>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Seu Jardim de Foco</h1>
+                <p>Aqui estão os insights sobre seus hábitos de produtividade.</p>
+            </div>
+            <div class="header-actions">
+                <a href="/history/history.html" class="button button-secondary">Ver Histórico</a>
+            </div>
         </header>
 
         <main>
-            <section class="stats-grid">
-                <div class="card stat-highlight">
+            <section class="highlights-grid">
+                <div class="card highlight-card">
+                    <div class="icon">🎯</div>
                     <h3>Ciclos Completos</h3>
-                    <p id="total-cycles">0</p>
+                    <div class="value" id="total-cycles">0</div>
                 </div>
-                <div class="card stat-highlight">
+                <div class="card highlight-card">
+                    <div class="icon">🚀</div>
                     <h3>Lista Mais Usada</h3>
-                    <p id="most-used">--</p>
+                    <div class="value" id="most-used">--</div>
                 </div>
-                <div class="card stat-highlight">
-                    <h3>Sessões Interrompidas</h3>
-                    <p id="total-interruptions">0</p>
+                <div class="card highlight-card">
+                    <div class="icon">✅</div>
+                    <h3>Maior Taxa de Conclusão</h3>
+                    <div class="value" id="most-effective">--</div>
                 </div>
             </section>
 
-            <section class="card">
-                <h2>Detalhes por Lista</h2>
+            <section class="card detailed-stats">
+                <h2>Detalhes por Lista de Foco</h2>
                 <div id="detailed-list-container">
                     <!-- Conteúdo gerado via JS -->
                 </div>
             </section>
         </main>
     </div>
-    <script src="stats.js"></script>
+    <script src="/stats/stats.js"></script>
 </body>
 </html>

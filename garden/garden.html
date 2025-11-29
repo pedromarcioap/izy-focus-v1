@@ -3,31 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Meu Jardim - Izy Focus</title>
-    <link rel="stylesheet" href="../assets/common.css">
     <link rel="stylesheet" href="garden.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="page-container">
-        <header class="main-header">
-            <a href="../popup/popup.html" class="back-link">← Voltar</a>
-            <h1>Meu Jardim</h1>
-            <button id="edit-garden-btn" class="btn btn-secondary">Editar</button>
+    <div class="container">
+        <header>
+            <h1>Meu Jardim da Intenção</h1>
+            <p>Plante suas sementes de foco e coloque suas pedras de pausa para cultivar sua jornada.</p>
         </header>
 
-        <main>
-            <div id="inventory" class="card">
-                <h2>Inventário</h2>
-                <ul id="inventory-list">
-                    <!-- Itens renderizados pelo JS -->
-                </ul>
+        <div class="toolbar">
+            <div class="inventory">
+                <div class="tool-item active" id="tool-select" data-tool="select" title="Selecionar (Pressione 'Esc' para ativar)">
+                    <span class="icon">🖐️</span>
+                    <span class="label">Selecionar</span>
+                </div>
+                <div class="tool-item" id="tool-seed" data-tool="seed" title="Plantar Semente">
+                    <span class="icon">🌱</span>
+                    <span class="label">Sementes</span>
+                    <span class="count" id="seed-count">0</span>
+                </div>
+                <div class="tool-item" id="tool-stone" data-tool="stone" title="Colocar Pedra">
+                    <span class="icon"><img src="../assets/icons/stone.svg" width="20" height="20"></span>
+                    <span class="label">Pedras</span>
+                    <span class="count" id="stone-count">0</span>
+                </div>
             </div>
+            <div class="garden-actions">
+                <button id="reset-garden-btn" class="button button-danger">Limpar Jardim</button>
+            </div>
+        </div>
 
-            <div id="garden-display" class="card">
-                <!-- Visualização abstrata renderizada pelo JS -->
-            </div>
+        <main id="garden-grid">
+            <!-- As células do jardim serão geradas pelo JavaScript -->
         </main>
     </div>
     <script src="garden.js"></script>

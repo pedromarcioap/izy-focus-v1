@@ -33,7 +33,7 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
             const blockLists = data[STORAGE_KEYS.BLOCK_LISTS] || [];
             const list = blockLists.find(l => l.id === timerState.associatedListId);
             const sitesToBlock = list ? list.sites : [];
-            if (sitesToBlock.includes(tabHostname)) shouldBlock = true;
+            if (sitesToBlock.some(blockedSite => tabHostname.includes(blockedSite))) shouldBlock = true;
         }
         if (shouldBlock) await chrome.tabs.update(tab.id, { url: chrome.runtime.getURL('blocked/blocked.html') });
     } catch (error) { console.warn(`Could not check activated tab: ${error.message}`); }
@@ -60,19 +60,12 @@ synchronizeBlockingState();
 chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.local.get(null, (result) => {
         if (!result.focusLists) {
-            const initialGardenLayout = [
-                { type: 'plant', seedType: 'Foco Inicial', growthStage: 1 },
-                { type: 'stone' },
-                { type: 'stone' },
-                { type: 'plant', seedType: 'Foco Inicial', growthStage: 0 }
-            ];
             chrome.storage.local.set({
                 focusLists: [{ id: 1, name: "Estudo Profundo", focusTime: 45, breakTime: 10, blockMode: 'blocklist', associatedListId: 1 }],
                 blockLists: [{ id: 1, name: "Redes Sociais", sites: ["facebook.com", "twitter.com", "instagram.com", "youtube.com", "x.com"] }],
                 whitelists: [{ id: 1, name: "Ferramentas de Trabalho", sites: ["docs.google.com", "github.com"] }],
                 nextListId: 2, nextBlockListId: 2, nextWhiteListId: 2,
-                gardenInventory: { seeds: {}, stones: 0 },
-                gardenLayout: initialGardenLayout,
+                gardenInventory: { seeds: 0, stones: 0 }, gardenLayout: {},
                 focusLog: [], interruptLog: [], breakLog: []
             });
         }
@@ -105,8 +98,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     else if (request.command === 'stopSound') {
         stopAudioInBackground();
-    } else if (request.command === 'applyGardenPenalty') {
-        applyGardenPenalty();
     }
     return true; 
 });
@@ -180,45 +171,21 @@ async function stopFocusSession(wasInterrupted) {
 
 // --- LÓGICA DE GAMIFICAÇÃO E LOGS ---
 async function processCompletedSession(sessionData) {
-    const data = await chrome.storage.local.get(['focusLog', 'gardenInventory', 'gardenLayout']);
+    const data = await chrome.storage.local.get(['focusLog', 'gardenInventory']);
     const newLogEntry = { id: Date.now(), timestamp: Date.now(), listName: sessionData.listName, focusTime: sessionData.focusTime };
     const updatedFocusLog = [...(data.focusLog || []), newLogEntry];
-
-    // Atualiza inventário com nova semente
-    const updatedInventory = data.gardenInventory || { seeds: {}, stones: 0 };
-    if (!updatedInventory.seeds) updatedInventory.seeds = {};
-    const seedType = sessionData.listName;
-    updatedInventory.seeds[seedType] = (updatedInventory.seeds[seedType] || 0) + 1;
-
-    // Lógica de crescimento da planta
-    const gardenLayout = data.gardenLayout || [];
-    let oldestPlantToGrowIndex = -1;
-    for (let i = 0; i < gardenLayout.length; i++) {
-        const item = gardenLayout[i];
-        if (item.type === 'plant' && !item.withered && (item.growthStage < 2)) {
-            oldestPlantToGrowIndex = i;
-            break;
-        }
-    }
-    if (oldestPlantToGrowIndex !== -1) {
-        gardenLayout[oldestPlantToGrowIndex].growthStage++;
-    }
-
-    await chrome.storage.local.set({
-        focusLog: updatedFocusLog,
-        gardenInventory: updatedInventory,
-        gardenLayout: gardenLayout
-    });
-    createNotification(`Ciclo Concluído!`, `Você ganhou 1 Semente de '${seedType}' 🌱 e sua planta cresceu!`);
+    const updatedInventory = data.gardenInventory || { seeds: 0, stones: 0 };
+    updatedInventory.seeds++;
+    await chrome.storage.local.set({ focusLog: updatedFocusLog, gardenInventory: updatedInventory });
+    createNotification(`Ciclo Concluído!`, `Você ganhou 1 Semente de Foco 🌱.`);
 }
 
 async function logInterruption(sessionData) {
     const data = await chrome.storage.local.get(['interruptLog', 'gardenInventory']);
     const interruptLog = data.interruptLog || [];
     const newEntry = { timestamp: Date.now(), listName: sessionData.listName };
-    const updatedInventory = data.gardenInventory || { seeds: {}, stones: 0 };
-    if (!updatedInventory.seeds) updatedInventory.seeds = {}; // Garante que seeds seja um objeto
-    updatedInventory.stones = (updatedInventory.stones || 0) + 1;
+    const updatedInventory = data.gardenInventory || { seeds: 0, stones: 0 };
+    updatedInventory.stones++;
     await chrome.storage.local.set({ interruptLog: [...interruptLog, newEntry], gardenInventory: updatedInventory });
     createNotification(`Ciclo Interrompido.`, `Você ganhou 1 Pedra 🪨.`);
 }
@@ -227,26 +194,6 @@ async function logBreakCompletion(sessionData) {
     const { breakLog = [] } = await chrome.storage.local.get('breakLog');
     const newEntry = { timestamp: Date.now(), breakTime: sessionData.breakTime };
     await chrome.storage.local.set({ breakLog: [...breakLog, newEntry] });
-}
-
-async function applyGardenPenalty() {
-    const { gardenLayout } = await chrome.storage.local.get('gardenLayout');
-    if (!gardenLayout || gardenLayout.length === 0) return;
-
-    let lastPlantIndex = -1;
-    for (let i = gardenLayout.length - 1; i >= 0; i--) {
-        const item = gardenLayout[i];
-        if (item.type === 'plant' && !item.withered) {
-            lastPlantIndex = i;
-            break;
-        }
-    }
-
-    if (lastPlantIndex !== -1) {
-        gardenLayout[lastPlantIndex].withered = true;
-        await chrome.storage.local.set({ gardenLayout });
-        createNotification('Oh não!', 'Sua concentração foi quebrada e uma de suas plantas murchou.');
-    }
 }
 
 // --- UTILITÁRIOS DE ÁUDIO ---

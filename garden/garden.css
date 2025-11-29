@@ -1,131 +1,25 @@
-/* --- Estilos Específicos do Jardim --- */
+:root { --dark-navy: #0F172A; --emerald-green: #10B981; --amber-orange: #F59E0B; --light-red: #EF4444; --neutral-gray-light: #94A3B8; --neutral-gray-dark: #334155; --neutral-gray-darker: #1E293B; --background-color: var(--dark-navy); --text-color: #F8FAFC; --font-family: 'Figtree', sans-serif; }
+body { background-color: var(--background-color); color: var(--text-color); font-family: var(--font-family); margin: 0; padding: 30px; }
+.container { max-width: 900px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 40px; }
+header h1 { font-size: 32px; margin: 0 0 8px 0; }
+header p { font-size: 16px; color: var(--neutral-gray-light); margin: 0; }
 
-.back-link {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: color 0.2s ease;
-}
-.back-link:hover {
-    color: var(--accent-vibrant);
-}
+.toolbar { display: flex; justify-content: space-between; align-items: center; background-color: var(--neutral-gray-darker); padding: 12px; border-radius: 12px; margin-bottom: 30px; border: 1px solid var(--neutral-gray-dark); }
+.inventory { display: flex; gap: 8px; }
+.tool-item { display: flex; align-items: center; gap: 8px; background-color: var(--neutral-gray-dark); padding: 8px 16px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s ease; }
+.tool-item:hover { border-color: var(--neutral-gray-light); }
+.tool-item.active { border-color: var(--emerald-green); background-color: var(--neutral-gray-darker); }
+.tool-item.disabled { opacity: 0.5; cursor: not-allowed; }
+.tool-item .icon { font-size: 20px; }
+.tool-item .label { font-weight: 600; }
+.tool-item .count { background-color: var(--neutral-gray-darker); padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; }
 
-main {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
+.button { padding: 10px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+.button-danger { background-color: var(--light-red); color: white; }
+.button-danger:hover { background-color: #d93e3e; }
 
-#inventory h2 {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 16px 0;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-}
-
-#inventory-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.inventory-item {
-    padding: 8px 12px;
-    background-color: var(--background-primary);
-    border: 1px solid var(--border);
-    border-radius: var(--border-radius-md);
-    font-weight: 500;
-    cursor: grab;
-    user-select: none;
-}
-.inventory-item:hover {
-    border-color: var(--accent-vibrant);
-}
-.inventory-item.dragging {
-    opacity: 0.5;
-}
-
-/* Jardim (Visualização com Imagens) */
-#garden-display {
-    position: relative;
-    min-height: 400px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    align-content: flex-start;
-}
-
-.garden-item {
-    position: relative; /* Necessário para posicionar o botão de remoção */
-    width: 60px; /* Aumenta o tamanho para acomodar melhor as imagens */
-    height: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: transparent; /* O contêiner não precisa mais de cor */
-    transition: all 0.3s ease;
-}
-
-.garden-item-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* Garante que a imagem se ajuste bem sem distorcer */
-    pointer-events: none; /* Impede que a imagem interfira nos eventos de arrastar/soltar do contêiner */
-}
-
-
-/* --- Edição do Jardim --- */
-.garden-item .remove-item-btn {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    width: 20px;
-    height: 20px;
-    background-color: var(--error);
-    color: white;
-    border-radius: 50%;
-    border: none;
-    font-size: 14px;
-    line-height: 20px;
-    text-align: center;
-    cursor: pointer;
-    opacity: 0;
-    transform: scale(0.5);
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    z-index: 10; /* Garante que o botão fique sobre a imagem */
-}
-
-#garden-display.edit-mode .garden-item .remove-item-btn {
-    opacity: 1;
-    transform: scale(1);
-}
-
-/* Indica que a planta murcha é clicável para ser revivida */
-#garden-display:not(.edit-mode) .garden-item.withered {
-    cursor: pointer;
-}
-#garden-display:not(.edit-mode) .garden-item.withered:hover .garden-item-img {
-    filter: brightness(1.2); /* Efeito sutil para indicar interatividade */
-}
-
-
-#garden-display.edit-mode .garden-item {
-    cursor: grab;
-}
-#garden-display.edit-mode .garden-item:active {
-    cursor: grabbing;
-}
-.garden-item.dragging {
-    opacity: 0.4 !important;
-    transform: scale(0.9);
-}
-
-#garden-display.drop-target {
-    border: 2px dashed var(--accent-vibrant);
-    background-color: rgba(16, 185, 129, 0.1);
-}
+#garden-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; }
+.garden-cell { width: 100%; padding-bottom: 100%; /* Aspect ratio 1:1 */ position: relative; background-color: var(--neutral-gray-darker); border: 1px dashed var(--neutral-gray-dark); border-radius: 8px; cursor: pointer; transition: background-color 0.2s; }
+.garden-cell:hover { background-color: var(--neutral-gray-dark); }
+.garden-cell .content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 32px; }
