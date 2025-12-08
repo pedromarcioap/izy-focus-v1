@@ -16,10 +16,16 @@ class GardenState {
 
     async load() {
         const data = await chrome.storage.local.get(['gardenInventory', 'gardenLayout']);
+
+        // Sanitize inventory to prevent NaN issues
+        const rawInventory = data.gardenInventory || {};
         this.inventory = {
-            seeds: 0, stones: 0, xp: 0, pendingGrowth: 0,
-            ...data.gardenInventory
+            seeds: Number(rawInventory.seeds) || 0,
+            stones: Number(rawInventory.stones) || 0,
+            xp: Number(rawInventory.xp) || 0,
+            pendingGrowth: Number(rawInventory.pendingGrowth) || 0
         };
+
         this.layout = this._migrateLayout(data.gardenLayout || {});
 
         // Processar crescimento pendente
@@ -40,6 +46,10 @@ class GardenState {
     _migrateLayout(oldLayout) {
         const newLayout = {};
         for (const [id, item] of Object.entries(oldLayout)) {
+            // Validate key range
+            const numId = Number(id);
+            if (isNaN(numId) || numId < 0 || numId >= GARDEN_CONFIG.GRID_SIZE) continue;
+
             if (typeof item === 'string') {
                 // Migração de formato antigo ('tree', 'stone')
                 if (item === 'tree') {
@@ -47,8 +57,12 @@ class GardenState {
                 } else if (item === 'stone') {
                     newLayout[id] = { type: 'stone', status: 'healthy', plantedAt: Date.now() };
                 }
-            } else {
-                newLayout[id] = item;
+            } else if (typeof item === 'object' && item !== null) {
+                // Validate existing object
+                if (item.type === 'tree' || item.type === 'stone') {
+                    newLayout[id] = item;
+                }
+                // Invalid or ghost items are skipped (effectively deleted)
             }
         }
         return newLayout;
@@ -68,7 +82,9 @@ class GardenState {
     }
 
     plantSeed(cellId) {
-        if (this.inventory.seeds <= 0 || this.layout[cellId]) return false;
+        if (!Number.isInteger(this.inventory.seeds) || this.inventory.seeds <= 0) return false;
+        if (this.layout[cellId]) return false;
+
         this.inventory.seeds--;
         this.layout[cellId] = {
             type: 'tree',
@@ -80,7 +96,9 @@ class GardenState {
     }
 
     placeStone(cellId) {
-        if (this.inventory.stones <= 0 || this.layout[cellId]) return false;
+        if (!Number.isInteger(this.inventory.stones) || this.inventory.stones <= 0) return false;
+        if (this.layout[cellId]) return false;
+
         this.inventory.stones--;
         this.layout[cellId] = { type: 'stone', status: 'healthy', plantedAt: Date.now() };
         return true;
