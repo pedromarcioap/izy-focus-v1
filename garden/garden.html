@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Meu Jardim - Izy Focus</title>
     <link rel="stylesheet" href="garden.css">
+    <link rel="stylesheet" href="garden-extra.css">
+    <link rel="stylesheet" href="pixel-art.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
@@ -12,12 +14,19 @@
     <div class="container">
         <header>
             <h1>Meu Jardim da Intenção</h1>
-            <p>Plante suas sementes de foco e coloque suas pedras de pausa para cultivar sua jornada.</p>
+            <div class="stats-bar">
+                <div class="stat-item" id="level-display" title="Seu nível atual de jardinagem">Nível 1</div>
+                <div class="stat-item xp-container">
+                    <span class="xp-label">XP</span>
+                    <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-bar-fill" style="width: 0%"></div></div>
+                </div>
+            </div>
+            <p>Plante suas sementes de foco. Complete sessões para cultivar seu jardim.</p>
         </header>
 
         <div class="toolbar">
             <div class="inventory">
-                <div class="tool-item active" id="tool-select" data-tool="select" title="Selecionar (Pressione 'Esc' para ativar)">
+                <div class="tool-item active" id="tool-select" data-tool="select" title="Selecionar">
                     <span class="icon">🖐️</span>
                     <span class="label">Selecionar</span>
                 </div>

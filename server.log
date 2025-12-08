@@ -1,0 +1,6 @@
+127.0.0.1 - - [08/Dec/2025 22:26:01] "GET /garden/garden.html HTTP/1.1" 200 -
+127.0.0.1 - - [08/Dec/2025 22:26:01] "GET /garden/garden.css HTTP/1.1" 200 -
+127.0.0.1 - - [08/Dec/2025 22:26:01] "GET /garden/garden.js HTTP/1.1" 200 -
+127.0.0.1 - - [08/Dec/2025 22:26:01] "GET /garden/pixel-art.css HTTP/1.1" 200 -
+127.0.0.1 - - [08/Dec/2025 22:26:01] "GET /garden/garden-extra.css HTTP/1.1" 200 -
+127.0.0.1 - - [08/Dec/2025 22:26:01] "GET /assets/icons/stone.svg HTTP/1.1" 200 -

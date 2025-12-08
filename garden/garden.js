@@ -1,106 +1,265 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const gardenGrid = document.getElementById('garden-grid');
-    const seedCountEl = document.getElementById('seed-count');
-    const stoneCountEl = document.getElementById('stone-count');
-    const toolSelect = document.getElementById('tool-select');
-    const toolSeed = document.getElementById('tool-seed');
-    const toolStone = document.getElementById('tool-stone');
-    const resetGardenBtn = document.getElementById('reset-garden-btn');
+// --- CONFIGURAÇÃO E CONSTANTES ---
+const GARDEN_CONFIG = {
+    GRID_SIZE: 100, // 10x10
+    GROWTH_PER_CYCLE: 1, // Quanto cada planta cresce por "ciclo" de crescimento global
+    MAX_STAGE: 3,
+    LEVEL_BASE_XP: 100, // XP necessário para nível 2 (fórmula simples: nivel = sqrt(xp/100) + 1 ou similar)
+};
 
-    let inventory = { seeds: 0, stones: 0 };
-    let gardenLayout = {};
-    let activeTool = 'select';
-    const gridSize = 100;
+// --- CLASSES ---
 
-    async function initializeGarden() {
-        const data = await chrome.storage.local.get(['gardenInventory', 'gardenLayout']);
-        // Correção de segurança: garante que inventory existe
-        inventory = data.gardenInventory || { seeds: 0, stones: 0 };
-        gardenLayout = data.gardenLayout || {};
-        render();
+class GardenState {
+    constructor() {
+        this.inventory = { seeds: 0, stones: 0, xp: 0, pendingGrowth: 0 };
+        this.layout = {};
     }
 
-    function render() {
-        seedCountEl.textContent = inventory.seeds;
-        stoneCountEl.textContent = inventory.stones;
-        toolSeed.classList.toggle('disabled', inventory.seeds === 0);
-        toolStone.classList.toggle('disabled', inventory.stones === 0);
+    async load() {
+        const data = await chrome.storage.local.get(['gardenInventory', 'gardenLayout']);
+        this.inventory = {
+            seeds: 0, stones: 0, xp: 0, pendingGrowth: 0,
+            ...data.gardenInventory
+        };
+        this.layout = this._migrateLayout(data.gardenLayout || {});
 
-        gardenGrid.innerHTML = '';
-        for (let i = 0; i < gridSize; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'garden-cell';
-            cell.dataset.id = i;
-            const content = document.createElement('div');
-            content.className = 'content';
-
-            if (gardenLayout[i] === 'tree') {
-                content.textContent = '🌳';
-            } else if (gardenLayout[i] === 'stone') {
-                // Usar o SVG da pedra em vez do emoji
-                const img = document.createElement('img');
-                img.src = '/assets/icons/stone.svg';
-                img.style.width = '32px';
-                img.style.height = '32px';
-                content.appendChild(img);
-            }
-
-            if (gardenLayout[i] !== 'stone') cell.appendChild(content);
-            else cell.appendChild(content); // (Redundante, mas mantém lógica)
-
-            gardenGrid.appendChild(cell);
+        // Processar crescimento pendente
+        if (this.inventory.pendingGrowth > 0) {
+            this._processGrowth(this.inventory.pendingGrowth);
+            this.inventory.pendingGrowth = 0;
+            await this.save();
         }
     }
 
-    function setActiveTool(tool) {
-        if (tool === 'seed' && inventory.seeds === 0) return;
-        if (tool === 'stone' && inventory.stones === 0) return;
-        activeTool = tool;
+    async save() {
+        await chrome.storage.local.set({
+            gardenInventory: this.inventory,
+            gardenLayout: this.layout
+        });
+    }
+
+    _migrateLayout(oldLayout) {
+        const newLayout = {};
+        for (const [id, item] of Object.entries(oldLayout)) {
+            if (typeof item === 'string') {
+                // Migração de formato antigo ('tree', 'stone')
+                if (item === 'tree') {
+                    newLayout[id] = { type: 'tree', stage: 3, status: 'healthy', plantedAt: Date.now() }; // Assume árvore adulta
+                } else if (item === 'stone') {
+                    newLayout[id] = { type: 'stone', status: 'healthy', plantedAt: Date.now() };
+                }
+            } else {
+                newLayout[id] = item;
+            }
+        }
+        return newLayout;
+    }
+
+    _processGrowth(cycles) {
+        let changed = false;
+        for (const id in this.layout) {
+            const item = this.layout[id];
+            if (item.type === 'tree' && item.status !== 'withered' && item.stage < GARDEN_CONFIG.MAX_STAGE) {
+                // Chance de crescimento ou crescimento determinístico? Vamos determinístico.
+                item.stage = Math.min(GARDEN_CONFIG.MAX_STAGE, item.stage + cycles);
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    plantSeed(cellId) {
+        if (this.inventory.seeds <= 0 || this.layout[cellId]) return false;
+        this.inventory.seeds--;
+        this.layout[cellId] = {
+            type: 'tree',
+            stage: 1, // Começa como broto (Stage 1)
+            status: 'healthy',
+            plantedAt: Date.now()
+        };
+        return true;
+    }
+
+    placeStone(cellId) {
+        if (this.inventory.stones <= 0 || this.layout[cellId]) return false;
+        this.inventory.stones--;
+        this.layout[cellId] = { type: 'stone', status: 'healthy', plantedAt: Date.now() };
+        return true;
+    }
+
+    removeItem(cellId) {
+        if (!this.layout[cellId]) return false;
+        const item = this.layout[cellId];
+
+        // Recuperar recursos (opcional, por enquanto vamos manter a lógica antiga: devolve semente/pedra)
+        // Mas se estiver 'withered', talvez não devolva nada?
+        // Vamos manter generoso por enquanto.
+        if (item.type === 'tree') this.inventory.seeds++;
+        else if (item.type === 'stone') this.inventory.stones++;
+
+        delete this.layout[cellId];
+        return true;
+    }
+
+    getLevelInfo() {
+        // Nível 1: 0-99 XP
+        // Nível 2: 100-399 XP
+        // Nível = floor(sqrt(XP / 100)) + 1 ??? Não, muito lento.
+        // Vamos usar linear simples para começo: Nível = 1 + floor(XP / 200)
+        const level = 1 + Math.floor(this.inventory.xp / 200);
+        const nextLevelXp = (level) * 200;
+        const currentLevelBaseXp = (level - 1) * 200;
+        const progress = ((this.inventory.xp - currentLevelBaseXp) / (nextLevelXp - currentLevelBaseXp)) * 100;
+
+        return { level, xp: this.inventory.xp, nextLevelXp, progress };
+    }
+}
+
+class GardenRenderer {
+    constructor(gridId) {
+        this.gridEl = document.getElementById(gridId);
+        this.elements = {
+            seedCount: document.getElementById('seed-count'),
+            stoneCount: document.getElementById('stone-count'),
+            level: document.getElementById('level-display'),
+            xpBar: document.getElementById('xp-bar-fill'),
+            toolSeed: document.getElementById('tool-seed'),
+            toolStone: document.getElementById('tool-stone')
+        };
+    }
+
+    render(state) {
+        this._renderInventory(state.inventory);
+        this._renderStats(state.getLevelInfo());
+        this._renderGrid(state.layout);
+    }
+
+    _renderInventory(inventory) {
+        this.elements.seedCount.textContent = inventory.seeds;
+        this.elements.stoneCount.textContent = inventory.stones;
+
+        this.elements.toolSeed.classList.toggle('disabled', inventory.seeds === 0);
+        this.elements.toolStone.classList.toggle('disabled', inventory.stones === 0);
+    }
+
+    _renderStats(levelInfo) {
+        this.elements.level.textContent = `Nível ${levelInfo.level}`;
+        this.elements.xpBar.style.width = `${Math.min(100, Math.max(0, levelInfo.progress))}%`;
+        this.elements.xpBar.title = `${levelInfo.xp} / ${levelInfo.nextLevelXp} XP`;
+    }
+
+    _renderGrid(layout) {
+        this.gridEl.innerHTML = ''; // Limpa tudo (pode ser otimizado com Diffing se necessário)
+
+        for (let i = 0; i < GARDEN_CONFIG.GRID_SIZE; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'garden-cell pixel-garden-bg';
+            cell.dataset.id = i;
+
+            const item = layout[i];
+            if (item) {
+                const content = document.createElement('div');
+                content.className = 'pixel-art';
+
+                if (item.status === 'withered') {
+                    content.classList.add('pixel-withered');
+                    cell.classList.add('withered');
+                } else if (item.type === 'stone') {
+                    content.classList.add('pixel-stone');
+                } else if (item.type === 'tree') {
+                    if (item.stage === 1) content.classList.add('pixel-sprout'); // Broto
+                    else if (item.stage === 2) content.classList.add('pixel-tree-small'); // Árvore pequena
+                    else content.classList.add('pixel-tree'); // Árvore grande
+                }
+
+                cell.appendChild(content);
+            }
+
+            this.gridEl.appendChild(cell);
+        }
+    }
+}
+
+class GardenController {
+    constructor(state, renderer) {
+        this.state = state;
+        this.renderer = renderer;
+        this.activeTool = 'select';
+
+        this._initEventListeners();
+    }
+
+    async init() {
+        await this.state.load();
+        this.renderer.render(this.state);
+    }
+
+    _initEventListeners() {
+        // Ferramentas
+        document.getElementById('tool-select').addEventListener('click', () => this.setTool('select'));
+        document.getElementById('tool-seed').addEventListener('click', () => this.setTool('seed'));
+        document.getElementById('tool-stone').addEventListener('click', () => this.setTool('stone'));
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') this.setTool('select'); });
+
+        // Grid Click
+        document.getElementById('garden-grid').addEventListener('click', (e) => this._handleGridClick(e));
+
+        // Reset
+        document.getElementById('reset-garden-btn').addEventListener('click', () => this._handleReset());
+    }
+
+    setTool(tool) {
+        if (tool === 'seed' && this.state.inventory.seeds === 0) return;
+        if (tool === 'stone' && this.state.inventory.stones === 0) return;
+
+        this.activeTool = tool;
         document.querySelectorAll('.tool-item').forEach(el => el.classList.remove('active'));
         document.getElementById(`tool-${tool}`).classList.add('active');
     }
 
-    toolSelect.addEventListener('click', () => setActiveTool('select'));
-    toolSeed.addEventListener('click', () => setActiveTool('seed'));
-    toolStone.addEventListener('click', () => setActiveTool('stone'));
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setActiveTool('select'); });
-
-    gardenGrid.addEventListener('click', async (e) => {
+    async _handleGridClick(e) {
         const cell = e.target.closest('.garden-cell');
         if (!cell) return;
+
         const cellId = cell.dataset.id;
-        let changed = false;
+        let success = false;
 
-        if (activeTool === 'seed' && inventory.seeds > 0 && !gardenLayout[cellId]) {
-            gardenLayout[cellId] = 'tree'; inventory.seeds--; changed = true;
-        } else if (activeTool === 'stone' && inventory.stones > 0 && !gardenLayout[cellId]) {
-            gardenLayout[cellId] = 'stone'; inventory.stones--; changed = true;
-        } else if (activeTool === 'select' && gardenLayout[cellId]) {
-            if (gardenLayout[cellId] === 'tree') inventory.seeds++;
-            else if (gardenLayout[cellId] === 'stone') inventory.stones++;
-            delete gardenLayout[cellId]; changed = true;
+        if (this.activeTool === 'seed') {
+            success = this.state.plantSeed(cellId);
+        } else if (this.activeTool === 'stone') {
+            success = this.state.placeStone(cellId);
+        } else if (this.activeTool === 'select') {
+            success = this.state.removeItem(cellId);
         }
-        
-        if (changed) {
-            await chrome.storage.local.set({ gardenLayout, gardenInventory: inventory });
-            render();
-            if (activeTool !== 'select') setActiveTool('select');
-        }
-    });
 
-    resetGardenBtn.addEventListener('click', async () => {
-        if (confirm('Tem certeza que deseja limpar seu jardim?')) {
-            let seedsInGarden = 0; let stonesInGarden = 0;
-            for (const id in gardenLayout) {
-                if (gardenLayout[id] === 'tree') seedsInGarden++;
-                if (gardenLayout[id] === 'stone') stonesInGarden++;
+        if (success) {
+            await this.state.save();
+            this.renderer.render(this.state);
+
+            // Se acabou o recurso, volta para select
+            if (this.activeTool === 'seed' && this.state.inventory.seeds === 0) this.setTool('select');
+            if (this.activeTool === 'stone' && this.state.inventory.stones === 0) this.setTool('select');
+        }
+    }
+
+    async _handleReset() {
+        if (confirm('Tem certeza que deseja limpar todo o seu jardim? Suas plantas voltarão para o inventário.')) {
+            // Logica simples: limpar layout, devolver recursos
+            for (const id in this.state.layout) {
+                const item = this.state.layout[id];
+                if (item.type === 'tree') this.state.inventory.seeds++;
+                if (item.type === 'stone') this.state.inventory.stones++;
             }
-            inventory.seeds += seedsInGarden; inventory.stones += stonesInGarden;
-            gardenLayout = {};
-            await chrome.storage.local.set({ gardenLayout, gardenInventory: inventory });
-            render();
+            this.state.layout = {};
+            await this.state.save();
+            this.renderer.render(this.state);
         }
-    });
+    }
+}
 
-    initializeGarden();
+// --- BOOTSTRAP ---
+document.addEventListener('DOMContentLoaded', () => {
+    const state = new GardenState();
+    const renderer = new GardenRenderer('garden-grid');
+    const controller = new GardenController(state, renderer);
+    controller.init();
 });

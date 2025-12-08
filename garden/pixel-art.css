@@ -1,0 +1,152 @@
+:root {
+    --pixel-size: 4px;
+    --color-grass-light: #4ade80;
+    --color-grass-dark: #22c55e;
+    --color-dirt: #78350f;
+    --color-stone: #94a3b8;
+    --color-stone-dark: #64748b;
+    --color-leaf: #10b981;
+    --color-leaf-dark: #059669;
+    --color-wood: #7c2d12;
+    --color-withered: #78716c;
+}
+
+/* Grid Background - Checkerboard */
+.pixel-garden-bg {
+    background-color: #0f172a;
+    background-image:
+        linear-gradient(45deg, #1e293b 25%, transparent 25%),
+        linear-gradient(-45deg, #1e293b 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #1e293b 75%),
+        linear-gradient(-45deg, transparent 75%, #1e293b 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+/* Base Pixel Art Class */
+.pixel-art {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    image-rendering: pixelated;
+}
+
+/* --- SEED --- */
+.pixel-seed::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: var(--color-dirt);
+    box-shadow:
+        var(--pixel-size) 0 var(--color-dirt),
+        -var(--pixel-size) 0 var(--color-dirt),
+        0 var(--pixel-size) var(--color-dirt),
+        0 -var(--pixel-size) var(--color-dirt);
+    transform: translate(-50%, -50%);
+}
+
+/* --- SPROUT (Stage 1) --- */
+.pixel-sprout::before {
+    content: '';
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: var(--color-leaf);
+    box-shadow:
+        0 calc(-1 * var(--pixel-size)) var(--color-leaf), /* Stem */
+        0 calc(-2 * var(--pixel-size)) var(--color-leaf), /* Stem */
+        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf), /* Leaf L */
+        calc(1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf); /* Leaf R */
+    transform: translateX(-50%);
+}
+
+/* --- SMALL TREE (Stage 2) --- */
+.pixel-tree-small::before {
+    content: '';
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: var(--color-wood); /* Trunk base */
+    box-shadow:
+        0 calc(-1 * var(--pixel-size)) var(--color-wood), /* Trunk */
+        0 calc(-2 * var(--pixel-size)) var(--color-leaf-dark), /* Leaves Base */
+        calc(-1 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-leaf),
+        calc(1 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-leaf),
+        0 calc(-3 * var(--pixel-size)) var(--color-leaf); /* Top */
+    transform: translateX(-50%);
+}
+
+/* --- BIG TREE (Stage 3) --- */
+.pixel-tree::before {
+    content: '';
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: var(--color-wood);
+    box-shadow:
+        /* Trunk */
+        0 calc(-1 * var(--pixel-size)) var(--color-wood),
+        0 calc(-2 * var(--pixel-size)) var(--color-wood),
+        /* Foliage Layer 1 (Bottom) */
+        calc(-2 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        0 calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        calc(1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        calc(2 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        /* Foliage Layer 2 */
+        calc(-2 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-leaf),
+        calc(-1 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-leaf),
+        0 calc(-4 * var(--pixel-size)) var(--color-leaf),
+        calc(1 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-leaf),
+        calc(2 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-leaf),
+        /* Foliage Layer 3 */
+        calc(-1 * var(--pixel-size)) calc(-5 * var(--pixel-size)) var(--color-leaf),
+        0 calc(-5 * var(--pixel-size)) var(--color-leaf),
+        calc(1 * var(--pixel-size)) calc(-5 * var(--pixel-size)) var(--color-leaf),
+        /* Top */
+        0 calc(-6 * var(--pixel-size)) var(--color-leaf);
+    transform: translateX(-50%);
+}
+
+/* --- STONE --- */
+.pixel-stone::before {
+    content: '';
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: var(--color-stone);
+    box-shadow:
+        calc(-1 * var(--pixel-size)) 0 var(--color-stone),
+        calc(1 * var(--pixel-size)) 0 var(--color-stone),
+        calc(-0.5 * var(--pixel-size)) calc(-1 * var(--pixel-size)) var(--color-stone-dark),
+        calc(0.5 * var(--pixel-size)) calc(-1 * var(--pixel-size)) var(--color-stone-dark);
+    transform: translateX(-50%);
+}
+
+/* --- WITHERED PLANT --- */
+.pixel-withered::before {
+    content: '';
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: var(--color-wood); /* Trunk */
+    box-shadow:
+        0 calc(-1 * var(--pixel-size)) var(--color-wood),
+        0 calc(-2 * var(--pixel-size)) var(--color-wood),
+        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-withered), /* Dead Branch L */
+        calc(1 * var(--pixel-size)) calc(-2.5 * var(--pixel-size)) var(--color-withered); /* Dead Branch R */
+    transform: translateX(-50%);
+}

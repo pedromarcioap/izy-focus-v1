@@ -99,8 +99,46 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     else if (request.command === 'stopSound') {
         stopAudioInBackground();
     }
+    else if (request.command === 'witherPlant') {
+        handleWitherPlant();
+    }
     return true; 
 });
+
+async function handleWitherPlant() {
+    const data = await chrome.storage.local.get(['gardenLayout']);
+    const gardenLayout = data.gardenLayout || {};
+
+    // Encontrar a planta saudável mais recente
+    let targetId = null;
+    let latestTimestamp = 0;
+
+    for (const [id, item] of Object.entries(gardenLayout)) {
+        // Suporta formato antigo (string) e novo (objeto)
+        const isTree = (typeof item === 'string' && item === 'tree') || (typeof item === 'object' && item.type === 'tree');
+        const isHealthy = typeof item === 'object' ? (item.status !== 'withered') : true; // String antiga assume saudável
+        const timestamp = typeof item === 'object' ? (item.plantedAt || 0) : 0;
+
+        if (isTree && isHealthy) {
+            if (timestamp >= latestTimestamp) {
+                latestTimestamp = timestamp;
+                targetId = id;
+            }
+        }
+    }
+
+    if (targetId !== null) {
+        // Atualizar para formato de objeto se necessário e marcar como withered
+        const item = gardenLayout[targetId];
+        const newItem = typeof item === 'string'
+            ? { type: 'tree', stage: 3, status: 'withered', plantedAt: Date.now() } // Migração fallback
+            : { ...item, status: 'withered' };
+
+        gardenLayout[targetId] = newItem;
+        await chrome.storage.local.set({ gardenLayout });
+        createNotification('Jardim Afetado!', 'Uma de suas plantas murchou devido à falta de foco. 🥀');
+    }
+}
 
 async function sendStateToPopup() {
     try {
@@ -174,10 +212,14 @@ async function processCompletedSession(sessionData) {
     const data = await chrome.storage.local.get(['focusLog', 'gardenInventory']);
     const newLogEntry = { id: Date.now(), timestamp: Date.now(), listName: sessionData.listName, focusTime: sessionData.focusTime };
     const updatedFocusLog = [...(data.focusLog || []), newLogEntry];
-    const updatedInventory = data.gardenInventory || { seeds: 0, stones: 0 };
-    updatedInventory.seeds++;
+
+    const updatedInventory = data.gardenInventory || { seeds: 0, stones: 0, xp: 0, pendingGrowth: 0 };
+    updatedInventory.seeds = (updatedInventory.seeds || 0) + 1;
+    updatedInventory.xp = (updatedInventory.xp || 0) + 50; // 50 XP por sessão
+    updatedInventory.pendingGrowth = (updatedInventory.pendingGrowth || 0) + 1; // 1 Ciclo de crescimento
+
     await chrome.storage.local.set({ focusLog: updatedFocusLog, gardenInventory: updatedInventory });
-    createNotification(`Ciclo Concluído!`, `Você ganhou 1 Semente de Foco 🌱.`);
+    createNotification(`Ciclo Concluído!`, `Você ganhou 1 Semente 🌱 e 50 XP ✨.`);
 }
 
 async function logInterruption(sessionData) {
