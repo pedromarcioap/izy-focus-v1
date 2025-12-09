@@ -3,7 +3,7 @@ const GARDEN_CONFIG = {
     GRID_SIZE: 100, // 10x10
     GROWTH_PER_CYCLE: 1, // Quanto cada planta cresce por "ciclo" de crescimento global
     MAX_STAGE: 4, // 1=Sprout, 2=Small, 3=Big, 4=Flowering
-    LEVEL_BASE_XP: 100,
+    LEVEL_BASE_XP: 250, // Updated to 250 as requested
 };
 
 // --- CLASSES ---
@@ -133,13 +133,12 @@ class GardenState {
     }
 
     getLevelInfo() {
-        // Nível 1: 0-99 XP
-        // Nível 2: 100-399 XP
-        // Nível = floor(sqrt(XP / 100)) + 1 ??? Não, muito lento.
-        // Vamos usar linear simples para começo: Nível = 1 + floor(XP / 200)
-        const level = 1 + Math.floor(this.inventory.xp / 200);
-        const nextLevelXp = (level) * 200;
-        const currentLevelBaseXp = (level - 1) * 200;
+        // Nível 1: 0-249 XP
+        // Nível 2: 250-499 XP
+        const xpPerLevel = GARDEN_CONFIG.LEVEL_BASE_XP;
+        const level = 1 + Math.floor(this.inventory.xp / xpPerLevel);
+        const nextLevelXp = level * xpPerLevel;
+        const currentLevelBaseXp = (level - 1) * xpPerLevel;
         const progress = ((this.inventory.xp - currentLevelBaseXp) / (nextLevelXp - currentLevelBaseXp)) * 100;
 
         return { level, xp: this.inventory.xp, nextLevelXp, progress };
@@ -239,6 +238,51 @@ class GardenController {
 
         // Reset
         document.getElementById('reset-garden-btn').addEventListener('click', () => this._handleReset());
+
+        // Achievements Modal
+        const modal = document.getElementById('achievements-modal');
+        const btn = document.getElementById('achievements-btn');
+        const closeSpan = document.querySelector('.close-modal');
+
+        btn.onclick = () => {
+            this._renderAchievements();
+            modal.classList.remove('hidden');
+        }
+        closeSpan.onclick = () => modal.classList.add('hidden');
+        window.onclick = (event) => {
+            if (event.target == modal) modal.classList.add('hidden');
+        }
+    }
+
+    async _renderAchievements() {
+        const listEl = document.getElementById('achievements-list');
+        listEl.innerHTML = 'Carregando...';
+
+        const data = await chrome.storage.local.get(['achievements']);
+        const unlockedIds = new Set(data.achievements || []);
+
+        // Define definitions here or share via config
+        const ACHIEVEMENTS_DEF = [
+            { id: 'first_bloom', title: 'Primeiro Broto', desc: 'Complete sua primeira sessão de foco.', icon: '🌱' },
+            { id: 'consistency_3', title: 'Raízes Firmes', desc: 'Mantenha o foco por 3 dias seguidos.', icon: '📅' },
+            { id: 'deep_focus', title: 'Mestre do Tempo', desc: 'Acumule 500 minutos totais de foco.', icon: '⏳' },
+            { id: 'level_5', title: 'Especialista', desc: 'Alcance o Nível 5.', icon: '⭐' }
+        ];
+
+        listEl.innerHTML = '';
+        ACHIEVEMENTS_DEF.forEach(ach => {
+            const isUnlocked = unlockedIds.has(ach.id);
+            const item = document.createElement('div');
+            item.className = `achievement-item ${isUnlocked ? 'unlocked' : ''}`;
+            item.innerHTML = `
+                <div class="achievement-icon">${ach.icon}</div>
+                <div class="achievement-details">
+                    <h3>${ach.title} ${isUnlocked ? '✅' : '🔒'}</h3>
+                    <p>${ach.desc}</p>
+                </div>
+            `;
+            listEl.appendChild(item);
+        });
     }
 
     setTool(tool) {

@@ -101,11 +101,11 @@ header p {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--bg-secondary); /* Dark toolbar */
+    background-color: var(--bg-primary); /* White toolbar */
     padding: 16px;
     border-radius: var(--border-radius);
     margin-bottom: 30px;
-    border: 1px solid var(--border-color-dark);
+    border: 1px solid var(--border-color); /* Light border */
 }
 
 .inventory {
@@ -117,23 +117,23 @@ header p {
     display: flex;
     align-items: center;
     gap: 10px;
-    background-color: var(--bg-gray); /* New Gray */
+    background-color: var(--bg-gray); /* Gray */
     padding: 10px 20px;
     border-radius: var(--border-radius);
     cursor: pointer;
-    border: 1px solid var(--border-color-dark);
+    border: 1px solid var(--border-color);
     transition: all 0.2s ease;
     color: var(--text-inverse);
 }
 
 .tool-item:hover {
     border-color: var(--accent-gold);
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-tertiary);
 }
 
 .tool-item.active {
     border-color: var(--accent-gold);
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-tertiary);
     box-shadow: 0 0 0 1px var(--accent-gold);
 }
 

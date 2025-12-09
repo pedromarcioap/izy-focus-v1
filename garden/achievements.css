@@ -1,0 +1,101 @@
+/* Achievements Modal */
++.modal {
++    position: fixed;
++    z-index: 1000;
++    left: 0;
++    top: 0;
++    width: 100%;
++    height: 100%;
++    background-color: rgba(0,0,0,0.8);
++    display: flex;
++    justify-content: center;
++    align-items: center;
++}
++
++.modal.hidden {
++    display: none;
++}
++
++.modal-content {
++    background-color: var(--bg-primary);
++    border: 1px solid var(--accent-gold);
++    border-radius: var(--border-radius);
++    padding: 30px;
++    width: 80%;
++    max-width: 600px;
++    max-height: 80vh;
++    overflow-y: auto;
++    position: relative;
++    color: var(--text-primary);
++}
++
++.close-modal {
++    color: var(--text-secondary);
++    float: right;
++    font-size: 28px;
++    font-weight: bold;
++    cursor: pointer;
++}
++
++.close-modal:hover {
++    color: var(--accent-gold);
++}
++
++.achievements-list {
++    display: flex;
++    flex-direction: column;
++    gap: 15px;
++    margin-top: 20px;
++}
++
++.achievement-item {
++    background-color: var(--bg-gray);
++    border: 1px solid var(--border-color);
++    border-radius: var(--border-radius);
++    padding: 15px;
++    display: flex;
++    align-items: center;
++    gap: 15px;
++    opacity: 0.6; /* Locked state */
++    filter: grayscale(1);
++    transition: all 0.3s ease;
++}
++
++.achievement-item.unlocked {
++    opacity: 1;
++    filter: grayscale(0);
++    border-color: var(--accent-gold);
++    box-shadow: 0 0 10px rgba(204, 164, 112, 0.1);
++}
++
++.achievement-icon {
++    font-size: 32px;
++}
++
++.achievement-details h3 {
++    margin: 0 0 5px 0;
++    font-size: 16px;
++    color: var(--text-primary);
++}
++
++.achievement-details p {
++    margin: 0;
++    font-size: 13px;
++    color: var(--text-secondary);
++}
++
++.achievements-section {
++    display: flex;
++    justify-content: center;
++    margin-bottom: 20px;
++}
++
++.button-secondary {
++    background-color: var(--bg-gray);
++    border: 1px solid var(--border-color);
++    color: var(--text-primary);
++}
++.button-secondary:hover {
++    border-color: var(--accent-gold);
++}
++

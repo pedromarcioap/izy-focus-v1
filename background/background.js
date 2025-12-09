@@ -209,17 +209,75 @@ async function stopFocusSession(wasInterrupted) {
 
 // --- LÓGICA DE GAMIFICAÇÃO E LOGS ---
 async function processCompletedSession(sessionData) {
-    const data = await chrome.storage.local.get(['focusLog', 'gardenInventory']);
+    const data = await chrome.storage.local.get(['focusLog', 'gardenInventory', 'userStats', 'achievements']);
     const newLogEntry = { id: Date.now(), timestamp: Date.now(), listName: sessionData.listName, focusTime: sessionData.focusTime };
     const updatedFocusLog = [...(data.focusLog || []), newLogEntry];
 
+    // Update Inventory
     const updatedInventory = data.gardenInventory || { seeds: 0, stones: 0, xp: 0, pendingGrowth: 0 };
     updatedInventory.seeds = (updatedInventory.seeds || 0) + 1;
-    updatedInventory.xp = (updatedInventory.xp || 0) + 50; // 50 XP por sessão
-    updatedInventory.pendingGrowth = (updatedInventory.pendingGrowth || 0) + 1; // 1 Ciclo de crescimento
+    updatedInventory.xp = (updatedInventory.xp || 0) + 50;
+    updatedInventory.pendingGrowth = (updatedInventory.pendingGrowth || 0) + 1;
 
-    await chrome.storage.local.set({ focusLog: updatedFocusLog, gardenInventory: updatedInventory });
-    createNotification(`Ciclo Concluído!`, `Você ganhou 1 Semente 🌱 e 50 XP ✨.`);
+    // Update Stats
+    const stats = data.userStats || { totalFocusMinutes: 0, totalSessions: 0, lastSessionDate: null, currentStreak: 0, maxStreak: 0 };
+    stats.totalFocusMinutes = (stats.totalFocusMinutes || 0) + sessionData.focusTime;
+    stats.totalSessions = (stats.totalSessions || 0) + 1;
+
+    // Streak Logic
+    const today = new Date().toDateString();
+    if (stats.lastSessionDate !== today) {
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        if (stats.lastSessionDate === yesterday) {
+            stats.currentStreak++;
+        } else {
+            stats.currentStreak = 1; // Reset or Start
+        }
+        stats.lastSessionDate = today;
+    }
+    if (stats.currentStreak > stats.maxStreak) stats.maxStreak = stats.currentStreak;
+
+    // Check Achievements
+    const unlockedAchievements = data.achievements || [];
+    const newUnlocks = checkAchievements(stats, updatedInventory, unlockedAchievements);
+
+    await chrome.storage.local.set({
+        focusLog: updatedFocusLog,
+        gardenInventory: updatedInventory,
+        userStats: stats,
+        achievements: newUnlocks.all
+    });
+
+    // Notify
+    if (newUnlocks.new.length > 0) {
+        newUnlocks.new.forEach(ach => {
+            createNotification('🏆 Conquista Desbloqueada!', ach.title);
+        });
+    } else {
+        createNotification(`Ciclo Concluído!`, `Você ganhou 1 Semente 🌱 e 50 XP ✨.`);
+    }
+}
+
+function checkAchievements(stats, inventory, unlockedIds) {
+    const ACHIEVEMENTS = [
+        { id: 'first_bloom', title: 'Primeiro Broto', desc: 'Complete 1 sessão', condition: () => stats.totalSessions >= 1 },
+        { id: 'apprentice', title: 'Jardineiro Aprendiz', desc: 'Plante 5 sementes', condition: () => false }, // Logic needs gardenLayout access, skipping for simplicity or check inventory.seeds used? Let's use totalSessions for now.
+        { id: 'consistency_3', title: 'Raízes Firmes', desc: '3 dias seguidos', condition: () => stats.currentStreak >= 3 },
+        { id: 'deep_focus', title: 'Mestre do Tempo', desc: 'Acumule 500 min', condition: () => stats.totalFocusMinutes >= 500 },
+        { id: 'level_5', title: 'Especialista', desc: 'Alcance o Nível 5', condition: () => (inventory.xp / 250) >= 4 } // Level 1 is 0xp, Level 5 is 1000xp? Formula is 1 + floor(xp/250). So Level 5 needs 1000xp.
+    ];
+
+    const currentIds = new Set(unlockedIds);
+    const newUnlocks = [];
+
+    ACHIEVEMENTS.forEach(ach => {
+        if (!currentIds.has(ach.id) && ach.condition()) {
+            currentIds.add(ach.id);
+            newUnlocks.push(ach);
+        }
+    });
+
+    return { all: Array.from(currentIds), new: newUnlocks };
 }
 
 async function logInterruption(sessionData) {

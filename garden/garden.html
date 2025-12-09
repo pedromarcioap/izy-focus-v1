@@ -5,6 +5,7 @@
     <title>Meu Jardim - Izy Focus</title>
     <link rel="stylesheet" href="garden.css">
     <link rel="stylesheet" href="garden-extra.css">
+    <link rel="stylesheet" href="achievements.css">
     <link rel="stylesheet" href="pixel-art.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,8 +22,22 @@
                     <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-bar-fill" style="width: 0%"></div></div>
                 </div>
             </div>
+            <div class="achievements-section">
+                <button id="achievements-btn" class="button button-secondary">🏆 Ver Conquistas</button>
+            </div>
             <p>Plante sementes de foco. Complete sessões para ganhar XP ✨ e evoluir suas plantas (Broto → Árvore → Árvore Florida). Se perder o foco em sites bloqueados, suas plantas podem murchar 🥀.</p>
         </header>
+
+        <!-- Modal de Conquistas -->
+        <div id="achievements-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Conquistas</h2>
+                <div id="achievements-list" class="achievements-list">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+        </div>
 
         <div class="toolbar">
             <div class="inventory">
