@@ -299,6 +299,8 @@ async function logBreakCompletion(sessionData) {
 // --- UTILITÁRIOS DE ÁUDIO ---
 async function playAudioInBackground(source) {
     await setupOffscreenDocument('offscreen.html');
+    // Pequeno delay para garantir que o script do offscreen foi carregado e está ouvindo
+    await new Promise(resolve => setTimeout(resolve, 100));
     await chrome.runtime.sendMessage({ command: 'offscreenPlay', source: source });
 }
 async function stopAudioInBackground() {

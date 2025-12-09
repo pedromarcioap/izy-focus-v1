@@ -153,6 +153,7 @@ class GardenRenderer {
             stoneCount: document.getElementById('stone-count'),
             level: document.getElementById('level-display'),
             xpBar: document.getElementById('xp-bar-fill'),
+            xpValue: document.getElementById('xp-value'),
             toolSeed: document.getElementById('tool-seed'),
             toolStone: document.getElementById('tool-stone')
         };
@@ -176,6 +177,9 @@ class GardenRenderer {
         this.elements.level.textContent = `Nível ${levelInfo.level}`;
         this.elements.xpBar.style.width = `${Math.min(100, Math.max(0, levelInfo.progress))}%`;
         this.elements.xpBar.title = `${levelInfo.xp} / ${levelInfo.nextLevelXp} XP`;
+        if (this.elements.xpValue) {
+            this.elements.xpValue.textContent = `${levelInfo.xp} / ${levelInfo.nextLevelXp} XP`;
+        }
     }
 
     _renderGrid(layout) {
