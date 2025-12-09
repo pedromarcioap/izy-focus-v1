@@ -14,7 +14,7 @@
     --font-family: 'Figtree', sans-serif;
     --font-heading: 'Marcellus', serif;
     --border-radius: 4px;
-    --bg-gray: #1f1f22; /* Define gray variable */
+    --bg-gray: #F2F2F2; /* Light gray for garden cells */
 }
 
 body {
@@ -118,13 +118,13 @@ header p {
     display: flex;
     align-items: center;
     gap: 10px;
-    background-color: var(--bg-gray); /* Gray */
+    background-color: var(--bg-secondary); /* Black buttons for contrast */
     padding: 10px 20px;
     border-radius: var(--border-radius);
     cursor: pointer;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color-dark);
     transition: all 0.2s ease;
-    color: var(--text-inverse);
+    color: var(--text-inverse); /* White text */
 }
 
 .tool-item:hover {
@@ -180,7 +180,7 @@ header p {
     display: grid;
     grid-template-columns: repeat(10, 1fr);
     gap: 2px;
-    background-color: var(--border-color); /* Light borders between cells */
+    background-color: #e4e4e7; /* Gap color (grid lines) */
     border: 1px solid var(--border-color);
     padding: 2px;
 }
@@ -189,15 +189,15 @@ header p {
     width: 100%;
     padding-bottom: 100%; /* Aspect Ratio 1:1 */
     position: relative;
-    background-color: var(--bg-gray); /* Gray cells as requested */
+    background-color: var(--bg-gray); /* Now light gray */
     cursor: pointer;
     transition: background-color 0.1s;
 }
 
 .garden-cell:hover {
-    background-color: var(--bg-tertiary);
+    background-color: #e4e4e7; /* Slightly darker on hover */
 }
 
 .garden-cell.withered {
-    background-color: #1a1515;
+    background-color: #fee2e2; /* Light red/withered bg for light mode */
 }
