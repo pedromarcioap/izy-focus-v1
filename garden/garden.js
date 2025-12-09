@@ -36,6 +36,20 @@ class GardenState {
         }
     }
 
+    startAutoRefresh(renderer) {
+        // Listen for storage changes to update XP in real-time
+        chrome.storage.onChanged.addListener((changes, namespace) => {
+            if (namespace === 'local' && changes.gardenInventory) {
+                const newInv = changes.gardenInventory.newValue;
+                this.inventory.xp = Number(newInv.xp) || 0;
+                // Seeds and stones might change too
+                this.inventory.seeds = Number(newInv.seeds) || 0;
+                this.inventory.stones = Number(newInv.stones) || 0;
+                renderer.render(this);
+            }
+        });
+    }
+
     async save() {
         await chrome.storage.local.set({
             gardenInventory: this.inventory,
@@ -282,4 +296,5 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderer = new GardenRenderer('garden-grid');
     const controller = new GardenController(state, renderer);
     controller.init();
+    state.startAutoRefresh(renderer);
 });
