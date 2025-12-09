@@ -14,6 +14,7 @@
     --font-family: 'Figtree', sans-serif;
     --font-heading: 'Marcellus', serif;
     --border-radius: 4px;
+    --bg-gray: #1f1f22; /* Define gray variable */
 }
 
 body {
