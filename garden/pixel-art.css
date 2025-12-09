@@ -7,10 +7,12 @@
     --color-dirt: #5c4033; /* Darker brown */
     --color-stone: #52525b; /* Zinc-600 */
     --color-stone-dark: #3f3f46; /* Zinc-700 */
-    --color-leaf: #D4AF37; /* GOLDEN LEAVES for the theme? Or keep green? User said "Black, White, Golden-Brown". Let's try Golden Trees. */
-    --color-leaf-dark: #B8860B;
+    --color-leaf: #22c55e; /* GREEN for healthy plants */
+    --color-leaf-dark: #15803d;
     --color-wood: #3E2723;
     --color-withered: #4a4a4a;
+    --color-flower-petal: #f472b6; /* Pink */
+    --color-flower-center: #facc15; /* Yellow */
 }
 
 /* Grid Background - CLEANER, no checkerboard noise inside cells */
@@ -121,6 +123,44 @@
         calc(1 * var(--pixel-size)) calc(-5 * var(--pixel-size)) var(--color-leaf),
         /* Top */
         0 calc(-6 * var(--pixel-size)) var(--color-leaf);
+    transform: translateX(-50%);
+}
+
+/* --- FLOWERING TREE (Stage 4) --- */
+.pixel-flowering-tree::before {
+    content: '';
+    position: absolute;
+    bottom: 4px; /* Grounded */
+    left: 50%;
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: var(--color-wood);
+    box-shadow:
+        /* Trunk */
+        0 calc(-1 * var(--pixel-size)) var(--color-wood),
+        0 calc(-2 * var(--pixel-size)) var(--color-wood),
+        /* Foliage Layer 1 (Bottom) */
+        calc(-2 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        0 calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        calc(1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        calc(2 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        /* Foliage Layer 2 */
+        calc(-2 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-leaf),
+        calc(-1 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-leaf),
+        0 calc(-4 * var(--pixel-size)) var(--color-leaf),
+        calc(1 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-leaf),
+        calc(2 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-leaf),
+        /* Foliage Layer 3 */
+        calc(-1 * var(--pixel-size)) calc(-5 * var(--pixel-size)) var(--color-leaf),
+        0 calc(-5 * var(--pixel-size)) var(--color-leaf),
+        calc(1 * var(--pixel-size)) calc(-5 * var(--pixel-size)) var(--color-leaf),
+        /* Top */
+        0 calc(-6 * var(--pixel-size)) var(--color-leaf),
+        /* Flowers */
+        calc(-1 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-flower-petal),
+        calc(2 * var(--pixel-size)) calc(-5 * var(--pixel-size)) var(--color-flower-petal),
+        0 calc(-7 * var(--pixel-size)) var(--color-flower-center);
     transform: translateX(-50%);
 }
 

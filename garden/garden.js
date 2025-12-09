@@ -2,8 +2,8 @@
 const GARDEN_CONFIG = {
     GRID_SIZE: 100, // 10x10
     GROWTH_PER_CYCLE: 1, // Quanto cada planta cresce por "ciclo" de crescimento global
-    MAX_STAGE: 3,
-    LEVEL_BASE_XP: 100, // XP necessário para nível 2 (fórmula simples: nivel = sqrt(xp/100) + 1 ou similar)
+    MAX_STAGE: 4, // 1=Sprout, 2=Small, 3=Big, 4=Flowering
+    LEVEL_BASE_XP: 100,
 };
 
 // --- CLASSES ---
@@ -186,7 +186,9 @@ class GardenRenderer {
                 } else if (item.type === 'tree') {
                     if (item.stage === 1) content.classList.add('pixel-sprout'); // Broto
                     else if (item.stage === 2) content.classList.add('pixel-tree-small'); // Árvore pequena
-                    else content.classList.add('pixel-tree'); // Árvore grande
+                    else if (item.stage === 3) content.classList.add('pixel-tree'); // Árvore grande
+                    else if (item.stage >= 4) content.classList.add('pixel-flowering-tree'); // Árvore florida
+                    else content.classList.add('pixel-tree'); // Fallback
                 }
 
                 cell.appendChild(content);
