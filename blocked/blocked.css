@@ -1,12 +1,14 @@
 :root {
-    --dark-navy: #0F172A;
-    --text-color: #F8FAFC;
-    --font-family: 'Figtree', sans-serif; /* Lembre-se de importar a fonte */
+    --bg-primary: #050505;
+    --text-primary: #FFFFFF;
+    --text-secondary: #A1A1AA;
+    --accent-gold: #Cca470;
+    --font-family: 'Figtree', sans-serif;
 }
 
 body {
-    background-color: var(--dark-navy);
-    color: var(--text-color);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     font-family: var(--font-family);
     display: flex;
     justify-content: center;
@@ -16,23 +18,41 @@ body {
     text-align: center;
 }
 
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
 .content h1 {
-    font-size: 3em;
+    font-size: 48px;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    margin: 0;
 }
 
 .content p {
-    font-size: 1.2em;
-    color: #94A3B8;
+    font-size: 16px;
+    color: var(--text-secondary);
     max-width: 400px;
+    margin: 0;
+    line-height: 1.5;
 }
 
 .plant-icon {
-    font-size: 4em;
+    font-size: 64px;
     margin: 20px 0;
-    animation: grow 1.5s ease-in-out infinite alternate;
+    animation: grow 2s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 20px rgba(204, 164, 112, 0.3)); /* Gold glow */
 }
 
 @keyframes grow {
-    from { transform: scale(1); }
-    to { transform: scale(1.1); }
+    from { transform: scale(1); filter: drop-shadow(0 0 10px rgba(204, 164, 112, 0.2)); }
+    to { transform: scale(1.1); filter: drop-shadow(0 0 25px rgba(204, 164, 112, 0.5)); }
+}
+
+strong {
+    color: var(--accent-gold);
+    font-weight: 600;
 }

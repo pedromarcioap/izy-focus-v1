@@ -16,3 +16,15 @@
 127.0.0.1 - - [08/Dec/2025 23:06:57] "GET /garden/garden-extra.css HTTP/1.1" 200 -
 127.0.0.1 - - [08/Dec/2025 23:06:57] "GET /garden/garden.js HTTP/1.1" 200 -
 127.0.0.1 - - [08/Dec/2025 23:06:57] "GET /assets/icons/stone.svg HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:07:42] "GET /garden/garden.html HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:07:42] "GET /garden/garden-extra.css HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:07:42] "GET /garden/garden.css HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:07:42] "GET /garden/pixel-art.css HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:07:42] "GET /garden/garden.js HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:07:42] "GET /assets/icons/stone.svg HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:07:43] "GET /popup/popup.html HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:07:43] "GET /assets/icons/stats.svg HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:07:43] "GET /popup/popup.css HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:07:43] "GET /assets/icons/plant.svg HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:07:43] "GET /assets/icons/settings.svg HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:07:43] "GET /popup/popup.js HTTP/1.1" 200 -

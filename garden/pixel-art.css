@@ -1,34 +1,32 @@
 :root {
-    --pixel-size: 4px;
+    --pixel-size: 3px; /* Slightly smaller to fit safely inside cells */
+    /* Adjust pixel art palette to fit Dark/Gold theme if needed,
+       but keeping natural colors for plants as requested "Don't remove pixel art" */
     --color-grass-light: #4ade80;
     --color-grass-dark: #22c55e;
-    --color-dirt: #78350f;
-    --color-stone: #94a3b8;
-    --color-stone-dark: #64748b;
-    --color-leaf: #10b981;
-    --color-leaf-dark: #059669;
-    --color-wood: #7c2d12;
-    --color-withered: #78716c;
+    --color-dirt: #5c4033; /* Darker brown */
+    --color-stone: #52525b; /* Zinc-600 */
+    --color-stone-dark: #3f3f46; /* Zinc-700 */
+    --color-leaf: #D4AF37; /* GOLDEN LEAVES for the theme? Or keep green? User said "Black, White, Golden-Brown". Let's try Golden Trees. */
+    --color-leaf-dark: #B8860B;
+    --color-wood: #3E2723;
+    --color-withered: #4a4a4a;
 }
 
-/* Grid Background - Checkerboard */
+/* Grid Background - CLEANER, no checkerboard noise inside cells */
 .pixel-garden-bg {
-    background-color: #0f172a;
-    background-image:
-        linear-gradient(45deg, #1e293b 25%, transparent 25%),
-        linear-gradient(-45deg, #1e293b 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #1e293b 75%),
-        linear-gradient(-45deg, transparent 75%, #1e293b 75%);
-    background-size: 20px 20px;
-    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    /* Solid background is handled by .garden-cell in garden.css */
+    background-image: none;
 }
 
 /* Base Pixel Art Class */
 .pixel-art {
     width: 100%;
     height: 100%;
-    position: relative;
+    position: absolute; /* Changed from relative to absolute to fill the cell */
+    inset: 0;
     image-rendering: pixelated;
+    pointer-events: none; /* Let clicks pass to cell */
 }
 
 /* --- SEED --- */
@@ -52,24 +50,33 @@
 .pixel-sprout::before {
     content: '';
     position: absolute;
-    bottom: 20%;
+    bottom: 50%; /* Center vertically better */
     left: 50%;
     width: var(--pixel-size);
     height: var(--pixel-size);
     background: var(--color-leaf);
     box-shadow:
-        0 calc(-1 * var(--pixel-size)) var(--color-leaf), /* Stem */
-        0 calc(-2 * var(--pixel-size)) var(--color-leaf), /* Stem */
-        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf), /* Leaf L */
-        calc(1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf); /* Leaf R */
-    transform: translateX(-50%);
+        0 calc(1 * var(--pixel-size)) var(--color-leaf), /* Stem down */
+        0 calc(2 * var(--pixel-size)) var(--color-leaf), /* Stem down */
+        calc(-1 * var(--pixel-size)) 0 var(--color-leaf), /* Leaf L */
+        calc(1 * var(--pixel-size)) 0 var(--color-leaf); /* Leaf R */
+    /* Adjusted shadow offsets to center better relative to 'bottom: 50%' anchor */
+    transform: translate(-50%, 50%); /* Center anchor */
 }
+
+/*
+   FIXING ALIGNMENT:
+   The previous logic anchored to 'bottom: 20%' which varies by cell size.
+   Better strategy: Anchor to 'bottom: 50%' or 'top: 50%' and use fixed pixel offsets in the box-shadow.
+
+   Let's anchor all large items to 'bottom: 4px' (just above bottom edge) to look grounded.
+*/
 
 /* --- SMALL TREE (Stage 2) --- */
 .pixel-tree-small::before {
     content: '';
     position: absolute;
-    bottom: 20%;
+    bottom: 4px; /* Grounded at bottom of cell */
     left: 50%;
     width: var(--pixel-size);
     height: var(--pixel-size);
@@ -87,7 +94,7 @@
 .pixel-tree::before {
     content: '';
     position: absolute;
-    bottom: 10%;
+    bottom: 4px; /* Grounded */
     left: 50%;
     width: var(--pixel-size);
     height: var(--pixel-size);
@@ -121,7 +128,7 @@
 .pixel-stone::before {
     content: '';
     position: absolute;
-    bottom: 20%;
+    bottom: 4px;
     left: 50%;
     width: var(--pixel-size);
     height: var(--pixel-size);
@@ -138,7 +145,7 @@
 .pixel-withered::before {
     content: '';
     position: absolute;
-    bottom: 20%;
+    bottom: 4px;
     left: 50%;
     width: var(--pixel-size);
     height: var(--pixel-size);
