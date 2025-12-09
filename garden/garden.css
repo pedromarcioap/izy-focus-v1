@@ -1,14 +1,18 @@
 :root {
-    --bg-primary: #050505;
-    --bg-secondary: #121212;
-    --bg-tertiary: #1E1E1E;
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #050505;
+    --bg-tertiary: #1A1A1A;
     --accent-gold: #Cca470;
     --accent-gold-hover: #E0B880;
-    --text-primary: #FFFFFF;
-    --text-secondary: #A1A1AA;
-    --border-color: #27272A;
+    --text-primary: #121212;
+    --text-secondary: #52525B;
+    --text-inverse: #FFFFFF;
+    --text-inverse-secondary: #A1A1AA;
+    --border-color: #E4E4E7;
+    --border-color-dark: #27272A;
     --danger: #EF4444;
     --font-family: 'Figtree', sans-serif;
+    --font-heading: 'Marcellus', serif;
     --border-radius: 4px;
 }
 
@@ -18,7 +22,6 @@ body {
     font-family: var(--font-family);
     margin: 0;
     padding: 40px;
-    min-height: 100vh;
 }
 
 .container {
@@ -33,9 +36,10 @@ header {
 
 header h1 {
     font-size: 28px;
-    font-weight: 300;
+    font-family: var(--font-heading);
+    font-weight: 400;
     color: var(--text-primary);
-    letter-spacing: -0.02em;
+    letter-spacing: 0.02em;
     margin: 0 0 12px 0;
 }
 
@@ -60,7 +64,7 @@ header p {
     background-color: var(--bg-secondary);
     padding: 8px 16px;
     border-radius: var(--border-radius);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color-dark);
     letter-spacing: 0.05em;
     text-transform: uppercase;
 }
@@ -81,7 +85,7 @@ header p {
 .xp-bar-bg {
     flex-grow: 1;
     height: 6px;
-    background-color: var(--bg-tertiary);
+    background-color: var(--border-color);
     border-radius: 3px;
     overflow: hidden;
 }
@@ -97,11 +101,11 @@ header p {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-secondary); /* Dark toolbar */
     padding: 16px;
     border-radius: var(--border-radius);
     margin-bottom: 30px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color-dark);
 }
 
 .inventory {
@@ -113,17 +117,18 @@ header p {
     display: flex;
     align-items: center;
     gap: 10px;
-    background-color: var(--bg-primary);
+    background-color: var(--bg-tertiary);
     padding: 10px 20px;
     border-radius: var(--border-radius);
     cursor: pointer;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color-dark);
     transition: all 0.2s ease;
+    color: var(--text-inverse);
 }
 
 .tool-item:hover {
     border-color: var(--accent-gold);
-    background-color: var(--bg-tertiary);
+    background-color: var(--bg-secondary);
 }
 
 .tool-item.active {
@@ -142,7 +147,7 @@ header p {
 .tool-item.active .icon { filter: grayscale(0); }
 .tool-item .label { font-weight: 500; font-size: 14px; }
 .tool-item .count {
-    background-color: var(--bg-tertiary);
+    background-color: var(--bg-secondary);
     color: var(--accent-gold);
     padding: 2px 8px;
     border-radius: 4px;
@@ -173,8 +178,8 @@ header p {
 #garden-grid {
     display: grid;
     grid-template-columns: repeat(10, 1fr);
-    gap: 2px; /* Minimal gap */
-    background-color: var(--border-color); /* Lines between cells */
+    gap: 2px;
+    background-color: var(--border-color); /* Light borders between cells */
     border: 1px solid var(--border-color);
     padding: 2px;
 }
@@ -183,7 +188,7 @@ header p {
     width: 100%;
     padding-bottom: 100%; /* Aspect Ratio 1:1 */
     position: relative;
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-secondary); /* Dark cells for contrast with pixel art */
     cursor: pointer;
     transition: background-color 0.1s;
 }

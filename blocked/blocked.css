@@ -1,9 +1,11 @@
 :root {
-    --bg-primary: #050505;
-    --text-primary: #FFFFFF;
-    --text-secondary: #A1A1AA;
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #050505; /* For container if needed, or keeping it dark mode like for blocked pages usually */
+    --text-primary: #121212;
+    --text-secondary: #52525B;
     --accent-gold: #Cca470;
     --font-family: 'Figtree', sans-serif;
+    --font-heading: 'Marcellus', serif;
 }
 
 body {
@@ -27,9 +29,11 @@ body {
 
 .content h1 {
     font-size: 48px;
-    font-weight: 300;
-    letter-spacing: -0.02em;
+    font-family: var(--font-heading);
+    font-weight: 400;
+    letter-spacing: 0.02em;
     margin: 0;
+    color: var(--text-primary);
 }
 
 .content p {
