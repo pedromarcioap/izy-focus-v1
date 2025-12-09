@@ -28,3 +28,17 @@
 127.0.0.1 - - [09/Dec/2025 01:07:43] "GET /assets/icons/plant.svg HTTP/1.1" 200 -
 127.0.0.1 - - [09/Dec/2025 01:07:43] "GET /assets/icons/settings.svg HTTP/1.1" 200 -
 127.0.0.1 - - [09/Dec/2025 01:07:43] "GET /popup/popup.js HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:21:02] "GET /popup/popup.html HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:21:02] "GET /popup/popup.css HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:21:02] "GET /assets/icons/stats.svg HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:21:02] "GET /assets/icons/plant.svg HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:21:02] "GET /popup/popup.js HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:21:02] "GET /assets/icons/settings.svg HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:21:02] "GET /assets/icons/stone.svg HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:22:06] "GET /popup/popup.html HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:22:06] "GET /popup/popup.css HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:22:06] "GET /assets/icons/plant.svg HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:22:06] "GET /assets/icons/stats.svg HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:22:06] "GET /assets/icons/settings.svg HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:22:06] "GET /popup/popup.js HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 01:22:06] "GET /assets/icons/stone.svg HTTP/1.1" 200 -
