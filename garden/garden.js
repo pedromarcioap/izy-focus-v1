@@ -122,11 +122,14 @@ class GardenState {
         if (!this.layout[cellId]) return false;
         const item = this.layout[cellId];
 
-        // Recuperar recursos (opcional, por enquanto vamos manter a lógica antiga: devolve semente/pedra)
-        // Mas se estiver 'withered', talvez não devolva nada?
-        // Vamos manter generoso por enquanto.
-        if (item.type === 'tree') this.inventory.seeds++;
-        else if (item.type === 'stone') this.inventory.stones++;
+        // Recuperar recursos apenas se a planta estiver saudável
+        if (item.type === 'tree') {
+            if (item.status !== 'withered') {
+                this.inventory.seeds++;
+            }
+        } else if (item.type === 'stone') {
+            this.inventory.stones++;
+        }
 
         delete this.layout[cellId];
         return true;
@@ -324,12 +327,17 @@ class GardenController {
     }
 
     async _handleReset() {
-        if (confirm('Tem certeza que deseja limpar todo o seu jardim? Suas plantas voltarão para o inventário.')) {
+        if (confirm('Tem certeza que deseja limpar todo o seu jardim? Apenas plantas saudáveis voltarão para o inventário.')) {
             // Logica simples: limpar layout, devolver recursos
             for (const id in this.state.layout) {
                 const item = this.state.layout[id];
-                if (item.type === 'tree') this.state.inventory.seeds++;
-                if (item.type === 'stone') this.state.inventory.stones++;
+                // Apenas devolve sementes de plantas saudáveis
+                if (item.type === 'tree' && item.status !== 'withered') {
+                    this.state.inventory.seeds++;
+                }
+                if (item.type === 'stone') {
+                    this.state.inventory.stones++;
+                }
             }
             this.state.layout = {};
             await this.state.save();
