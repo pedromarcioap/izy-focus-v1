@@ -1,25 +1,141 @@
-:root { --dark-navy: #0F172A; --emerald-green: #10B981; --amber-orange: #F59E0B; --light-red: #EF4444; --neutral-gray-light: #94A3B8; --neutral-gray-dark: #334155; --neutral-gray-darker: #1E293B; --background-color: var(--dark-navy); --text-color: #F8FAFC; --font-family: 'Figtree', sans-serif; }
+:root {
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #050505;
+    --bg-tertiary: #1A1A1A;
+    --accent-gold: #Cca470;
+    --accent-gold-hover: #E0B880;
+    --text-primary: #121212;
+    --text-secondary: #52525B;
+    --text-inverse: #FFFFFF;
+    --text-inverse-secondary: #A1A1AA;
+    --border-color: #E4E4E7;
+    --border-color-dark: #27272A;
+    --danger: #EF4444;
+    --font-family: 'Figtree', sans-serif;
+    --font-heading: 'Marcellus', serif;
+    --border-radius: 4px;
+}
 
-body { background-color: var(--background-color); color: var(--text-color); font-family: var(--font-family); margin: 0; padding: 30px; }
-.container { max-width: 700px; margin: 0 auto; }
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 40px;
+}
 
-/* LAYOUT DO HEADER ATUALIZADO */
-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-header h1 { font-size: 32px; margin: 0 0 8px 0; }
-header p { font-size: 16px; color: var(--neutral-gray-light); margin: 0; }
+.container {
+    max-width: 700px;
+    margin: 0 auto;
+}
 
-/* ESTILOS DO BOTÃO ADICIONADOS */
-.button { padding: 10px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.2s ease; }
-.button-danger { background-color: var(--light-red); color: white; }
-.button-danger:hover { background-color: #d93e3e; }
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end; /* Align bottom to match text baseline */
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
 
-/* Estilos da lista de log (inalterados) */
-.log-item { display: flex; align-items: flex-start; gap: 16px; padding: 16px; background-color: var(--neutral-gray-darker); border-radius: 12px; margin-bottom: 12px; border-left: 4px solid; }
-.log-item--focus { border-color: var(--emerald-green); }
-.log-item--break { border-color: var(--amber-orange); }
-.log-item--interrupt { border-color: var(--light-red); }
-.log-icon { font-size: 20px; margin-top: 2px; }
-.log-details { flex-grow: 1; }
-.log-title { font-weight: 600; margin: 0 0 4px 0; }
-.log-time { font-size: 12px; color: var(--neutral-gray-light); }
-.empty-state { padding: 40px; text-align: center; color: var(--neutral-gray-light); }
+header h1 {
+    font-family: var(--font-heading);
+    font-size: 32px;
+    font-weight: 400;
+    margin: 0 0 4px 0;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+}
+
+header p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Button */
+.button {
+    padding: 10px 20px;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: var(--font-family);
+}
+
+.button-danger {
+    background-color: transparent;
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.button-danger:hover {
+    background-color: var(--danger);
+    color: white;
+}
+
+/* Log Items */
+.log-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background-color: var(--bg-secondary); /* Black cards */
+    color: var(--text-inverse);
+    border-radius: var(--border-radius);
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color-dark);
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.log-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-gold);
+}
+
+/* Border Left indicators */
+.log-item--focus { border-left: 4px solid var(--accent-gold); }
+.log-item--break { border-left: 4px solid var(--text-inverse-secondary); }
+.log-item--interrupt { border-left: 4px solid var(--danger); }
+
+.log-icon {
+    font-size: 24px;
+    min-width: 40px;
+    text-align: center;
+}
+
+.log-details {
+    flex-grow: 1;
+}
+
+.log-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: var(--text-inverse);
+}
+
+.log-title strong {
+    color: var(--accent-gold);
+    font-weight: 700;
+}
+
+.log-time {
+    font-size: 12px;
+    color: var(--text-inverse-secondary);
+}
+
+.empty-state {
+    padding: 60px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 16px;
+    background-color: #f9f9f9;
+    border-radius: var(--border-radius);
+    border: 1px dashed var(--border-color);
+}
