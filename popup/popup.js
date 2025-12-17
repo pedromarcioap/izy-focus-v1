@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     function buildSoundList() {
-        soundList.innerHTML = ''; 
+        soundList.innerHTML = '';
         const stopOption = document.createElement('button');
         stopOption.className = 'sound-option active';
         stopOption.dataset.sound = 'stop';
@@ -62,14 +62,14 @@ document.addEventListener('DOMContentLoaded', () => {
             initializeHomePage();
         } else {
             appContainer.classList.add('session-active');
-            
+
             if (state.currentPhase === 'completed') {
                 mainHeaderTitle.textContent = "Ciclo Concluído!";
                 completedWrapper.style.display = 'flex';
                 completedSessionData = state;
             } else { 
                 timerWrapper.style.display = 'flex';
-                
+
                 if (!focusRingBar) {
                     focusRingBar = timerWrapper.querySelector('.progress-ring__bar');
                     radius = focusRingBar.r.baseVal.value;
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     finishSessionBtn.addEventListener('click', () => { chrome.runtime.sendMessage({ command: 'finishSession' }); });
     startNextCycleBtn.addEventListener('click', () => { chrome.runtime.sendMessage({ command: 'startNextSession', sessionData: completedSessionData }); });
     intentionInput.addEventListener('change', () => { chrome.storage.local.set({ dayIntention: intentionInput.value }); });
-    
+
     quickStartButtonsContainer.addEventListener('click', async (e) => {
         const button = e.target.closest('.quick-start-btn');
         if (!button) return;
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (button) {
             soundList.querySelectorAll('.sound-option').forEach(btn => btn.classList.remove('active'));
             const sound = button.dataset.sound;
-            
+
             if (sound === 'stop') {
                 chrome.runtime.sendMessage({ command: 'stopSound' });
             } else {

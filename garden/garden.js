@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let inventory = { seeds: 0, stones: 0 };
     let gardenLayout = {};
-    let activeTool = 'select'; 
-    const gridSize = 100; 
+    let activeTool = 'select';
+    const gridSize = 100;
 
     async function initializeGarden() {
         const data = await chrome.storage.local.get(['gardenInventory', 'gardenLayout']);
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.dataset.id = i;
             const content = document.createElement('div');
             content.className = 'content';
-            
+
             if (gardenLayout[i] === 'tree') {
                 content.textContent = '🌳';
             } else if (gardenLayout[i] === 'stone') {
@@ -44,10 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 img.style.height = '32px';
                 content.appendChild(img);
             }
-            
+
             if (gardenLayout[i] !== 'stone') cell.appendChild(content);
             else cell.appendChild(content); // (Redundante, mas mantém lógica)
-            
+
             gardenGrid.appendChild(cell);
         }
     }

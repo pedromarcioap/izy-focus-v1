@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function renderAll() {
         const data = await chrome.storage.local.get(['focusLists', 'blockLists', 'whitelists']);
         const focusLists = data.focusLists || [], blockLists = data.blockLists || [], whitelists = data.whitelists || [];
-        
+
         focusListsContainer.innerHTML = ''; blockListsContainer.innerHTML = ''; whiteListsContainer.innerHTML = '';
         blockListAssociationSelect.innerHTML = ''; whiteListAssociationSelect.innerHTML = '';
 
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const option = document.createElement('option'); option.value = list.id; option.textContent = list.name;
             whiteListAssociationSelect.appendChild(option);
         });
-        
+
         focusLists.forEach(list => {
             let associationName = 'Nenhuma';
             if (list.blockMode === 'whitelist') {
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         item.appendChild(createActionsDiv(onEdit, onDelete));
         container.appendChild(item);
     }
-    
+
     function renderFocusListItem(list, associationName, onEdit, onDelete) {
         const item = document.createElement('div');
         item.className = 'list-item';
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const blockMode = document.querySelector('input[name="block-mode"]:checked').value;
         const selectElement = blockMode === 'whitelist' ? whiteListAssociationSelect : blockListAssociationSelect;
         const associatedListId = parseInt(selectElement.value, 10);
-        
+
         if (isNaN(associatedListId)) {
             alert(`Por favor, crie e selecione uma ${blockMode} antes de salvar.`);
             return;
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const updatedList = { id: editingState.id, name: document.getElementById('focus-list-name').value, focusTime: parseInt(document.getElementById('focus-time').value, 10), breakTime: parseInt(document.getElementById('break-time').value, 10), blockMode, associatedListId };
         let newFocusLists = [], newNextListId = nextListId;
-        if (editingState.type === 'focus') { newFocusLists = focusLists.map(list => list.id === editingState.id ? updatedList : list); } 
+        if (editingState.type === 'focus') { newFocusLists = focusLists.map(list => list.id === editingState.id ? updatedList : list); }
         else { updatedList.id = nextListId; newFocusLists = [...(focusLists || []), updatedList]; newNextListId++; }
         await chrome.storage.local.set({ focusLists: newFocusLists, nextListId: newNextListId });
         cancelEditing(); await renderAll();
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const sites = document.getElementById(isBlock ? 'block-list-sites' : 'white-list-sites').value.split('\n').map(s => s.trim().replace(/^(https?:\/\/)?(www\.)?/, '')).filter(s => s.length > 0 && s.includes('.'));
         const updatedList = { id: editingState.id, name: document.getElementById(isBlock ? 'block-list-name' : 'white-list-name').value, sites };
         let newLists = [], newNextId = nextId;
-        if (editingState.type === type) { newLists = lists.map(list => list.id === editingState.id ? updatedList : list); } 
+        if (editingState.type === type) { newLists = lists.map(list => list.id === editingState.id ? updatedList : list); }
         else { updatedList.id = nextId; newLists = [...(lists || []), updatedList]; newNextId++; }
         await chrome.storage.local.set({ [storageKey]: newLists, [nextIdKey]: newNextId });
         cancelEditing(); await renderAll();
@@ -155,14 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (type === 'focus') { key = 'focusLists'; name = 'lista de foco'; }
         else if (type === 'block') { key = 'blockLists'; name = 'blocklist'; }
         else { key = 'whitelists'; name = 'whitelist'; }
-        
+
         if (!confirm(`Tem certeza que deseja excluir esta ${name}?`)) return;
         const { [key]: lists } = await chrome.storage.local.get(key);
         const updatedLists = lists.filter(list => list.id !== id);
         await chrome.storage.local.set({ [key]: updatedLists });
         await renderAll();
     }
-    
+
     blockModeRadios.forEach(radio => radio.addEventListener('change', (e) => {
         whitelistSection.style.display = e.target.value === 'whitelist' ? 'flex' : 'none';
         blocklistSection.style.display = e.target.value === 'blocklist' ? 'flex' : 'none';

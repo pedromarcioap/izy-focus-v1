@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Carrega TODOS os logs necessários para os cálculos
     const { focusLog = [], interruptLog = [] } = await chrome.storage.local.get(['focusLog', 'interruptLog']);
-    
+
     // --- Processar Dados ---
     const stats = {};
 
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const data = stats[listName];
         const totalRuns = data.completions + data.interruptions;
         const completionRate = totalRuns > 0 ? (data.completions / totalRuns) * 100 : 0;
-        
+
         // Armazena a taxa de conclusão para uso posterior
         stats[listName].completionRate = completionRate;
 
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Renderizar Lista Detalhada ---
     detailedListContainer.innerHTML = '';
     const sortedLists = Object.entries(stats).sort((a, b) => (b[1].completions + b[1].interruptions) - (a[1].completions + a[1].interruptions));
-    
+
     if (sortedLists.length === 0) {
         detailedListContainer.innerHTML = `<div class="empty-state"><p>Seu progresso aparecerá aqui.<br>Complete seu primeiro ciclo de foco para começar!</p></div>`;
     } else {
