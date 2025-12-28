@@ -1,0 +1,25 @@
+:root { --dark-navy: #0F172A; --emerald-green: #10B981; --amber-orange: #F59E0B; --light-red: #EF4444; --neutral-gray-light: #94A3B8; --neutral-gray-dark: #334155; --neutral-gray-darker: #1E293B; --background-color: var(--dark-navy); --text-color: #F8FAFC; --font-family: 'Figtree', sans-serif; }
+
+body { background-color: var(--background-color); color: var(--text-color); font-family: var(--font-family); margin: 0; padding: 30px; }
+.container { max-width: 700px; margin: 0 auto; }
+
+/* LAYOUT DO HEADER ATUALIZADO */
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+header h1 { font-size: 32px; margin: 0 0 8px 0; }
+header p { font-size: 16px; color: var(--neutral-gray-light); margin: 0; }
+
+/* ESTILOS DO BOTÃO ADICIONADOS */
+.button { padding: 10px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.2s ease; }
+.button-danger { background-color: var(--light-red); color: white; }
+.button-danger:hover { background-color: #d93e3e; }
+
+/* Estilos da lista de log (inalterados) */
+.log-item { display: flex; align-items: flex-start; gap: 16px; padding: 16px; background-color: var(--neutral-gray-darker); border-radius: 12px; margin-bottom: 12px; border-left: 4px solid; }
+.log-item--focus { border-color: var(--emerald-green); }
+.log-item--break { border-color: var(--amber-orange); }
+.log-item--interrupt { border-color: var(--light-red); }
+.log-icon { font-size: 20px; margin-top: 2px; }
+.log-details { flex-grow: 1; }
+.log-title { font-weight: 600; margin: 0 0 4px 0; }
+.log-time { font-size: 12px; color: var(--neutral-gray-light); }
+.empty-state { padding: 40px; text-align: center; color: var(--neutral-gray-light); }
