@@ -15,24 +15,29 @@ class GardenState {
     }
 
     async load() {
-        const data = await chrome.storage.local.get(['gardenInventory', 'gardenLayout']);
+        try {
+            const data = await chrome.storage.local.get(['gardenInventory', 'gardenLayout']);
 
-        // Sanitize inventory to prevent NaN issues
-        const rawInventory = data.gardenInventory || {};
-        this.inventory = {
-            seeds: Number(rawInventory.seeds) || 0,
-            stones: Number(rawInventory.stones) || 0,
-            xp: Number(rawInventory.xp) || 0,
-            pendingGrowth: Number(rawInventory.pendingGrowth) || 0
-        };
+            const rawInventory = data.gardenInventory || {};
+            this.inventory = {
+                seeds: Number(rawInventory.seeds) || 0,
+                stones: Number(rawInventory.stones) || 0,
+                xp: Number(rawInventory.xp) || 0,
+                pendingGrowth: Number(rawInventory.pendingGrowth) || 0
+            };
 
-        this.layout = this._migrateLayout(data.gardenLayout || {});
+            this.layout = this._migrateLayout(data.gardenLayout || {});
 
-        // Processar crescimento pendente
-        if (this.inventory.pendingGrowth > 0) {
-            this._processGrowth(this.inventory.pendingGrowth);
-            this.inventory.pendingGrowth = 0;
-            await this.save();
+            if (this.inventory.pendingGrowth > 0) {
+                this._processGrowth(this.inventory.pendingGrowth);
+                this.inventory.pendingGrowth = 0;
+                await this.save();
+            }
+        } catch (error) {
+            // [FIX] Se o storage estiver corrompido, reseta para estado seguro
+            console.warn('[IzyFocus] garden load falhou, usando estado padrão:', error.message);
+            this.inventory = { seeds: 0, stones: 0, xp: 0, pendingGrowth: 0 };
+            this.layout = {};
         }
     }
 
@@ -51,33 +56,50 @@ class GardenState {
     }
 
     async save() {
-        await chrome.storage.local.set({
-            gardenInventory: this.inventory,
-            gardenLayout: this.layout
-        });
+        try {
+            await chrome.storage.local.set({
+                gardenInventory: this.inventory,
+                gardenLayout: this.layout
+            });
+        } catch (error) {
+            console.warn('[IzyFocus] garden save falhou:', error.message);
+        }
     }
 
     _migrateLayout(oldLayout) {
+        // [FIX] Garante que oldLayout é um objeto válido antes de iterar
+        if (!oldLayout || typeof oldLayout !== 'object' || Array.isArray(oldLayout)) {
+            return {};
+        }
         const newLayout = {};
         for (const [id, item] of Object.entries(oldLayout)) {
-            // Validate key range
             const numId = Number(id);
             if (isNaN(numId) || numId < 0 || numId >= GARDEN_CONFIG.GRID_SIZE) continue;
 
             if (typeof item === 'string') {
-                // Migração de formato antigo ('tree', 'stone')
                 if (item === 'tree') {
-                    newLayout[id] = { type: 'tree', stage: 3, status: 'healthy', plantedAt: Date.now() }; // Assume árvore adulta
+                    newLayout[id] = { type: 'tree', stage: 3, status: 'healthy', plantedAt: Date.now() };
                 } else if (item === 'stone') {
                     newLayout[id] = { type: 'stone', status: 'healthy', plantedAt: Date.now() };
                 }
             } else if (typeof item === 'object' && item !== null) {
-                // Validate existing object
-                if (item.type === 'tree' || item.type === 'stone') {
-                    newLayout[id] = item;
+                // [FIX] Valida campos obrigatórios e sanitiza stage para evitar NaN
+                if (item.type === 'tree') {
+                    newLayout[id] = {
+                        type: 'tree',
+                        stage: Math.max(1, Math.min(GARDEN_CONFIG.MAX_STAGE, Number(item.stage) || 1)),
+                        status: (item.status === 'withered') ? 'withered' : 'healthy',
+                        plantedAt: Number(item.plantedAt) || Date.now()
+                    };
+                } else if (item.type === 'stone') {
+                    newLayout[id] = {
+                        type: 'stone',
+                        status: 'healthy',
+                        plantedAt: Number(item.plantedAt) || Date.now()
+                    };
                 }
-                // Invalid or ghost items are skipped (effectively deleted)
             }
+            // Números, booleans, null, e tipos inválidos são ignorados (limpeza automática)
         }
         return newLayout;
     }

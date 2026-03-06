@@ -8,14 +8,24 @@
   "action": {
     "default_popup": "popup/popup.html",
     "default_title": "Izy Focus",
-    "default_icon": { "16": "assets/icons/icon16.png", "48": "assets/icons/icon48.png", "128": "assets/icons/icon128.png" }
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "32": "assets/icons/icon32.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    }
   },
   "background": { "service_worker": "background/background.js" },
   "options_page": "options/options.html",
-  "icons": { "16": "assets/icons/icon16.png", "48": "assets/icons/icon48.png", "128": "assets/icons/icon128.png" },
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "32": "assets/icons/icon32.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
   "web_accessible_resources": [
     {
-      "resources": [ "assets/icons/*", "assets/sounds/*", "stats/*", "history/*", "options/*", "garden/*", "blocked/blocked.html", "offscreen.html", "popup/popup.html" ],
+      "resources": [ "blocked/blocked.html" ],
       "matches": [ "<all_urls>" ]
     }
   ]

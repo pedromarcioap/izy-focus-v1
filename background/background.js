@@ -2,6 +2,45 @@ const STORAGE_KEYS = { TIMER_STATE: 'timerState', FOCUS_LISTS: 'focusLists', BLO
 const ALARM_NAME = 'izyFocusTimer';
 const BLOCK_RULE_ID = 1;
 
+// URLs que sempre devem ser permitidas (não bloqueadas)
+function isUrlAlwaysAllowed(url) {
+    if (!url) return false;
+    
+    // URLs do Chrome extension atual
+    const extensionUrl = `chrome-extension://${chrome.runtime.id}`;
+    if (url.startsWith(extensionUrl)) return true;
+    
+    // Notificações de extensões do Chrome (qualquer página da extensão específica)
+    if (url.startsWith('chrome-extension://hkhggnncdpfibdhinjiegagmopldibha/')) return true;
+    
+    // Novas abas e páginas internas do navegador
+    try {
+        const urlObj = new URL(url);
+        const protocol = urlObj.protocol;
+        
+        // Permitir todas as URLs chrome://
+        if (protocol === 'chrome:') return true;
+        
+        // Permitir todas as URLs about:
+        if (protocol === 'about:') return true;
+        
+        // Permitir chrome-extension:// (já coberto acima, mas como fallback)
+        if (protocol === 'chrome-extension:') {
+            // Já permitimos extensões específicas acima
+            // Por segurança, permitir qualquer extensão? Não, apenas as já permitidas.
+            // Retornar false para outras extensões
+        }
+        
+        // URLs específicas comuns
+        if (url === 'about:blank' || url === 'about:newtab' || url === 'about:new-tab-page') return true;
+        if (urlObj.hostname === 'newtab' || urlObj.hostname === 'blank') return true;
+    } catch (e) {
+        // URL inválida, não permitir
+    }
+    
+    return false;
+}
+
 // --- LÓGICA DE BLOQUEIO ATIVA ---
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (!changeInfo.url) return;
@@ -9,9 +48,12 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (!timerState || !timerState.isActive || timerState.currentPhase !== 'focus' || timerState.blockMode !== 'whitelist') return;
     const list = whitelists.find(l => l.id === timerState.associatedListId);
     if (!list || !list.sites || list.sites.length === 0) return;
+    
+    // Verificar se a URL deve ser sempre permitida
+    if (isUrlAlwaysAllowed(tab.url)) return;
+    
     const tabHostname = new URL(tab.url).hostname.replace(/^www\./, '');
-    const extensionUrl = `chrome-extension://${chrome.runtime.id}`;
-    if (!list.sites.includes(tabHostname) && !tab.url.startsWith(extensionUrl)) {
+    if (!list.sites.includes(tabHostname)) {
         try { await chrome.tabs.update(tabId, { url: chrome.runtime.getURL('blocked/blocked.html') }); } catch (error) { console.warn(`Error updating tab: ${error.message}`); }
     }
 });
@@ -20,7 +62,14 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
     if (!timerState || !timerState.isActive || timerState.currentPhase !== 'focus') return;
     try {
         const tab = await chrome.tabs.get(activeInfo.tabId);
-        if (!tab.url || !tab.url.startsWith('http')) return;
+        if (!tab.url) return;
+        
+        // Verificar se a URL deve ser sempre permitida
+        if (isUrlAlwaysAllowed(tab.url)) return;
+        
+        // Apenas verificar URLs HTTP/HTTPS para bloqueio
+        if (!tab.url.startsWith('http')) return;
+        
         const data = await chrome.storage.local.get([STORAGE_KEYS.BLOCK_LISTS, STORAGE_KEYS.WHITELISTS]);
         const tabHostname = new URL(tab.url).hostname.replace(/^www\./, '');
         let shouldBlock = false;
@@ -39,6 +88,7 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
     } catch (error) { console.warn(`Could not check activated tab: ${error.message}`); }
 });
 async function synchronizeBlockingState() {
+    try {
     const data = await chrome.storage.local.get([STORAGE_KEYS.TIMER_STATE, STORAGE_KEYS.BLOCK_LISTS]);
     const timerState = data[STORAGE_KEYS.TIMER_STATE];
     if (!timerState || !timerState.isActive || timerState.currentPhase === 'break' || timerState.blockMode === 'whitelist') {
@@ -53,12 +103,15 @@ async function synchronizeBlockingState() {
     }
     const newRule = { id: BLOCK_RULE_ID, priority: 1, action: { type: 'redirect', redirect: { extensionPath: '/blocked/blocked.html' } }, condition: { requestDomains: list.sites, resourceTypes: ['main_frame'] } };
     await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [BLOCK_RULE_ID], addRules: [newRule] });
+    } catch (error) {
+        console.warn('[IzyFocus] synchronizeBlockingState falhou:', error.message);
+    }
 }
 
 // --- INICIALIZAÇÃO E CICLO DE VIDA ---
 synchronizeBlockingState();
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.local.get(null, (result) => {
+    chrome.storage.local.get(null).then((result) => {
         if (!result.focusLists) {
             chrome.storage.local.set({
                 focusLists: [{ id: 1, name: "Estudo Profundo", focusTime: 45, breakTime: 10, blockMode: 'blocklist', associatedListId: 1 }],
@@ -69,13 +122,17 @@ chrome.runtime.onInstalled.addListener(() => {
                 focusLog: [], interruptLog: [], breakLog: []
             });
         }
-    });
+    }).catch(error => console.warn('[IzyFocus] onInstalled init falhou:', error.message));
 });
 chrome.runtime.onStartup.addListener(async () => {
-    const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
-    if (timerState && timerState.isActive) {
-        const alarm = await chrome.alarms.get(ALARM_NAME);
-        if (!alarm) await stopFocusSession(false);
+    try {
+        const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
+        if (timerState && timerState.isActive) {
+            const alarm = await chrome.alarms.get(ALARM_NAME);
+            if (!alarm) await stopFocusSession(false);
+        }
+    } catch (error) {
+        console.warn('[IzyFocus] onStartup falhou:', error.message);
     }
 });
 
@@ -106,6 +163,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 async function handleWitherPlant() {
+    try {
     const data = await chrome.storage.local.get(['gardenLayout']);
     const gardenLayout = data.gardenLayout || {};
 
@@ -138,6 +196,9 @@ async function handleWitherPlant() {
         await chrome.storage.local.set({ gardenLayout });
         createNotification('Jardim Afetado!', 'Uma de suas plantas murchou devido à falta de foco. 🥀');
     }
+    } catch (error) {
+        console.warn('[IzyFocus] handleWitherPlant falhou:', error.message);
+    }
 }
 
 async function sendStateToPopup() {
@@ -150,38 +211,46 @@ async function sendStateToPopup() {
 // --- LÓGICA DO TIMER E SESSÃO ---
 chrome.alarms.onAlarm.addListener(async (alarm) => {
     if (alarm.name !== ALARM_NAME) return;
-    const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
-    if (!timerState || !timerState.isActive) return;
-    if (timerState.currentPhase === 'focus') {
-        playNotificationSound('focus_complete.mp3');
-        await startBreak(timerState);
-    } else if (timerState.currentPhase === 'break') {
-        playNotificationSound('break_complete.mp3');
-        await logBreakCompletion(timerState);
-        await chrome.alarms.clear(ALARM_NAME);
-        await processCompletedSession(timerState);
-        const completedState = { ...timerState, currentPhase: 'completed' };
-        await chrome.storage.local.set({ [STORAGE_KEYS.TIMER_STATE]: completedState });
-        sendStateToPopup();
+    try {
+        const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
+        if (!timerState || !timerState.isActive) return;
+        if (timerState.currentPhase === 'focus') {
+            playNotificationSound('focus_complete.mp3');
+            await startBreak(timerState);
+        } else if (timerState.currentPhase === 'break') {
+            playNotificationSound('break_complete.mp3');
+            await logBreakCompletion(timerState);
+            await chrome.alarms.clear(ALARM_NAME);
+            await processCompletedSession(timerState);
+            const completedState = { ...timerState, currentPhase: 'completed' };
+            await chrome.storage.local.set({ [STORAGE_KEYS.TIMER_STATE]: completedState });
+            sendStateToPopup();
+        }
+    } catch (error) {
+        console.warn('[IzyFocus] onAlarm falhou:', error.message);
     }
 });
 
 async function startFocusSession(listId) {
-    const { focusLists } = await chrome.storage.local.get('focusLists');
-    const list = focusLists.find(l => l.id == listId);
-    if (!list) return;
+    try {
+        const { focusLists } = await chrome.storage.local.get('focusLists');
+        const list = focusLists.find(l => l.id == listId);
+        if (!list) return;
 
-    const endTime = Date.now() + list.focusTime * 60 * 1000;
-    const newState = { 
-        isActive: true, listId: list.id, listName: list.name, 
-        focusTime: list.focusTime, breakTime: list.breakTime, 
-        blockMode: list.blockMode, associatedListId: list.associatedListId, 
-        endTime, currentPhase: 'focus', startTime: Date.now()
-    };
-    await chrome.storage.local.set({ [STORAGE_KEYS.TIMER_STATE]: newState });
-    chrome.alarms.create(ALARM_NAME, { when: endTime });
-    await synchronizeBlockingState();
-    sendStateToPopup();
+        const endTime = Date.now() + list.focusTime * 60 * 1000;
+        const newState = { 
+            isActive: true, listId: list.id, listName: list.name, 
+            focusTime: list.focusTime, breakTime: list.breakTime, 
+            blockMode: list.blockMode, associatedListId: list.associatedListId, 
+            endTime, currentPhase: 'focus', startTime: Date.now()
+        };
+        await chrome.storage.local.set({ [STORAGE_KEYS.TIMER_STATE]: newState });
+        chrome.alarms.create(ALARM_NAME, { when: endTime });
+        await synchronizeBlockingState();
+        sendStateToPopup();
+    } catch (error) {
+        console.warn('[IzyFocus] startFocusSession falhou:', error.message);
+    }
 }
 
 async function startBreak(prevState) {
@@ -195,20 +264,25 @@ async function startBreak(prevState) {
 }
 
 async function stopFocusSession(wasInterrupted) {
-    if (wasInterrupted) {
-        const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
-        if (timerState && timerState.isActive) await logInterruption(timerState);
+    try {
+        if (wasInterrupted) {
+            const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
+            if (timerState && timerState.isActive) await logInterruption(timerState);
+        }
+        await chrome.storage.local.set({ [STORAGE_KEYS.TIMER_STATE]: { isActive: false } });
+        await synchronizeBlockingState();
+        await stopAudioInBackground();
+        await closeOffscreenDocument();
+        chrome.alarms.clear(ALARM_NAME);
+        sendStateToPopup();
+    } catch (error) {
+        console.warn('[IzyFocus] stopFocusSession falhou:', error.message);
     }
-    await chrome.storage.local.set({ [STORAGE_KEYS.TIMER_STATE]: { isActive: false } });
-    await synchronizeBlockingState();
-    await stopAudioInBackground();
-    await closeOffscreenDocument();
-    chrome.alarms.clear(ALARM_NAME);
-    sendStateToPopup();
 }
 
 // --- LÓGICA DE GAMIFICAÇÃO E LOGS ---
 async function processCompletedSession(sessionData) {
+    try {
     const data = await chrome.storage.local.get(['focusLog', 'gardenInventory', 'userStats', 'achievements']);
     const newLogEntry = { id: Date.now(), timestamp: Date.now(), listName: sessionData.listName, focusTime: sessionData.focusTime };
     const updatedFocusLog = [...(data.focusLog || []), newLogEntry];
@@ -256,6 +330,9 @@ async function processCompletedSession(sessionData) {
     } else {
         createNotification(`Ciclo Concluído!`, `Você ganhou 1 Semente 🌱 e 50 XP ✨.`);
     }
+    } catch (error) {
+        console.warn('[IzyFocus] processCompletedSession falhou:', error.message);
+    }
 }
 
 function checkAchievements(stats, inventory, unlockedIds) {
@@ -281,42 +358,65 @@ function checkAchievements(stats, inventory, unlockedIds) {
 }
 
 async function logInterruption(sessionData) {
-    const data = await chrome.storage.local.get(['interruptLog', 'gardenInventory']);
-    const interruptLog = data.interruptLog || [];
-    const newEntry = { timestamp: Date.now(), listName: sessionData.listName };
-    const updatedInventory = data.gardenInventory || { seeds: 0, stones: 0 };
-    updatedInventory.stones++;
-    await chrome.storage.local.set({ interruptLog: [...interruptLog, newEntry], gardenInventory: updatedInventory });
-    createNotification(`Ciclo Interrompido.`, `Você ganhou 1 Pedra 🪨.`);
+    try {
+        const data = await chrome.storage.local.get(['interruptLog', 'gardenInventory']);
+        const interruptLog = data.interruptLog || [];
+        const newEntry = { timestamp: Date.now(), listName: sessionData.listName };
+        const updatedInventory = data.gardenInventory || { seeds: 0, stones: 0 };
+        updatedInventory.stones++;
+        await chrome.storage.local.set({ interruptLog: [...interruptLog, newEntry], gardenInventory: updatedInventory });
+        createNotification(`Ciclo Interrompido.`, `Você ganhou 1 Pedra 🪨.`);
+    } catch (error) {
+        console.warn('[IzyFocus] logInterruption falhou:', error.message);
+    }
 }
 
 async function logBreakCompletion(sessionData) {
-    const { breakLog = [] } = await chrome.storage.local.get('breakLog');
-    const newEntry = { timestamp: Date.now(), breakTime: sessionData.breakTime };
-    await chrome.storage.local.set({ breakLog: [...breakLog, newEntry] });
+    try {
+        const { breakLog = [] } = await chrome.storage.local.get('breakLog');
+        const newEntry = { timestamp: Date.now(), breakTime: sessionData.breakTime };
+        await chrome.storage.local.set({ breakLog: [...breakLog, newEntry] });
+    } catch (error) {
+        console.warn('[IzyFocus] logBreakCompletion falhou:', error.message);
+    }
 }
 
 // --- UTILITÁRIOS DE ÁUDIO ---
 async function playAudioInBackground(source) {
-    await setupOffscreenDocument('offscreen.html');
-    // Pequeno delay para garantir que o script do offscreen foi carregado e está ouvindo
-    await new Promise(resolve => setTimeout(resolve, 100));
-    await chrome.runtime.sendMessage({ command: 'offscreenPlay', source: source });
+    try {
+        await setupOffscreenDocument('offscreen.html');
+        await new Promise(resolve => setTimeout(resolve, 100));
+        await chrome.runtime.sendMessage({ command: 'offscreenPlay', source: source });
+    } catch (error) {
+        console.warn('[IzyFocus] playAudioInBackground falhou:', error.message);
+    }
 }
 async function stopAudioInBackground() {
-    if (await hasOffscreenDocument()) {
-        await chrome.runtime.sendMessage({ command: 'offscreenStop' });
+    try {
+        if (await hasOffscreenDocument()) {
+            await chrome.runtime.sendMessage({ command: 'offscreenStop' });
+        }
+    } catch (error) {
+        console.warn('[IzyFocus] stopAudioInBackground falhou:', error.message);
     }
 }
 async function playNotificationSound(file) {
-    await setupOffscreenDocument('offscreen.html');
-    await chrome.runtime.sendMessage({ command: 'offscreenPlayNotification', source: `assets/sounds/${file}` });
+    try {
+        await setupOffscreenDocument('offscreen.html');
+        await chrome.runtime.sendMessage({ command: 'offscreenPlayNotification', source: `assets/sounds/${file}` });
+    } catch (error) {
+        console.warn('[IzyFocus] playNotificationSound falhou:', error.message);
+    }
 }
 let creatingOffscreen;
 async function hasOffscreenDocument() {
-    if (chrome.runtime.getContexts) {
-        const contexts = await chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'] });
-        return contexts.length > 0;
+    try {
+        if (chrome.runtime.getContexts) {
+            const contexts = await chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'] });
+            return contexts.length > 0;
+        }
+    } catch (error) {
+        console.warn('[IzyFocus] hasOffscreenDocument falhou:', error.message);
     }
     return false;
 }
@@ -324,16 +424,29 @@ async function setupOffscreenDocument(path) {
     if (!chrome.offscreen) return;
     if (await hasOffscreenDocument()) return;
     if (creatingOffscreen) { await creatingOffscreen; return; }
-    creatingOffscreen = chrome.offscreen.createDocument({ url: path, reasons: ['AUDIO_PLAYBACK'], justification: 'Tocar sons de notificação.' });
-    await creatingOffscreen;
-    creatingOffscreen = null;
+    try {
+        creatingOffscreen = chrome.offscreen.createDocument({ url: path, reasons: ['AUDIO_PLAYBACK'], justification: 'Tocar sons de notificação e áudio ambiente durante sessões de foco.' });
+        await creatingOffscreen;
+    } catch (error) {
+        console.warn('[IzyFocus] setupOffscreenDocument falhou:', error.message);
+    } finally {
+        creatingOffscreen = null;
+    }
 }
 async function closeOffscreenDocument() {
     if (!chrome.offscreen) return;
-    if (await hasOffscreenDocument()) {
-        await chrome.offscreen.closeDocument();
+    try {
+        if (await hasOffscreenDocument()) {
+            await chrome.offscreen.closeDocument();
+        }
+    } catch (error) {
+        console.warn('[IzyFocus] closeOffscreenDocument falhou:', error.message);
     }
 }
 function createNotification(title, message) {
-    chrome.notifications.create({ type: 'basic', iconUrl: '/assets/icons/icon128.png', title, message });
+    try {
+        chrome.notifications.create({ type: 'basic', iconUrl: '/assets/icons/icon128.png', title, message });
+    } catch (error) {
+        console.warn('[IzyFocus] createNotification falhou:', error.message);
+    }
 }

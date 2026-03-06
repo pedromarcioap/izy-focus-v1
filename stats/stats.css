@@ -1,19 +1,28 @@
 :root {
     --bg-primary: #FFFFFF;
-    --bg-secondary: #050505;
-    --bg-tertiary: #1A1A1A;
-    --accent-gold: #Cca470;
-    --accent-gold-hover: #E0B880;
-    --text-primary: #121212;
-    --text-secondary: #52525B;
-    --text-inverse: #FFFFFF;
-    --text-inverse-secondary: #A1A1AA;
-    --border-color: #E4E4E7;
-    --border-color-dark: #27272A;
+    --bg-secondary: #FAFAFA;
+    --bg-tertiary: #F5F5F5;
+    --accent-primary: #2563EB;
+    --accent-primary-hover: #1D4ED8;
+    --accent-secondary: #64748B;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-tertiary: #94A3B8;
+    --border-color: #E2E8F0;
+    --border-color-dark: #CBD5E1;
     --danger: #EF4444;
-    --font-family: 'Figtree', sans-serif;
-    --font-heading: 'Marcellus', serif;
-    --border-radius: 4px;
+    --success: #10B981;
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --border-radius: 8px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    /* [FIX] Variáveis consolidadas - antes ausentes, causavam cores invisíveis */
+    --text-inverse: #0F172A;
+    --text-inverse-secondary: #475569;
+    --accent-gold: #D97706;
+    --bg-gray: #F8FAFC;
 }
 
 body {
@@ -21,15 +30,17 @@ body {
     color: var(--text-primary);
     font-family: var(--font-family);
     margin: 0;
-    padding: 40px;
+    padding: 32px;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 32px;
 }
 
 header {
@@ -41,11 +52,10 @@ header {
 }
 
 .header-content h1 {
-    font-size: 32px;
-    font-family: var(--font-heading);
-    font-weight: 400;
+    font-size: 24px;
+    font-weight: 700;
     margin: 0 0 8px 0;
-    letter-spacing: 0.02em;
+    letter-spacing: -0.01em;
     color: var(--text-primary);
 }
 
@@ -56,14 +66,14 @@ header {
 }
 
 .button {
-    padding: 10px 20px;
+    padding: 8px 16px;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 500;
     text-decoration: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: var(--transition);
     background-color: var(--bg-primary);
     color: var(--text-primary);
     text-transform: uppercase;
@@ -72,58 +82,67 @@ header {
 
 .button:hover {
     background-color: var(--bg-secondary);
-    border-color: var(--bg-secondary);
-    color: var(--text-inverse);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
 }
 
 .card {
     background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color-dark);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    padding: 32px;
-    color: var(--text-inverse);
+    padding: 24px;
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
 }
 
 /* Highlights */
 .highlights-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 24px;
+    gap: 20px;
 }
 
 .highlight-card {
     background-color: var(--bg-tertiary);
-    border: 1px solid var(--border-color-dark);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    padding: 24px;
+    padding: 20px;
     text-align: center;
-    transition: border-color 0.2s;
+    transition: var(--transition);
 }
 
 .highlight-card:hover {
-    border-color: var(--accent-gold);
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .highlight-card .icon {
-    font-size: 24px;
-    margin-bottom: 12px;
-    color: var(--text-inverse-secondary);
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
 }
 
 .highlight-card h3 {
     margin: 0 0 8px 0;
-    font-size: 13px;
-    color: var(--text-inverse-secondary);
+    font-size: 12px;
+    color: var(--text-tertiary);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
 .highlight-card .value {
-    font-size: 32px;
-    font-family: var(--font-heading);
-    font-weight: 400;
-    color: var(--accent-gold);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent-primary);
     line-height: 1;
 }
 

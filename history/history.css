@@ -1,19 +1,28 @@
 :root {
     --bg-primary: #FFFFFF;
-    --bg-secondary: #050505;
-    --bg-tertiary: #1A1A1A;
-    --accent-gold: #Cca470;
-    --accent-gold-hover: #E0B880;
-    --text-primary: #121212;
-    --text-secondary: #52525B;
-    --text-inverse: #FFFFFF;
-    --text-inverse-secondary: #A1A1AA;
-    --border-color: #E4E4E7;
-    --border-color-dark: #27272A;
+    --bg-secondary: #FAFAFA;
+    --bg-tertiary: #F5F5F5;
+    --accent-primary: #2563EB;
+    --accent-primary-hover: #1D4ED8;
+    --accent-secondary: #64748B;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-tertiary: #94A3B8;
+    --border-color: #E2E8F0;
+    --border-color-dark: #CBD5E1;
     --danger: #EF4444;
-    --font-family: 'Figtree', sans-serif;
-    --font-heading: 'Marcellus', serif;
-    --border-radius: 4px;
+    --success: #10B981;
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --border-radius: 8px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    /* [FIX] Variáveis consolidadas - antes ausentes, causavam cores invisíveis */
+    --accent-gold: #D97706;
+    --text-inverse: #0F172A;
+    --text-inverse-secondary: #475569;
+    --bg-gray: #F8FAFC;
 }
 
 body {
@@ -21,11 +30,13 @@ body {
     color: var(--text-primary);
     font-family: var(--font-family);
     margin: 0;
-    padding: 40px;
+    padding: 32px;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
 .container {
-    max-width: 700px;
+    max-width: 800px;
     margin: 0 auto;
 }
 
@@ -33,19 +44,18 @@ body {
 header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end; /* Align bottom to match text baseline */
-    margin-bottom: 40px;
+    align-items: flex-end;
+    margin-bottom: 32px;
     padding-bottom: 20px;
     border-bottom: 1px solid var(--border-color);
 }
 
 header h1 {
-    font-family: var(--font-heading);
-    font-size: 32px;
-    font-weight: 400;
+    font-size: 24px;
+    font-weight: 700;
     margin: 0 0 4px 0;
     color: var(--text-primary);
-    letter-spacing: 0.02em;
+    letter-spacing: -0.01em;
 }
 
 header p {
@@ -56,13 +66,13 @@ header p {
 
 /* Button */
 .button {
-    padding: 10px 20px;
+    padding: 8px 16px;
     border: 1px solid transparent;
     border-radius: var(--border-radius);
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: var(--transition);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-family: var(--font-family);
@@ -77,6 +87,8 @@ header p {
 .button-danger:hover {
     background-color: var(--danger);
     color: white;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
 }
 
 /* Log Items */
@@ -85,28 +97,30 @@ header p {
     align-items: center;
     gap: 16px;
     padding: 16px;
-    background-color: var(--bg-secondary); /* Black cards */
-    color: var(--text-inverse);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
     border-radius: var(--border-radius);
     margin-bottom: 12px;
-    border: 1px solid var(--border-color-dark);
-    transition: transform 0.2s, border-color 0.2s;
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
 }
 
 .log-item:hover {
     transform: translateY(-2px);
-    border-color: var(--accent-gold);
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-md);
 }
 
 /* Border Left indicators */
-.log-item--focus { border-left: 4px solid var(--accent-gold); }
-.log-item--break { border-left: 4px solid var(--text-inverse-secondary); }
+.log-item--focus { border-left: 4px solid var(--accent-primary); }
+.log-item--break { border-left: 4px solid var(--text-tertiary); }
 .log-item--interrupt { border-left: 4px solid var(--danger); }
 
 .log-icon {
-    font-size: 24px;
-    min-width: 40px;
+    font-size: 20px;
+    min-width: 32px;
     text-align: center;
+    color: var(--text-secondary);
 }
 
 .log-details {
@@ -114,28 +128,28 @@ header p {
 }
 
 .log-title {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     margin: 0 0 4px 0;
-    color: var(--text-inverse);
+    color: var(--text-primary);
 }
 
 .log-title strong {
-    color: var(--accent-gold);
+    color: var(--accent-primary);
     font-weight: 700;
 }
 
 .log-time {
     font-size: 12px;
-    color: var(--text-inverse-secondary);
+    color: var(--text-tertiary);
 }
 
 .empty-state {
     padding: 60px;
     text-align: center;
     color: var(--text-secondary);
-    font-size: 16px;
-    background-color: #f9f9f9;
+    font-size: 15px;
+    background-color: var(--bg-tertiary);
     border-radius: var(--border-radius);
     border: 1px dashed var(--border-color);
 }
