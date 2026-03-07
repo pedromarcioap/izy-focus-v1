@@ -1,4 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- i18n ---
+    function localizeHtmlPage() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const msg = chrome.i18n.getMessage(el.dataset.i18n);
+            if (msg) el.textContent = msg;
+        });
+        document.querySelectorAll('[data-i18n-html]').forEach(el => {
+            const msg = chrome.i18n.getMessage(el.dataset.i18nHtml);
+            if (msg) el.innerHTML = msg;
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            const msg = chrome.i18n.getMessage(el.dataset.i18nTitle);
+            if (msg) el.title = msg;
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const msg = chrome.i18n.getMessage(el.dataset.i18nPlaceholder);
+            if (msg) el.placeholder = msg;
+        });
+    }
+    localizeHtmlPage();
+
     // Element References
     const elements = {
         app: document.getElementById('app'),
@@ -29,8 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Audio Logic
     const SOUNDS = [
-        { file: 'rain.mp3', name: 'Chuva', emoji: '🌧️' },
-        { file: 'forest.mp3', name: 'Floresta', emoji: '🌳' }
+        { file: 'rain.mp3', name: chrome.i18n.getMessage('popup_sound_rain'), emoji: '🌧️' },
+        { file: 'forest.mp3', name: chrome.i18n.getMessage('popup_sound_forest'), emoji: '🌳' }
     ];
 
     function buildSoundList() {
@@ -38,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const stopOption = document.createElement('button');
         stopOption.className = 'sound-option active';
         stopOption.dataset.sound = 'stop';
-        stopOption.innerHTML = '🔇 Silêncio';
+        stopOption.textContent = chrome.i18n.getMessage('popup_sound_silence');
         elements.soundList.appendChild(stopOption);
         
         SOUNDS.forEach(sound => {
@@ -60,14 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.app.classList.remove('session-active');
 
         if (!state || !state.isActive) {
-            elements.headerTitle.textContent = "Izy Focus";
+            elements.headerTitle.textContent = chrome.i18n.getMessage('popup_title_default');
             elements.homeContainer.style.display = 'block';
             initializeHomePage();
         } else {
             elements.app.classList.add('session-active');
 
             if (state.currentPhase === 'completed') {
-                elements.headerTitle.textContent = "Ciclo Concluído!";
+                elements.headerTitle.textContent = chrome.i18n.getMessage('popup_cycle_completed_title');
                 elements.completedWrapper.style.display = 'flex';
                 completedSessionData = state;
             } else {
@@ -81,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const isFocus = state.currentPhase === 'focus';
-                elements.headerTitle.textContent = isFocus ? "Em Foco" : "Pausa";
+                elements.headerTitle.textContent = isFocus ? chrome.i18n.getMessage('popup_phase_focus') : chrome.i18n.getMessage('popup_phase_break');
                 focusRingBar.classList.toggle('break-bar', !isFocus);
                 elements.soundToggleBtn.style.display = isFocus ? 'flex' : 'none';
                 if (!isFocus) elements.soundList.style.display = 'none';
@@ -106,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         elements.currentTaskLabel.textContent = state.listName;
                         updatePlant(progress);
                     } else {
-                        elements.currentTaskLabel.textContent = "Respire e alongue-se";
+                        elements.currentTaskLabel.textContent = chrome.i18n.getMessage('popup_break_message');
                         updatePlant(0);
                     }
                 };
@@ -141,11 +162,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const button = document.createElement('button');
                 button.className = 'quick-start-btn';
                 button.dataset.listId = list.id;
-                button.innerHTML = `${list.name.split('(')[0].trim()} <span>${list.focusTime} min</span>`;
+                button.innerHTML = `${list.name.split('(')[0].trim()} <span>${list.focusTime} ${chrome.i18n.getMessage('popup_min_suffix')}</span>`;
                 elements.quickStartButtons.appendChild(button);
             });
         } else {
-            elements.quickStartButtons.innerHTML = '<p style="font-size: 12px; color: var(--text-tertiary);">Crie sua primeira lista nas configurações!</p>';
+            elements.quickStartButtons.innerHTML = '<p style="font-size: 12px; color: var(--text-tertiary);">' + chrome.i18n.getMessage('popup_no_lists_msg') + '</p>';
         }
         if (data.dayIntention) elements.intentionInput.value = data.dayIntention;
     }
@@ -167,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     elements.emergencyStopBtn.addEventListener('click', () => {
-        if (confirm("Tem certeza? Você ganhará uma Pedra da Pausa.")) {
+        if (confirm(chrome.i18n.getMessage('popup_confirm_interrupt'))) {
             chrome.runtime.sendMessage({ command: 'interruptFocus' });
         }
     });

@@ -199,7 +199,7 @@ class GardenRenderer {
     }
 
     _renderStats(levelInfo) {
-        this.elements.level.textContent = `Nível ${levelInfo.level}`;
+        this.elements.level.textContent = chrome.i18n.getMessage('garden_level', [String(levelInfo.level)]);
         this.elements.xpBar.style.width = `${Math.min(100, Math.max(0, levelInfo.progress))}%`;
         this.elements.xpBar.title = `${levelInfo.xp} / ${levelInfo.nextLevelXp} XP`;
         if (this.elements.xpValue) {
@@ -285,17 +285,17 @@ class GardenController {
 
     async _renderAchievements() {
         const listEl = document.getElementById('achievements-list');
-        listEl.innerHTML = 'Carregando...';
+        listEl.innerHTML = chrome.i18n.getMessage('garden_loading');
 
         const data = await chrome.storage.local.get(['achievements']);
         const unlockedIds = new Set(data.achievements || []);
 
         // Define definitions here or share via config
         const ACHIEVEMENTS_DEF = [
-            { id: 'first_bloom', title: 'Primeiro Broto', desc: 'Complete sua primeira sessão de foco.', icon: '🌱' },
-            { id: 'consistency_3', title: 'Raízes Firmes', desc: 'Mantenha o foco por 3 dias seguidos.', icon: '📅' },
-            { id: 'deep_focus', title: 'Mestre do Tempo', desc: 'Acumule 500 minutos totais de foco.', icon: '⏳' },
-            { id: 'level_5', title: 'Especialista', desc: 'Alcance o Nível 5.', icon: '⭐' }
+            { id: 'first_bloom', title: chrome.i18n.getMessage('achievement_first_bloom_title'), desc: chrome.i18n.getMessage('achievement_first_bloom_desc'), icon: '🌱' },
+            { id: 'consistency_3', title: chrome.i18n.getMessage('achievement_consistency_3_title'), desc: chrome.i18n.getMessage('achievement_consistency_3_desc'), icon: '📅' },
+            { id: 'deep_focus', title: chrome.i18n.getMessage('achievement_deep_focus_title'), desc: chrome.i18n.getMessage('achievement_deep_focus_desc'), icon: '⏳' },
+            { id: 'level_5', title: chrome.i18n.getMessage('achievement_level_5_title'), desc: chrome.i18n.getMessage('achievement_level_5_desc'), icon: '⭐' }
         ];
 
         listEl.innerHTML = '';
@@ -349,7 +349,7 @@ class GardenController {
     }
 
     async _handleReset() {
-        if (confirm('Tem certeza que deseja limpar todo o seu jardim? Apenas plantas saudáveis voltarão para o inventário.')) {
+        if (confirm(chrome.i18n.getMessage('garden_confirm_reset'))) {
             // Logica simples: limpar layout, devolver recursos
             for (const id in this.state.layout) {
                 const item = this.state.layout[id];
@@ -370,6 +370,18 @@ class GardenController {
 
 // --- BOOTSTRAP ---
 document.addEventListener('DOMContentLoaded', () => {
+    // --- i18n ---
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const msg = chrome.i18n.getMessage(el.dataset.i18n);
+        if (msg) el.textContent = msg;
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const msg = chrome.i18n.getMessage(el.dataset.i18nTitle);
+        if (msg) el.title = msg;
+    });
+    const titleMsg = chrome.i18n.getMessage('garden_title');
+    if (titleMsg) document.title = titleMsg;
+
     const state = new GardenState();
     const renderer = new GardenRenderer('garden-grid');
     const controller = new GardenController(state, renderer);

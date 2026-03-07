@@ -194,7 +194,7 @@ async function handleWitherPlant() {
 
         gardenLayout[targetId] = newItem;
         await chrome.storage.local.set({ gardenLayout });
-        createNotification('Jardim Afetado!', 'Uma de suas plantas murchou devido à falta de foco. 🥀');
+        createNotification(chrome.i18n.getMessage('notif_wither_title'), chrome.i18n.getMessage('notif_wither_message'));
     }
     } catch (error) {
         console.warn('[IzyFocus] handleWitherPlant falhou:', error.message);
@@ -260,7 +260,7 @@ async function startBreak(prevState) {
     chrome.alarms.create(ALARM_NAME, { when: endTime });
     await synchronizeBlockingState();
     sendStateToPopup();
-    createNotification('Hora da Pausa!', `Bom trabalho! Descanse por ${prevState.breakTime} minutos.`);
+    createNotification(chrome.i18n.getMessage('notif_break_title'), chrome.i18n.getMessage('notif_break_message', [String(prevState.breakTime)]));
 }
 
 async function stopFocusSession(wasInterrupted) {
@@ -325,10 +325,10 @@ async function processCompletedSession(sessionData) {
     // Notify
     if (newUnlocks.new.length > 0) {
         newUnlocks.new.forEach(ach => {
-            createNotification('🏆 Conquista Desbloqueada!', ach.title);
+            createNotification(chrome.i18n.getMessage('notif_achievement_title'), ach.title);
         });
     } else {
-        createNotification(`Ciclo Concluído!`, `Você ganhou 1 Semente 🌱 e 50 XP ✨.`);
+        createNotification(chrome.i18n.getMessage('notif_cycle_completed_title'), chrome.i18n.getMessage('notif_cycle_completed_message'));
     }
     } catch (error) {
         console.warn('[IzyFocus] processCompletedSession falhou:', error.message);
@@ -337,11 +337,11 @@ async function processCompletedSession(sessionData) {
 
 function checkAchievements(stats, inventory, unlockedIds) {
     const ACHIEVEMENTS = [
-        { id: 'first_bloom', title: 'Primeiro Broto', desc: 'Complete 1 sessão', condition: () => stats.totalSessions >= 1 },
-        { id: 'apprentice', title: 'Jardineiro Aprendiz', desc: 'Plante 5 sementes', condition: () => false }, // Logic needs gardenLayout access, skipping for simplicity or check inventory.seeds used? Let's use totalSessions for now.
-        { id: 'consistency_3', title: 'Raízes Firmes', desc: '3 dias seguidos', condition: () => stats.currentStreak >= 3 },
-        { id: 'deep_focus', title: 'Mestre do Tempo', desc: 'Acumule 500 min', condition: () => stats.totalFocusMinutes >= 500 },
-        { id: 'level_5', title: 'Especialista', desc: 'Alcance o Nível 5', condition: () => (inventory.xp / 250) >= 4 } // Level 1 is 0xp, Level 5 is 1000xp? Formula is 1 + floor(xp/250). So Level 5 needs 1000xp.
+        { id: 'first_bloom', title: chrome.i18n.getMessage('achievement_first_bloom_title'), desc: chrome.i18n.getMessage('achievement_first_bloom_desc'), condition: () => stats.totalSessions >= 1 },
+        { id: 'apprentice', title: chrome.i18n.getMessage('achievement_first_bloom_title'), desc: chrome.i18n.getMessage('achievement_first_bloom_desc'), condition: () => false },
+        { id: 'consistency_3', title: chrome.i18n.getMessage('achievement_consistency_3_title'), desc: chrome.i18n.getMessage('achievement_consistency_3_desc'), condition: () => stats.currentStreak >= 3 },
+        { id: 'deep_focus', title: chrome.i18n.getMessage('achievement_deep_focus_title'), desc: chrome.i18n.getMessage('achievement_deep_focus_desc'), condition: () => stats.totalFocusMinutes >= 500 },
+        { id: 'level_5', title: chrome.i18n.getMessage('achievement_level_5_title'), desc: chrome.i18n.getMessage('achievement_level_5_desc'), condition: () => (inventory.xp / 250) >= 4 }
     ];
 
     const currentIds = new Set(unlockedIds);
@@ -365,7 +365,7 @@ async function logInterruption(sessionData) {
         const updatedInventory = data.gardenInventory || { seeds: 0, stones: 0 };
         updatedInventory.stones++;
         await chrome.storage.local.set({ interruptLog: [...interruptLog, newEntry], gardenInventory: updatedInventory });
-        createNotification(`Ciclo Interrompido.`, `Você ganhou 1 Pedra 🪨.`);
+        createNotification(chrome.i18n.getMessage('notif_interrupted_title'), chrome.i18n.getMessage('notif_interrupted_message'));
     } catch (error) {
         console.warn('[IzyFocus] logInterruption falhou:', error.message);
     }

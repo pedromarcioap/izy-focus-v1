@@ -1,0 +1,559 @@
+{
+  "app_name": {
+    "message": "Izy Focus",
+    "description": "Nome da extensão"
+  },
+  "app_description": {
+    "message": "Foco calmo e intencional para mentes criativas. Bloqueie distrações e cultive seu jardim de produtividade.",
+    "description": "Descrição da extensão"
+  },
+
+  "popup_title_default": {
+    "message": "Izy Focus",
+    "description": "Título padrão do popup"
+  },
+  "popup_garden_tooltip": {
+    "message": "Meu Jardim",
+    "description": "Tooltip do botão do jardim"
+  },
+  "popup_stats_tooltip": {
+    "message": "Estatísticas",
+    "description": "Tooltip do botão de estatísticas"
+  },
+  "popup_settings_tooltip": {
+    "message": "Configurações",
+    "description": "Tooltip do botão de configurações"
+  },
+  "popup_start_focus": {
+    "message": "Comece a focar agora",
+    "description": "Texto do card principal"
+  },
+  "popup_seeds_label": {
+    "message": "Sementes",
+    "description": "Label de sementes"
+  },
+  "popup_stones_label": {
+    "message": "Pedras",
+    "description": "Label de pedras"
+  },
+  "popup_intention_placeholder": {
+    "message": "Qual é a sua intenção para hoje?",
+    "description": "Placeholder do campo de intenção"
+  },
+  "popup_sound_toggle": {
+    "message": "🎵 Sons Ambiente",
+    "description": "Botão de sons ambiente"
+  },
+  "popup_emergency_stop": {
+    "message": "Interromper",
+    "description": "Botão de parar sessão"
+  },
+  "popup_cycle_completed_title": {
+    "message": "Ciclo Concluído!",
+    "description": "Título quando o ciclo é concluído"
+  },
+  "popup_cycle_completed_msg": {
+    "message": "Você ganhou <strong>1 Semente de Foco</strong> 🌱. O que você gostaria de fazer agora?",
+    "description": "Mensagem de ciclo concluído"
+  },
+  "popup_start_next_cycle": {
+    "message": "Iniciar Próximo Ciclo",
+    "description": "Botão para iniciar próximo ciclo"
+  },
+  "popup_finish_session": {
+    "message": "Finalizar e Voltar ao Início",
+    "description": "Botão para finalizar sessão"
+  },
+  "popup_phase_focus": {
+    "message": "Em Foco",
+    "description": "Título quando em fase de foco"
+  },
+  "popup_phase_break": {
+    "message": "Pausa",
+    "description": "Título quando em pausa"
+  },
+  "popup_break_message": {
+    "message": "Respire e alongue-se",
+    "description": "Mensagem durante a pausa"
+  },
+  "popup_no_lists_msg": {
+    "message": "Crie sua primeira lista nas configurações!",
+    "description": "Mensagem quando não há listas"
+  },
+  "popup_confirm_interrupt": {
+    "message": "Tem certeza? Você ganhará uma Pedra da Pausa.",
+    "description": "Confirmação de interrupção"
+  },
+  "popup_sound_silence": {
+    "message": "🔇 Silêncio",
+    "description": "Opção de silêncio"
+  },
+  "popup_sound_rain": {
+    "message": "Chuva",
+    "description": "Nome do som de chuva"
+  },
+  "popup_sound_forest": {
+    "message": "Floresta",
+    "description": "Nome do som de floresta"
+  },
+  "popup_min_suffix": {
+    "message": "min",
+    "description": "Sufixo de minutos"
+  },
+
+  "options_title": {
+    "message": "Configurações - Izy Focus",
+    "description": "Título da página de configurações"
+  },
+  "options_header": {
+    "message": "Configurações e Listas",
+    "description": "Cabeçalho das configurações"
+  },
+  "options_subtitle": {
+    "message": "Personalize suas sessões de foco, listas de bloqueio e de permissão.",
+    "description": "Subtítulo das configurações"
+  },
+  "options_focus_lists": {
+    "message": "Listas de Foco",
+    "description": "Seção de listas de foco"
+  },
+  "options_add_focus_list": {
+    "message": "Adicionar Nova Lista de Foco",
+    "description": "Título do formulário de lista de foco"
+  },
+  "options_focus_name_label": {
+    "message": "Nome",
+    "description": "Label do nome da lista de foco"
+  },
+  "options_focus_name_placeholder": {
+    "message": "Ex: Estudo Profundo",
+    "description": "Placeholder do nome da lista de foco"
+  },
+  "options_focus_time_label": {
+    "message": "Foco (min)",
+    "description": "Label do tempo de foco"
+  },
+  "options_break_time_label": {
+    "message": "Pausa (min)",
+    "description": "Label do tempo de pausa"
+  },
+  "options_block_mode": {
+    "message": "Modo de Bloqueio",
+    "description": "Seção de modo de bloqueio"
+  },
+  "options_blocklist_default": {
+    "message": "Blocklist (Padrão)",
+    "description": "Label do modo blocklist"
+  },
+  "options_whitelist_total_focus": {
+    "message": "Whitelist (Foco Total)",
+    "description": "Label do modo whitelist"
+  },
+  "options_block_sites_from": {
+    "message": "Bloquear sites da lista:",
+    "description": "Label da associação de blocklist"
+  },
+  "options_allow_sites_from": {
+    "message": "Permitir apenas sites da lista:",
+    "description": "Label da associação de whitelist"
+  },
+  "options_submit_focus_list": {
+    "message": "Adicionar Lista de Foco",
+    "description": "Botão de submissão de lista de foco"
+  },
+  "options_cancel": {
+    "message": "Cancelar",
+    "description": "Botão de cancelar"
+  },
+  "options_blocklists_title": {
+    "message": "Listas de Bloqueio (Blocklists)",
+    "description": "Título da seção de blocklists"
+  },
+  "options_add_blocklist": {
+    "message": "Adicionar Nova Blocklist",
+    "description": "Título do formulário de blocklist"
+  },
+  "options_list_name_label": {
+    "message": "Nome da Lista",
+    "description": "Label do nome da lista"
+  },
+  "options_blocklist_name_placeholder": {
+    "message": "Ex: Redes Sociais",
+    "description": "Placeholder do nome da blocklist"
+  },
+  "options_blocklist_sites_label": {
+    "message": "Sites para Bloquear (um por linha)",
+    "description": "Label dos sites de blocklist"
+  },
+  "options_blocklist_sites_placeholder": {
+    "message": "facebook.com\ntwitter.com\nyoutube.com",
+    "description": "Placeholder dos sites de blocklist"
+  },
+  "options_submit_blocklist": {
+    "message": "Adicionar Blocklist",
+    "description": "Botão de submissão de blocklist"
+  },
+  "options_whitelists_title": {
+    "message": "Listas de Permissão (Whitelists)",
+    "description": "Título da seção de whitelists"
+  },
+  "options_add_whitelist": {
+    "message": "Adicionar Nova Whitelist",
+    "description": "Título do formulário de whitelist"
+  },
+  "options_whitelist_name_placeholder": {
+    "message": "Ex: Ferramentas de Trabalho",
+    "description": "Placeholder do nome da whitelist"
+  },
+  "options_whitelist_sites_label": {
+    "message": "Sites Permitidos (um por linha)",
+    "description": "Label dos sites de whitelist"
+  },
+  "options_whitelist_sites_placeholder": {
+    "message": "docs.google.com\ngithub.com",
+    "description": "Placeholder dos sites de whitelist"
+  },
+  "options_submit_whitelist": {
+    "message": "Adicionar Whitelist",
+    "description": "Botão de submissão de whitelist"
+  },
+  "options_edit_btn_tooltip": {
+    "message": "Editar",
+    "description": "Tooltip do botão editar"
+  },
+  "options_delete_btn_tooltip": {
+    "message": "Excluir",
+    "description": "Tooltip do botão excluir"
+  },
+  "options_editing_focus_list": {
+    "message": "Editando Lista de Foco",
+    "description": "Título ao editar lista de foco"
+  },
+  "options_editing_blocklist": {
+    "message": "Editando Blocklist",
+    "description": "Título ao editar blocklist"
+  },
+  "options_editing_whitelist": {
+    "message": "Editando Whitelist",
+    "description": "Título ao editar whitelist"
+  },
+  "options_save_changes": {
+    "message": "Salvar Alterações",
+    "description": "Botão de salvar alterações"
+  },
+  "options_create_blocklist_first": {
+    "message": "Crie uma blocklist",
+    "description": "Placeholder quando não há blocklists"
+  },
+  "options_create_whitelist_first": {
+    "message": "Crie uma whitelist",
+    "description": "Placeholder quando não há whitelists"
+  },
+  "options_please_create_select": {
+    "message": "Por favor, crie e selecione uma $MODE$ antes de salvar.",
+    "description": "Alerta quando não há lista associada",
+    "placeholders": {
+      "mode": {
+        "content": "$1",
+        "example": "blocklist"
+      }
+    }
+  },
+  "options_confirm_delete_focus": {
+    "message": "Tem certeza que deseja excluir esta lista de foco?",
+    "description": "Confirmação de exclusão de lista de foco"
+  },
+  "options_confirm_delete_blocklist": {
+    "message": "Tem certeza que deseja excluir esta blocklist?",
+    "description": "Confirmação de exclusão de blocklist"
+  },
+  "options_confirm_delete_whitelist": {
+    "message": "Tem certeza que deseja excluir esta whitelist?",
+    "description": "Confirmação de exclusão de whitelist"
+  },
+  "options_sites_count": {
+    "message": "$COUNT$ site(s)",
+    "description": "Contagem de sites",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "options_focus_summary": {
+    "message": "$FOCUS$m Foco / $BREAK$m Pausa",
+    "description": "Resumo da lista de foco",
+    "placeholders": {
+      "focus": { "content": "$1", "example": "45" },
+      "break": { "content": "$2", "example": "10" }
+    }
+  },
+  "options_association_none": {
+    "message": "Nenhuma",
+    "description": "Quando não há associação"
+  },
+  "options_association_allowing": {
+    "message": "Permitindo: $NAME$",
+    "description": "Associação de whitelist",
+    "placeholders": {
+      "name": { "content": "$1", "example": "Ferramentas de Trabalho" }
+    }
+  },
+  "options_association_blocking": {
+    "message": "Bloqueando: $NAME$",
+    "description": "Associação de blocklist",
+    "placeholders": {
+      "name": { "content": "$1", "example": "Redes Sociais" }
+    }
+  },
+
+  "blocked_title": {
+    "message": "Foco Ativo",
+    "description": "Título da página de bloqueio"
+  },
+  "blocked_heading": {
+    "message": "Mantenha o foco.",
+    "description": "Título principal da página de bloqueio"
+  },
+  "blocked_message": {
+    "message": "Este site está na sua lista de bloqueio. Você poderá acessá-lo novamente após sua sessão.",
+    "description": "Mensagem da página de bloqueio"
+  },
+
+  "stats_title": {
+    "message": "Estatísticas - Izy Focus",
+    "description": "Título da página de estatísticas"
+  },
+  "stats_header": {
+    "message": "Seu Jardim de Foco",
+    "description": "Cabeçalho das estatísticas"
+  },
+  "stats_subtitle": {
+    "message": "Aqui estão os insights sobre seus hábitos de produtividade.",
+    "description": "Subtítulo das estatísticas"
+  },
+  "stats_view_history": {
+    "message": "Ver Histórico",
+    "description": "Botão de ver histórico"
+  },
+  "stats_completed_cycles": {
+    "message": "Ciclos Completos",
+    "description": "Card de ciclos completos"
+  },
+  "stats_most_used": {
+    "message": "Lista Mais Usada",
+    "description": "Card de lista mais usada"
+  },
+  "stats_highest_completion": {
+    "message": "Maior Taxa de Conclusão",
+    "description": "Card de maior taxa de conclusão"
+  },
+  "stats_details_by_list": {
+    "message": "Detalhes por Lista de Foco",
+    "description": "Título dos detalhes"
+  },
+  "stats_empty_state": {
+    "message": "Seu progresso aparecerá aqui.<br>Complete seu primeiro ciclo de foco para começar!",
+    "description": "Mensagem de estado vazio"
+  },
+  "stats_completion_rate": {
+    "message": "$RATE$% de Taxa de Conclusão",
+    "description": "Label de taxa de conclusão",
+    "placeholders": {
+      "rate": { "content": "$1", "example": "75" }
+    }
+  },
+  "stats_completed_label": {
+    "message": "Concluídos",
+    "description": "Label de concluídos"
+  },
+  "stats_interrupted_label": {
+    "message": "Interrompidos",
+    "description": "Label de interrompidos"
+  },
+
+  "history_title": {
+    "message": "Histórico - Izy Focus",
+    "description": "Título da página de histórico"
+  },
+  "history_header": {
+    "message": "Histórico",
+    "description": "Cabeçalho do histórico"
+  },
+  "history_subtitle": {
+    "message": "Sua jornada de foco.",
+    "description": "Subtítulo do histórico"
+  },
+  "history_clear_button": {
+    "message": "Limpar",
+    "description": "Botão de limpar histórico"
+  },
+  "history_empty_state": {
+    "message": "Seu histórico está vazio. Complete uma sessão para começar!",
+    "description": "Mensagem de estado vazio do histórico"
+  },
+  "history_focus_completed": {
+    "message": "Foco concluído: <strong>$NAME$</strong> ($TIME$ min)",
+    "description": "Item de foco concluído",
+    "placeholders": {
+      "name": { "content": "$1", "example": "Estudo Profundo" },
+      "time": { "content": "$2", "example": "45" }
+    }
+  },
+  "history_break_completed": {
+    "message": "Pausa concluída ($TIME$ min)",
+    "description": "Item de pausa concluída",
+    "placeholders": {
+      "time": { "content": "$1", "example": "10" }
+    }
+  },
+  "history_session_interrupted": {
+    "message": "Sessão interrompida: <strong>$NAME$</strong>",
+    "description": "Item de sessão interrompida",
+    "placeholders": {
+      "name": { "content": "$1", "example": "Estudo Profundo" }
+    }
+  },
+  "history_confirm_clear": {
+    "message": "Tem certeza que deseja limpar todo o seu histórico? Esta ação não pode ser desfeita.",
+    "description": "Confirmação de limpar histórico"
+  },
+
+  "garden_title": {
+    "message": "Meu Jardim - Izy Focus",
+    "description": "Título da página do jardim"
+  },
+  "garden_header": {
+    "message": "Meu Jardim da Intenção",
+    "description": "Cabeçalho do jardim"
+  },
+  "garden_level": {
+    "message": "Nível $LEVEL$",
+    "description": "Exibição do nível",
+    "placeholders": {
+      "level": { "content": "$1", "example": "3" }
+    }
+  },
+  "garden_achievements_btn": {
+    "message": "🏆 Ver Conquistas",
+    "description": "Botão de conquistas"
+  },
+  "garden_instructions": {
+    "message": "Plante sementes de foco. Complete sessões para ganhar XP ✨ e evoluir suas plantas (Broto → Árvore → Árvore Florida). Se perder o foco em sites bloqueados, suas plantas podem murchar 🥀.",
+    "description": "Instruções do jardim"
+  },
+  "garden_achievements_title": {
+    "message": "Conquistas",
+    "description": "Título do modal de conquistas"
+  },
+  "garden_tool_select": {
+    "message": "Selecionar",
+    "description": "Ferramenta de seleção"
+  },
+  "garden_tool_seeds": {
+    "message": "Sementes",
+    "description": "Ferramenta de sementes"
+  },
+  "garden_tool_stones": {
+    "message": "Pedras",
+    "description": "Ferramenta de pedras"
+  },
+  "garden_reset_button": {
+    "message": "Limpar Jardim",
+    "description": "Botão de limpar jardim"
+  },
+  "garden_confirm_reset": {
+    "message": "Tem certeza que deseja limpar todo o seu jardim? Apenas plantas saudáveis voltarão para o inventário.",
+    "description": "Confirmação de limpar jardim"
+  },
+  "garden_loading": {
+    "message": "Carregando...",
+    "description": "Texto de carregamento"
+  },
+  "garden_select_tooltip": {
+    "message": "Selecionar",
+    "description": "Tooltip da ferramenta selecionar"
+  },
+  "garden_seed_tooltip": {
+    "message": "Plantar Semente",
+    "description": "Tooltip da ferramenta semente"
+  },
+  "garden_stone_tooltip": {
+    "message": "Colocar Pedra",
+    "description": "Tooltip da ferramenta pedra"
+  },
+
+  "achievement_first_bloom_title": {
+    "message": "Primeiro Broto",
+    "description": "Título da conquista"
+  },
+  "achievement_first_bloom_desc": {
+    "message": "Complete sua primeira sessão de foco.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_consistency_3_title": {
+    "message": "Raízes Firmes",
+    "description": "Título da conquista"
+  },
+  "achievement_consistency_3_desc": {
+    "message": "Mantenha o foco por 3 dias seguidos.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_deep_focus_title": {
+    "message": "Mestre do Tempo",
+    "description": "Título da conquista"
+  },
+  "achievement_deep_focus_desc": {
+    "message": "Acumule 500 minutos totais de foco.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_level_5_title": {
+    "message": "Especialista",
+    "description": "Título da conquista"
+  },
+  "achievement_level_5_desc": {
+    "message": "Alcance o Nível 5.",
+    "description": "Descrição da conquista"
+  },
+
+  "notif_break_title": {
+    "message": "Hora da Pausa!",
+    "description": "Título da notificação de pausa"
+  },
+  "notif_break_message": {
+    "message": "Bom trabalho! Descanse por $MINUTES$ minutos.",
+    "description": "Mensagem da notificação de pausa",
+    "placeholders": {
+      "minutes": { "content": "$1", "example": "10" }
+    }
+  },
+  "notif_cycle_completed_title": {
+    "message": "Ciclo Concluído!",
+    "description": "Título da notificação de ciclo concluído"
+  },
+  "notif_cycle_completed_message": {
+    "message": "Você ganhou 1 Semente 🌱 e 50 XP ✨.",
+    "description": "Mensagem da notificação de ciclo concluído"
+  },
+  "notif_achievement_title": {
+    "message": "🏆 Conquista Desbloqueada!",
+    "description": "Título da notificação de conquista"
+  },
+  "notif_interrupted_title": {
+    "message": "Ciclo Interrompido.",
+    "description": "Título da notificação de interrupção"
+  },
+  "notif_interrupted_message": {
+    "message": "Você ganhou 1 Pedra 🪨.",
+    "description": "Mensagem da notificação de interrupção"
+  },
+  "notif_wither_title": {
+    "message": "Jardim Afetado!",
+    "description": "Título da notificação de planta murcha"
+  },
+  "notif_wither_message": {
+    "message": "Uma de suas plantas murchou devido à falta de foco. 🥀",
+    "description": "Mensagem da notificação de planta murcha"
+  }
+}

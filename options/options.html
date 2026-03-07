@@ -11,70 +11,70 @@
 <body>
     <div class="container">
         <header>
-            <h1>Configurações e Listas</h1>
-            <p>Personalize suas sessões de foco, listas de bloqueio e de permissão.</p>
+            <h1 data-i18n="options_header">Configurações e Listas</h1>
+            <p data-i18n="options_subtitle">Personalize suas sessões de foco, listas de bloqueio e de permissão.</p>
         </header>
         <main>
             <section class="card">
-                <h2>Listas de Foco</h2>
+                <h2 data-i18n="options_focus_lists">Listas de Foco</h2>
                 <div id="focus-lists-container" class="lists-container"></div>
                 <form id="add-focus-list-form" class="add-form">
-                    <h3 id="focus-form-title">Adicionar Nova Lista de Foco</h3>
+                    <h3 id="focus-form-title" data-i18n="options_add_focus_list">Adicionar Nova Lista de Foco</h3>
                     <div class="form-grid">
-                        <label for="focus-list-name">Nome</label><input type="text" id="focus-list-name" placeholder="Ex: Estudo Profundo" required>
-                        <label for="focus-time">Foco (min)</label><input type="number" id="focus-time" placeholder="45" min="1" required>
-                        <label for="break-time">Pausa (min)</label><input type="number" id="break-time" placeholder="10" min="0" required>
+                        <label for="focus-list-name" data-i18n="options_focus_name_label">Nome</label><input type="text" id="focus-list-name" data-i18n-placeholder="options_focus_name_placeholder" required>
+                        <label for="focus-time" data-i18n="options_focus_time_label">Foco (min)</label><input type="number" id="focus-time" placeholder="45" min="1" required>
+                        <label for="break-time" data-i18n="options_break_time_label">Pausa (min)</label><input type="number" id="break-time" placeholder="10" min="0" required>
                     </div>
                     <div class="form-section">
-                        <h4>Modo de Bloqueio</h4>
+                        <h4 data-i18n="options_block_mode">Modo de Bloqueio</h4>
                         <div class="radio-group">
-                            <input type="radio" id="mode-blocklist" name="block-mode" value="blocklist" checked><label for="mode-blocklist">Blocklist (Padrão)</label>
-                            <input type="radio" id="mode-whitelist" name="block-mode" value="whitelist"><label for="mode-whitelist">Whitelist (Foco Total)</label>
+                            <input type="radio" id="mode-blocklist" name="block-mode" value="blocklist" checked><label for="mode-blocklist" data-i18n="options_blocklist_default">Blocklist (Padrão)</label>
+                            <input type="radio" id="mode-whitelist" name="block-mode" value="whitelist"><label for="mode-whitelist" data-i18n="options_whitelist_total_focus">Whitelist (Foco Total)</label>
                         </div>
                         <div id="blocklist-section" class="association-section">
-                            <label for="block-list-association">Bloquear sites da lista:</label>
+                            <label for="block-list-association" data-i18n="options_block_sites_from">Bloquear sites da lista:</label>
                             <select id="block-list-association"></select>
                         </div>
                         <div id="whitelist-section" class="association-section" style="display: none;">
-                            <label for="white-list-association">Permitir apenas sites da lista:</label>
+                            <label for="white-list-association" data-i18n="options_allow_sites_from">Permitir apenas sites da lista:</label>
                             <select id="white-list-association"></select>
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" id="submit-focus-form-btn">Adicionar Lista de Foco</button>
-                        <button type="button" id="cancel-edit-focus-btn" class="cancel-btn">Cancelar</button>
+                        <button type="submit" id="submit-focus-form-btn" data-i18n="options_submit_focus_list">Adicionar Lista de Foco</button>
+                        <button type="button" id="cancel-edit-focus-btn" class="cancel-btn" data-i18n="options_cancel">Cancelar</button>
                     </div>
                 </form>
             </section>
             
             <section class="card">
-                <h2>Listas de Bloqueio (Blocklists)</h2>
+                <h2 data-i18n="options_blocklists_title">Listas de Bloqueio (Blocklists)</h2>
                 <div id="block-lists-container" class="lists-container"></div>
                  <form id="add-block-list-form" class="add-form">
-                    <h3 id="block-form-title">Adicionar Nova Blocklist</h3>
+                    <h3 id="block-form-title" data-i18n="options_add_blocklist">Adicionar Nova Blocklist</h3>
                     <div class="form-grid single-column">
-                        <label for="block-list-name">Nome da Lista</label><input type="text" id="block-list-name" placeholder="Ex: Redes Sociais" required>
-                        <label for="block-list-sites">Sites para Bloquear (um por linha)</label><textarea id="block-list-sites" placeholder="facebook.com&#10;twitter.com&#10;youtube.com" rows="4" required></textarea>
+                        <label for="block-list-name" data-i18n="options_list_name_label">Nome da Lista</label><input type="text" id="block-list-name" data-i18n-placeholder="options_blocklist_name_placeholder" required>
+                        <label for="block-list-sites" data-i18n="options_blocklist_sites_label">Sites para Bloquear (um por linha)</label><textarea id="block-list-sites" data-i18n-placeholder="options_blocklist_sites_placeholder" rows="4" required></textarea>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" id="submit-block-form-btn">Adicionar Blocklist</button>
-                        <button type="button" id="cancel-edit-block-btn" class="cancel-btn">Cancelar</button>
+                        <button type="submit" id="submit-block-form-btn" data-i18n="options_submit_blocklist">Adicionar Blocklist</button>
+                        <button type="button" id="cancel-edit-block-btn" class="cancel-btn" data-i18n="options_cancel">Cancelar</button>
                     </div>
                 </form>
             </section>
 
             <section class="card">
-                <h2>Listas de Permissão (Whitelists)</h2>
+                <h2 data-i18n="options_whitelists_title">Listas de Permissão (Whitelists)</h2>
                 <div id="white-lists-container" class="lists-container"></div>
                 <form id="add-white-list-form" class="add-form">
-                    <h3 id="white-form-title">Adicionar Nova Whitelist</h3>
+                    <h3 id="white-form-title" data-i18n="options_add_whitelist">Adicionar Nova Whitelist</h3>
                     <div class="form-grid single-column">
-                        <label for="white-list-name">Nome da Lista</label><input type="text" id="white-list-name" placeholder="Ex: Ferramentas de Trabalho" required>
-                        <label for="white-list-sites">Sites Permitidos (um por linha)</label><textarea id="white-list-sites" placeholder="docs.google.com&#10;github.com" rows="4" required></textarea>
+                        <label for="white-list-name" data-i18n="options_list_name_label">Nome da Lista</label><input type="text" id="white-list-name" data-i18n-placeholder="options_whitelist_name_placeholder" required>
+                        <label for="white-list-sites" data-i18n="options_whitelist_sites_label">Sites Permitidos (um por linha)</label><textarea id="white-list-sites" data-i18n-placeholder="options_whitelist_sites_placeholder" rows="4" required></textarea>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" id="submit-white-form-btn">Adicionar Whitelist</button>
-                        <button type="button" id="cancel-edit-white-btn" class="cancel-btn">Cancelar</button>
+                        <button type="submit" id="submit-white-form-btn" data-i18n="options_submit_whitelist">Adicionar Whitelist</button>
+                        <button type="button" id="cancel-edit-white-btn" class="cancel-btn" data-i18n="options_cancel">Cancelar</button>
                     </div>
                 </form>
             </section>

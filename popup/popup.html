@@ -14,14 +14,14 @@
             <header>
                 <h1 id="main-header-title">Izy Focus</h1>
                 <div class="header-actions">
-                    <a href="#" id="garden-btn" title="Meu Jardim">
+                    <a href="#" id="garden-btn" data-i18n-title="popup_garden_tooltip">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
                             <path d="M2 17L12 22L22 17"/>
                             <path d="M2 12L12 17L22 12"/>
                         </svg>
                     </a>
-                    <a href="#" id="stats-btn" title="Estatísticas">
+                    <a href="#" id="stats-btn" data-i18n-title="popup_stats_tooltip">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 3V21H21"/>
                             <path d="M9 17V9"/>
@@ -29,7 +29,7 @@
                             <path d="M21 17V13"/>
                         </svg>
                     </a>
-                    <a href="#" id="settings-btn" title="Configurações">
+                    <a href="#" id="settings-btn" data-i18n-title="popup_settings_tooltip">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="3"/>
                             <path d="M12 1V6M12 18V23M4.22 4.22L7.76 7.76M16.24 16.24L19.78 19.78M1 12H6M18 12H23M4.22 19.78L7.76 16.24M16.24 7.76L19.78 4.22"/>
@@ -40,22 +40,22 @@
             
             <div id="home-container">
                 <div class="bento-grid">
-                    <div class="card card-main-action"><p>Comece a focar agora</p><div id="quick-start-buttons"></div></div>
+                    <div class="card card-main-action"><p data-i18n="popup_start_focus">Comece a focar agora</p><div id="quick-start-buttons"></div></div>
                     <div class="card card-stat"><div class="stat-icon">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
                             <path d="M2 17L12 22L22 17"/>
                             <path d="M2 12L12 17L22 12"/>
                         </svg>
-                    </div><div class="stat-value" id="seed-count">0</div><div class="stat-label">Sementes</div></div>
+                    </div><div class="stat-value" id="seed-count">0</div><div class="stat-label" data-i18n="popup_seeds_label">Sementes</div></div>
                     <div class="card card-stat"><div class="stat-icon">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="8"/>
                             <path d="M12 2V6M12 18V22M4.22 4.22L7.76 7.76M16.24 16.24L19.78 19.78M1 12H6M18 12H23M4.22 19.78L7.76 16.24M16.24 7.76L19.78 4.22"/>
                         </svg>
-                    </div><div class="stat-value" id="stone-count">0</div><div class="stat-label">Pedras</div></div>
+                    </div><div class="stat-value" id="stone-count">0</div><div class="stat-label" data-i18n="popup_stones_label">Pedras</div></div>
                 </div>
-                <div class="intention-wrapper"><input type="text" id="intention-input" placeholder="Qual é a sua intenção para hoje?"></div>
+                <div class="intention-wrapper"><input type="text" id="intention-input" data-i18n-placeholder="popup_intention_placeholder"></div>
             </div>
 
             <div id="timer-wrapper">
@@ -67,21 +67,21 @@
                     </div>
                 </div>
                 <div class="sound-section">
-                    <button id="sound-toggle-btn" class="sound-toggle">🎵 Sons Ambiente</button>
+                    <button id="sound-toggle-btn" class="sound-toggle" data-i18n="popup_sound_toggle">🎵 Sons Ambiente</button>
                     <div id="sound-list" class="sound-list"></div>
                 </div>
                 <div class="timer-actions">
-                    <button id="emergency-stop-btn">Interromper</button>
+                    <button id="emergency-stop-btn" data-i18n="popup_emergency_stop">Interromper</button>
                 </div>
             </div>
 
             <div id="completed-wrapper">
                 <div class="completed-icon">🎉</div>
-                <h2>Ciclo Concluído!</h2>
-                <p>Você ganhou <strong>1 Semente de Foco</strong> 🌱. O que você gostaria de fazer agora?</p>
+                <h2 data-i18n="popup_cycle_completed_title">Ciclo Concluído!</h2>
+                <p data-i18n-html="popup_cycle_completed_msg">Você ganhou <strong>1 Semente de Foco</strong> 🌱. O que você gostaria de fazer agora?</p>
                 <div class="completed-actions">
-                    <button id="start-next-cycle-btn">Iniciar Próximo Ciclo</button>
-                    <button id="finish-session-btn" class="button-secondary">Finalizar e Voltar ao Início</button>
+                    <button id="start-next-cycle-btn" data-i18n="popup_start_next_cycle">Iniciar Próximo Ciclo</button>
+                    <button id="finish-session-btn" class="button-secondary" data-i18n="popup_finish_session">Finalizar e Voltar ao Início</button>
                 </div>
             </div>
         </div>
