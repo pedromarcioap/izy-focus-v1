@@ -40,6 +40,10 @@
     "message": "Qual é a sua intenção para hoje?",
     "description": "Placeholder do campo de intenção"
   },
+  "popup_intention_label": {
+    "message": "Intenção do Dia",
+    "description": "Label do campo de intenção"
+  },
   "popup_sound_toggle": {
     "message": "🎵 Sons Ambiente",
     "description": "Botão de sons ambiente"
@@ -99,6 +103,18 @@
   "popup_min_suffix": {
     "message": "min",
     "description": "Sufixo de minutos"
+  },
+  "popup_streak_label": {
+    "message": "Dias",
+    "description": "Label da sequência"
+  },
+  "popup_level": {
+    "message": "Nível",
+    "description": "Label do nível"
+  },
+  "popup_start_focus_new": {
+    "message": "Iniciar Sessão de Foco",
+    "description": "Card de iniciar sessão"
   },
 
   "options_title": {
@@ -514,6 +530,86 @@
   },
   "achievement_level_5_desc": {
     "message": "Alcance o Nível 5.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_seed_collector_10_title": {
+    "message": "Coletor de Sementes",
+    "description": "Título da conquista"
+  },
+  "achievement_seed_collector_10_desc": {
+    "message": "Ganhe 10 sementes.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_seed_collector_50_title": {
+    "message": "Jardineiro Dedicado",
+    "description": "Título da conquista"
+  },
+  "achievement_seed_collector_50_desc": {
+    "message": "Ganhe 50 sementes.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_seed_collector_100_title": {
+    "message": "Mestre Jardinheiro",
+    "description": "Título da conquista"
+  },
+  "achievement_seed_collector_100_desc": {
+    "message": "Ganhe 100 sementes.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_xp_500_title": {
+    "message": "Aprendiz Experiente",
+    "description": "Título da conquista"
+  },
+  "achievement_xp_500_desc": {
+    "message": "Acumule 500 XP.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_xp_1000_title": {
+    "message": "Expert em Foco",
+    "description": "Título da conquista"
+  },
+  "achievement_xp_1000_desc": {
+    "message": "Acumule 1000 XP.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_xp_2500_title": {
+    "message": "Zen Master",
+    "description": "Título da conquista"
+  },
+  "achievement_xp_2500_desc": {
+    "message": "Acumule 2500 XP.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_streak_7_title": {
+    "message": "Semanal",
+    "description": "Título da conquista"
+  },
+  "achievement_streak_7_desc": {
+    "message": "Mantenha o foco por 7 dias seguidos.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_streak_14_title": {
+    "message": "Quinzenal",
+    "description": "Título da conquista"
+  },
+  "achievement_streak_14_desc": {
+    "message": "Mantenha o foco por 14 dias seguidos.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_streak_30_title": {
+    "message": "Mensal",
+    "description": "Título da conquista"
+  },
+  "achievement_streak_30_desc": {
+    "message": "Mantenha o foco por 30 dias seguidos.",
+    "description": "Descrição da conquista"
+  },
+  "achievement_garden_bloom_title": {
+    "message": "Jardim Florido",
+    "description": "Título da conquista"
+  },
+  "achievement_garden_bloom_desc": {
+    "message": "Tenha 10 árvores floridas no jardim.",
     "description": "Descrição da conquista"
   },
 

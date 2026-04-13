@@ -1,9 +1,21 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Izy Focus - Audio</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: transparent; 
+            overflow: hidden;
+        }
+    </style>
+</head>
 <body>
-    <audio id="ambient-player" loop></audio>
-    <audio id="notification-player"></audio>
+    <audio id="ambient-player" preload="auto" loop></audio>
+    <audio id="notification-player" preload="auto"></audio>
+    <audio id="ambient-player-2" preload="auto" loop></audio>
     <script src="/offscreen.js"></script>
 </body>
 </html>

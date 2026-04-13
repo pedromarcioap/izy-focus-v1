@@ -1,18 +1,26 @@
 :root {
-    --pixel-size: 3px; /* Slightly smaller to fit safely inside cells */
-    /* Adjust pixel art palette to fit Dark/Gold theme if needed,
-       but keeping natural colors for plants as requested "Don't remove pixel art" */
+    --pixel-size: 3px;
     --color-grass-light: #4ade80;
     --color-grass-dark: #22c55e;
-    --color-dirt: #5c4033; /* Darker brown */
-    --color-stone: #52525b; /* Zinc-600 */
-    --color-stone-dark: #3f3f46; /* Zinc-700 */
-    --color-leaf: #22c55e; /* GREEN for healthy plants */
+    --color-dirt: #5c4033;
+    --color-stone: #52525b;
+    --color-stone-dark: #3f3f46;
+    --color-leaf: #22c55e;
     --color-leaf-dark: #15803d;
     --color-wood: #3E2723;
     --color-withered: #4a4a4a;
-    --color-flower-petal: #f472b6; /* Pink */
-    --color-flower-center: #facc15; /* Yellow */
+    --color-flower-petal: #f472b6;
+    --color-flower-center: #facc15;
+    --color-sunflower: #fbbf24;
+    --color-sunflower-center: #78350f;
+    --color-rose: #dc2626;
+    --color-rose-leaf: #166534;
+    --color-tulip-pink: #ec4899;
+    --color-tulip-purple: #8b5cf6;
+    --color-mushroom-cap: #ef4444;
+    --color-mushroom-spots: #fef3c7;
+    --color-fern-green: #65a30d;
+    --color-fern-dark: #3f6212;
 }
 
 /* Grid Background - CLEANER, no checkerboard noise inside cells */
@@ -189,11 +197,154 @@
     left: 50%;
     width: var(--pixel-size);
     height: var(--pixel-size);
-    background: var(--color-wood); /* Trunk */
+    background: var(--color-wood);
     box-shadow:
         0 calc(-1 * var(--pixel-size)) var(--color-wood),
         0 calc(-2 * var(--pixel-size)) var(--color-wood),
-        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-withered), /* Dead Branch L */
-        calc(1 * var(--pixel-size)) calc(-2.5 * var(--pixel-size)) var(--color-withered); /* Dead Branch R */
+        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-withered),
+        calc(1 * var(--pixel-size)) calc(-2.5 * var(--pixel-size)) var(--color-withered);
+    transform: translateX(-50%);
+}
+
+/* --- SUNFLOWER (Stage 4) --- */
+.pixel-sunflower::before {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: var(--color-wood);
+    box-shadow:
+        0 calc(-1 * var(--pixel-size)) var(--color-wood),
+        0 calc(-2 * var(--pixel-size)) var(--color-wood),
+        0 calc(-3 * var(--pixel-size)) var(--color-wood),
+        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        calc(1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        0 calc(-4 * var(--pixel-size)) var(--color-leaf),
+        calc(-1 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-leaf),
+        calc(1 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-leaf),
+        0 calc(-5 * var(--pixel-size)) var(--color-sunflower),
+        calc(-1 * var(--pixel-size)) calc(-5 * var(--pixel-size)) var(--color-sunflower),
+        calc(1 * var(--pixel-size)) calc(-5 * var(--pixel-size)) var(--color-sunflower),
+        calc(-2 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-sunflower),
+        calc(2 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-sunflower),
+        0 calc(-6 * var(--pixel-size)) var(--color-sunflower-center),
+        calc(-1 * var(--pixel-size)) calc(-6 * var(--pixel-size)) var(--color-sunflower-center),
+        calc(1 * var(--pixel-size)) calc(-6 * var(--pixel-size)) var(--color-sunflower-center);
+    transform: translateX(-50%);
+}
+
+/* --- ROSE (Stage 4) --- */
+.pixel-rose::before {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: var(--color-wood);
+    box-shadow:
+        0 calc(-1 * var(--pixel-size)) var(--color-wood),
+        0 calc(-2 * var(--pixel-size)) var(--color-wood),
+        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-rose-leaf),
+        calc(1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-rose-leaf),
+        0 calc(-3 * var(--pixel-size)) var(--color-leaf-dark),
+        calc(-1 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-leaf),
+        calc(1 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-leaf),
+        0 calc(-4 * var(--pixel-size)) var(--color-leaf),
+        calc(-1 * var(--pixel-size)) calc(-5 * var(--pixel-size)) var(--color-rose),
+        calc(1 * var(--pixel-size)) calc(-5 * var(--pixel-size)) var(--color-rose),
+        0 calc(-5 * var(--pixel-size)) var(--color-rose),
+        calc(-1 * var(--pixel-size)) calc(-6 * var(--pixel-size)) var(--color-rose),
+        calc(1 * var(--pixel-size)) calc(-6 * var(--pixel-size)) var(--color-rose);
+    transform: translateX(-50%);
+}
+
+/* --- TULIP (Stage 4) --- */
+.pixel-tulip::before {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: var(--color-leaf-dark);
+    box-shadow:
+        0 calc(-1 * var(--pixel-size)) var(--color-leaf-dark),
+        0 calc(-2 * var(--pixel-size)) var(--color-leaf-dark),
+        calc(-1 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-leaf),
+        calc(1 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-leaf),
+        calc(-2 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf),
+        calc(2 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-leaf),
+        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-tulip-pink),
+        calc(1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-tulip-purple),
+        0 calc(-3 * var(--pixel-size)) var(--color-tulip-pink),
+        calc(-1 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-tulip-pink),
+        calc(1 * var(--pixel-size)) calc(-4 * var(--pixel-size)) var(--color-tulip-purple),
+        0 calc(-4 * var(--pixel-size)) var(--color-tulip-pink),
+        calc(-2 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-leaf),
+        calc(2 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-leaf);
+    transform: translateX(-50%);
+}
+
+/* --- MUSHROOM (Stage 4) --- */
+.pixel-mushroom::before {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: #fef3c7;
+    box-shadow:
+        0 calc(-1 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(-1 * var(--pixel-size)) calc(-1 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(1 * var(--pixel-size)) calc(-1 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(-2 * var(--pixel-size)) calc(-1 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(2 * var(--pixel-size)) calc(-1 * var(--pixel-size)) var(--color-mushroom-cap),
+        0 calc(-2 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(-1 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(1 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(-2 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(2 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-mushroom-cap),
+        0 calc(-3 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(-2 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(2 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-mushroom-cap),
+        calc(-1 * var(--pixel-size)) calc(-1 * var(--pixel-size)) var(--color-mushroom-spots),
+        calc(1 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-mushroom-spots),
+        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-mushroom-spots);
+    transform: translateX(-50%);
+}
+
+/* --- FERN (Stage 4) --- */
+.pixel-fern::before {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: var(--color-fern-green);
+    box-shadow:
+        0 calc(-1 * var(--pixel-size)) var(--color-fern-dark),
+        0 calc(-2 * var(--pixel-size)) var(--color-fern-dark),
+        calc(-2 * var(--pixel-size)) calc(-1 * var(--pixel-size)) var(--color-fern-green),
+        calc(2 * var(--pixel-size)) calc(-1 * var(--pixel-size)) var(--color-fern-green),
+        calc(-3 * var(--pixel-size)) 0 var(--color-fern-green),
+        calc(3 * var(--pixel-size)) 0 var(--color-fern-green),
+        calc(-4 * var(--pixel-size)) calc(1 * var(--pixel-size)) var(--color-fern-green),
+        calc(4 * var(--pixel-size)) calc(1 * var(--pixel-size)) var(--color-fern-green),
+        calc(-2 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-fern-green),
+        calc(2 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-fern-green),
+        calc(-3 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-fern-dark),
+        calc(3 * var(--pixel-size)) calc(-2 * var(--pixel-size)) var(--color-fern-dark),
+        calc(-1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-fern-dark),
+        calc(1 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-fern-dark),
+        0 calc(-4 * var(--pixel-size)) var(--color-fern-dark),
+        calc(-2 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-fern-green),
+        calc(2 * var(--pixel-size)) calc(-3 * var(--pixel-size)) var(--color-fern-green);
     transform: translateX(-50%);
 }

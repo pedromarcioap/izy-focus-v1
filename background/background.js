@@ -1,6 +1,27 @@
 const STORAGE_KEYS = { TIMER_STATE: 'timerState', FOCUS_LISTS: 'focusLists', BLOCK_LISTS: 'blockLists', WHITELISTS: 'whitelists' };
 const ALARM_NAME = 'izyFocusTimer';
 const BLOCK_RULE_ID = 1;
+let lastPlayedSound = 'rain.mp3';
+
+const AUDIO_BASE_URL = 'https://izy-focus-assets.vercel.app';
+
+function getRemoteAudioUrl(source) {
+    if (source.startsWith('http')) {
+        return source;
+    }
+    const filename = source.split('/').pop();
+    return `${AUDIO_BASE_URL}/${filename}`;
+}
+
+function getAudioSource(source) {
+    if (source.startsWith('http')) {
+        return source;
+    }
+    if (source.startsWith('/')) {
+        return chrome.runtime.getURL(source);
+    }
+    return getRemoteAudioUrl(source);
+}
 
 // URLs que sempre devem ser permitidas (não bloqueadas)
 function isUrlAlwaysAllowed(url) {
@@ -138,28 +159,45 @@ chrome.runtime.onStartup.addListener(async () => {
 
 // --- OUVINTES DE MENSAGENS ---
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.command === 'startFocus') startFocusSession(request.listId);
-    else if (request.command === 'interruptFocus') stopFocusSession(true);
-    else if (request.command === 'startNextSession') {
+    console.log('[IzyFocus] Background received command:', request.command);
+    
+    if (request.command === 'getState') {
+        chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE).then(data => {
+            sendResponse({ command: 'updateState', state: data[STORAGE_KEYS.TIMER_STATE] });
+        });
+        return true;
+    }
+    
+    if (request.command === 'startFocus') {
+        startFocusSession(request.listId, request.dayIntention);
+    } else if (request.command === 'interruptFocus') {
+        stopFocusSession(true);
+    } else if (request.command === 'startNextSession') {
         const { sessionData } = request;
         if (sessionData && sessionData.listId) {
             startFocusSession(sessionData.listId);
         }
-    }
-    else if (request.command === 'finishSession') {
+    } else if (request.command === 'finishSession') {
         stopFocusSession(false);
-    }
-    else if (request.command === 'getState') sendStateToPopup();
-    else if (request.command === 'playSound') {
+    } else if (request.command === 'playSound') {
         playAudioInBackground(request.source);
-    }
-    else if (request.command === 'stopSound') {
+    } else if (request.command === 'stopSound') {
         stopAudioInBackground();
-    }
-    else if (request.command === 'witherPlant') {
+    } else if (request.command === 'toggleSound') {
+        toggleSound();
+    } else if (request.command === 'witherPlant') {
+        console.log('[IzyFocus] Handling witherPlant command');
         handleWitherPlant();
+    } else if (request.command === 'getSoundState') {
+        chrome.storage.local.get('soundEnabled').then(data => {
+            sendResponse({ command: 'updateSoundState', enabled: data.soundEnabled !== false });
+        });
+        return true;
+    } else if (request.command === 'setVolume') {
+        setAudioVolume(request.volume);
     }
-    return true; 
+    
+    return true;
 });
 
 async function handleWitherPlant() {
@@ -231,7 +269,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     }
 });
 
-async function startFocusSession(listId) {
+async function startFocusSession(listId, dayIntention = '') {
     try {
         const { focusLists } = await chrome.storage.local.get('focusLists');
         const list = focusLists.find(l => l.id == listId);
@@ -242,9 +280,15 @@ async function startFocusSession(listId) {
             isActive: true, listId: list.id, listName: list.name, 
             focusTime: list.focusTime, breakTime: list.breakTime, 
             blockMode: list.blockMode, associatedListId: list.associatedListId, 
-            endTime, currentPhase: 'focus', startTime: Date.now()
+            endTime, currentPhase: 'focus', startTime: Date.now(),
+            dayIntention: dayIntention
         };
         await chrome.storage.local.set({ [STORAGE_KEYS.TIMER_STATE]: newState });
+        
+        if (dayIntention) {
+            await chrome.storage.local.set({ currentSessionIntention: dayIntention });
+        }
+        
         chrome.alarms.create(ALARM_NAME, { when: endTime });
         await synchronizeBlockingState();
         sendStateToPopup();
@@ -269,7 +313,10 @@ async function stopFocusSession(wasInterrupted) {
             const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
             if (timerState && timerState.isActive) await logInterruption(timerState);
         }
-        await chrome.storage.local.set({ [STORAGE_KEYS.TIMER_STATE]: { isActive: false } });
+        await chrome.storage.local.set({ 
+            [STORAGE_KEYS.TIMER_STATE]: { isActive: false },
+            currentSessionIntention: ''
+        });
         await synchronizeBlockingState();
         await stopAudioInBackground();
         await closeOffscreenDocument();
@@ -283,12 +330,18 @@ async function stopFocusSession(wasInterrupted) {
 // --- LÓGICA DE GAMIFICAÇÃO E LOGS ---
 async function processCompletedSession(sessionData) {
     try {
-    const data = await chrome.storage.local.get(['focusLog', 'gardenInventory', 'userStats', 'achievements']);
-    const newLogEntry = { id: Date.now(), timestamp: Date.now(), listName: sessionData.listName, focusTime: sessionData.focusTime };
+    const data = await chrome.storage.local.get(['focusLog', 'gardenInventory', 'userStats', 'achievements', 'gardenLayout', 'currentSessionIntention']);
+    const newLogEntry = { 
+        id: Date.now(), 
+        timestamp: Date.now(), 
+        listName: sessionData.listName, 
+        focusTime: sessionData.focusTime,
+        dayIntention: data.currentSessionIntention || ''
+    };
     const updatedFocusLog = [...(data.focusLog || []), newLogEntry];
 
     // Update Inventory
-    const updatedInventory = data.gardenInventory || { seeds: 0, stones: 0, xp: 0, pendingGrowth: 0 };
+    const updatedInventory = data.gardenInventory || { seeds: 0, stones: 0, xp: 0, pendingGrowth: 0, spentSeeds: 0 };
     updatedInventory.seeds = (updatedInventory.seeds || 0) + 1;
     updatedInventory.xp = (updatedInventory.xp || 0) + 50;
     updatedInventory.pendingGrowth = (updatedInventory.pendingGrowth || 0) + 1;
@@ -313,7 +366,7 @@ async function processCompletedSession(sessionData) {
 
     // Check Achievements
     const unlockedAchievements = data.achievements || [];
-    const newUnlocks = checkAchievements(stats, updatedInventory, unlockedAchievements);
+    const newUnlocks = checkAchievements(stats, updatedInventory, unlockedAchievements, data.gardenLayout || {});
 
     await chrome.storage.local.set({
         focusLog: updatedFocusLog,
@@ -335,13 +388,28 @@ async function processCompletedSession(sessionData) {
     }
 }
 
-function checkAchievements(stats, inventory, unlockedIds) {
+function checkAchievements(stats, inventory, unlockedIds, gardenLayout = {}) {
+    let floweringTrees = 0;
+    for (const item of Object.values(gardenLayout)) {
+        if (item.type === 'tree' && item.stage >= 4) floweringTrees++;
+    }
+
     const ACHIEVEMENTS = [
         { id: 'first_bloom', title: chrome.i18n.getMessage('achievement_first_bloom_title'), desc: chrome.i18n.getMessage('achievement_first_bloom_desc'), condition: () => stats.totalSessions >= 1 },
         { id: 'apprentice', title: chrome.i18n.getMessage('achievement_first_bloom_title'), desc: chrome.i18n.getMessage('achievement_first_bloom_desc'), condition: () => false },
         { id: 'consistency_3', title: chrome.i18n.getMessage('achievement_consistency_3_title'), desc: chrome.i18n.getMessage('achievement_consistency_3_desc'), condition: () => stats.currentStreak >= 3 },
         { id: 'deep_focus', title: chrome.i18n.getMessage('achievement_deep_focus_title'), desc: chrome.i18n.getMessage('achievement_deep_focus_desc'), condition: () => stats.totalFocusMinutes >= 500 },
-        { id: 'level_5', title: chrome.i18n.getMessage('achievement_level_5_title'), desc: chrome.i18n.getMessage('achievement_level_5_desc'), condition: () => (inventory.xp / 250) >= 4 }
+        { id: 'level_5', title: chrome.i18n.getMessage('achievement_level_5_title'), desc: chrome.i18n.getMessage('achievement_level_5_desc'), condition: () => (inventory.xp / 250) >= 4 },
+        { id: 'seed_collector_10', title: chrome.i18n.getMessage('achievement_seed_collector_10_title'), desc: chrome.i18n.getMessage('achievement_seed_collector_10_desc'), condition: () => (inventory.seeds || 0) + (inventory.spentSeeds || 0) >= 10 },
+        { id: 'seed_collector_50', title: chrome.i18n.getMessage('achievement_seed_collector_50_title'), desc: chrome.i18n.getMessage('achievement_seed_collector_50_desc'), condition: () => (inventory.seeds || 0) + (inventory.spentSeeds || 0) >= 50 },
+        { id: 'seed_collector_100', title: chrome.i18n.getMessage('achievement_seed_collector_100_title'), desc: chrome.i18n.getMessage('achievement_seed_collector_100_desc'), condition: () => (inventory.seeds || 0) + (inventory.spentSeeds || 0) >= 100 },
+        { id: 'xp_500', title: chrome.i18n.getMessage('achievement_xp_500_title'), desc: chrome.i18n.getMessage('achievement_xp_500_desc'), condition: () => (inventory.xp || 0) >= 500 },
+        { id: 'xp_1000', title: chrome.i18n.getMessage('achievement_xp_1000_title'), desc: chrome.i18n.getMessage('achievement_xp_1000_desc'), condition: () => (inventory.xp || 0) >= 1000 },
+        { id: 'xp_2500', title: chrome.i18n.getMessage('achievement_xp_2500_title'), desc: chrome.i18n.getMessage('achievement_xp_2500_desc'), condition: () => (inventory.xp || 0) >= 2500 },
+        { id: 'streak_7', title: chrome.i18n.getMessage('achievement_streak_7_title'), desc: chrome.i18n.getMessage('achievement_streak_7_desc'), condition: () => stats.currentStreak >= 7 },
+        { id: 'streak_14', title: chrome.i18n.getMessage('achievement_streak_14_title'), desc: chrome.i18n.getMessage('achievement_streak_14_desc'), condition: () => stats.currentStreak >= 14 },
+        { id: 'streak_30', title: chrome.i18n.getMessage('achievement_streak_30_title'), desc: chrome.i18n.getMessage('achievement_streak_30_desc'), condition: () => stats.currentStreak >= 30 },
+        { id: 'garden_bloom', title: chrome.i18n.getMessage('achievement_garden_bloom_title'), desc: chrome.i18n.getMessage('achievement_garden_bloom_desc'), condition: () => floweringTrees >= 10 }
     ];
 
     const currentIds = new Set(unlockedIds);
@@ -359,9 +427,13 @@ function checkAchievements(stats, inventory, unlockedIds) {
 
 async function logInterruption(sessionData) {
     try {
-        const data = await chrome.storage.local.get(['interruptLog', 'gardenInventory']);
+        const data = await chrome.storage.local.get(['interruptLog', 'gardenInventory', 'currentSessionIntention']);
         const interruptLog = data.interruptLog || [];
-        const newEntry = { timestamp: Date.now(), listName: sessionData.listName };
+        const newEntry = { 
+            timestamp: Date.now(), 
+            listName: sessionData.listName,
+            dayIntention: data.currentSessionIntention || ''
+        };
         const updatedInventory = data.gardenInventory || { seeds: 0, stones: 0 };
         updatedInventory.stones++;
         await chrome.storage.local.set({ interruptLog: [...interruptLog, newEntry], gardenInventory: updatedInventory });
@@ -382,15 +454,27 @@ async function logBreakCompletion(sessionData) {
 }
 
 // --- UTILITÁRIOS DE ÁUDIO ---
-async function playAudioInBackground(source) {
+async function playAudioInBackground(source, volume) {
+    lastPlayedSound = source;
     try {
+        const data = await chrome.storage.local.get(['soundEnabled', 'soundVolume']);
+        if (data.soundEnabled === false) {
+            console.log('[IzyFocus] Sound disabled, not playing:', source);
+            return;
+        }
+        const savedVolume = data.soundVolume !== undefined ? data.soundVolume / 100 : (volume || 0.5);
+        
+        const remoteSource = getAudioSource(source);
+        console.log('[IzyFocus] Playing remote audio:', remoteSource);
+        
         await setupOffscreenDocument('offscreen.html');
-        await new Promise(resolve => setTimeout(resolve, 100));
-        await chrome.runtime.sendMessage({ command: 'offscreenPlay', source: source });
+        await new Promise(resolve => setTimeout(resolve, 200));
+        await chrome.runtime.sendMessage({ command: 'offscreenPlay', source: remoteSource, volume: savedVolume });
     } catch (error) {
         console.warn('[IzyFocus] playAudioInBackground falhou:', error.message);
     }
 }
+
 async function stopAudioInBackground() {
     try {
         if (await hasOffscreenDocument()) {
@@ -400,10 +484,44 @@ async function stopAudioInBackground() {
         console.warn('[IzyFocus] stopAudioInBackground falhou:', error.message);
     }
 }
+
+async function setAudioVolume(volume) {
+    try {
+        if (await hasOffscreenDocument()) {
+            await chrome.runtime.sendMessage({ command: 'offscreenSetVolume', volume });
+        }
+    } catch (error) {
+        console.warn('[IzyFocus] setAudioVolume falhou:', error.message);
+    }
+}
+
+async function toggleSound() {
+    try {
+        const data = await chrome.storage.local.get('soundEnabled');
+        const currentlyEnabled = data.soundEnabled !== false;
+        const newState = !currentlyEnabled;
+        
+        await chrome.storage.local.set({ soundEnabled: newState });
+        
+        if (!newState && lastPlayedSound) {
+            await stopAudioInBackground();
+        } else if (newState && lastPlayedSound) {
+            await playAudioInBackground(lastPlayedSound);
+        }
+        
+        console.log('[IzyFocus] Sound toggled:', newState ? 'ON' : 'OFF');
+    } catch (error) {
+        console.warn('[IzyFocus] toggleSound falhou:', error.message);
+    }
+}
+
 async function playNotificationSound(file) {
     try {
+        const remoteSource = getAudioSource(`assets/sounds/${file}`);
+        console.log('[IzyFocus] Playing remote notification:', remoteSource);
+        
         await setupOffscreenDocument('offscreen.html');
-        await chrome.runtime.sendMessage({ command: 'offscreenPlayNotification', source: `assets/sounds/${file}` });
+        await chrome.runtime.sendMessage({ command: 'offscreenPlayNotification', source: remoteSource, volume: 0.8 });
     } catch (error) {
         console.warn('[IzyFocus] playNotificationSound falhou:', error.message);
     }

@@ -40,6 +40,10 @@
     "message": "What's your intention for today?",
     "description": "Intention input placeholder"
   },
+  "popup_intention_label": {
+    "message": "Daily Intention",
+    "description": "Intention field label"
+  },
   "popup_sound_toggle": {
     "message": "🎵 Ambient Sounds",
     "description": "Ambient sounds toggle button"
@@ -99,6 +103,18 @@
   "popup_min_suffix": {
     "message": "min",
     "description": "Minutes suffix"
+  },
+  "popup_streak_label": {
+    "message": "Days",
+    "description": "Streak label"
+  },
+  "popup_level": {
+    "message": "Level",
+    "description": "Level label"
+  },
+  "popup_start_focus_new": {
+    "message": "Start Focus Session",
+    "description": "Start session card"
   },
 
   "options_title": {
@@ -514,6 +530,86 @@
   },
   "achievement_level_5_desc": {
     "message": "Reach Level 5.",
+    "description": "Achievement description"
+  },
+  "achievement_seed_collector_10_title": {
+    "message": "Seed Collector",
+    "description": "Achievement title"
+  },
+  "achievement_seed_collector_10_desc": {
+    "message": "Earn 10 seeds.",
+    "description": "Achievement description"
+  },
+  "achievement_seed_collector_50_title": {
+    "message": "Dedicated Gardener",
+    "description": "Achievement title"
+  },
+  "achievement_seed_collector_50_desc": {
+    "message": "Earn 50 seeds.",
+    "description": "Achievement description"
+  },
+  "achievement_seed_collector_100_title": {
+    "message": "Master Gardener",
+    "description": "Achievement title"
+  },
+  "achievement_seed_collector_100_desc": {
+    "message": "Earn 100 seeds.",
+    "description": "Achievement description"
+  },
+  "achievement_xp_500_title": {
+    "message": "Experienced Learner",
+    "description": "Achievement title"
+  },
+  "achievement_xp_500_desc": {
+    "message": "Accumulate 500 XP.",
+    "description": "Achievement description"
+  },
+  "achievement_xp_1000_title": {
+    "message": "Focus Expert",
+    "description": "Achievement title"
+  },
+  "achievement_xp_1000_desc": {
+    "message": "Accumulate 1000 XP.",
+    "description": "Achievement description"
+  },
+  "achievement_xp_2500_title": {
+    "message": "Zen Master",
+    "description": "Achievement title"
+  },
+  "achievement_xp_2500_desc": {
+    "message": "Accumulate 2500 XP.",
+    "description": "Achievement description"
+  },
+  "achievement_streak_7_title": {
+    "message": "Weekly",
+    "description": "Achievement title"
+  },
+  "achievement_streak_7_desc": {
+    "message": "Stay focused for 7 days in a row.",
+    "description": "Achievement description"
+  },
+  "achievement_streak_14_title": {
+    "message": "Biweekly",
+    "description": "Achievement title"
+  },
+  "achievement_streak_14_desc": {
+    "message": "Stay focused for 14 days in a row.",
+    "description": "Achievement description"
+  },
+  "achievement_streak_30_title": {
+    "message": "Monthly",
+    "description": "Achievement title"
+  },
+  "achievement_streak_30_desc": {
+    "message": "Stay focused for 30 days in a row.",
+    "description": "Achievement description"
+  },
+  "achievement_garden_bloom_title": {
+    "message": "Blooming Garden",
+    "description": "Achievement title"
+  },
+  "achievement_garden_bloom_desc": {
+    "message": "Have 10 flowering trees in your garden.",
     "description": "Achievement description"
   },
 

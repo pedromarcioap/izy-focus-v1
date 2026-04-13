@@ -10,7 +10,7 @@ const GARDEN_CONFIG = {
 
 class GardenState {
     constructor() {
-        this.inventory = { seeds: 0, stones: 0, xp: 0, pendingGrowth: 0 };
+        this.inventory = { seeds: 0, stones: 0, xp: 0, pendingGrowth: 0, spentSeeds: 0 };
         this.layout = {};
     }
 
@@ -23,7 +23,8 @@ class GardenState {
                 seeds: Number(rawInventory.seeds) || 0,
                 stones: Number(rawInventory.stones) || 0,
                 xp: Number(rawInventory.xp) || 0,
-                pendingGrowth: Number(rawInventory.pendingGrowth) || 0
+                pendingGrowth: Number(rawInventory.pendingGrowth) || 0,
+                spentSeeds: Number(rawInventory.spentSeeds) || 0
             };
 
             this.layout = this._migrateLayout(data.gardenLayout || {});
@@ -36,20 +37,19 @@ class GardenState {
         } catch (error) {
             // [FIX] Se o storage estiver corrompido, reseta para estado seguro
             console.warn('[IzyFocus] garden load falhou, usando estado padrão:', error.message);
-            this.inventory = { seeds: 0, stones: 0, xp: 0, pendingGrowth: 0 };
+            this.inventory = { seeds: 0, stones: 0, xp: 0, pendingGrowth: 0, spentSeeds: 0 };
             this.layout = {};
         }
     }
 
     startAutoRefresh(renderer) {
-        // Listen for storage changes to update XP in real-time
         chrome.storage.onChanged.addListener((changes, namespace) => {
             if (namespace === 'local' && changes.gardenInventory) {
                 const newInv = changes.gardenInventory.newValue;
                 this.inventory.xp = Number(newInv.xp) || 0;
-                // Seeds and stones might change too
                 this.inventory.seeds = Number(newInv.seeds) || 0;
                 this.inventory.stones = Number(newInv.stones) || 0;
+                this.inventory.spentSeeds = Number(newInv.spentSeeds) || 0;
                 renderer.render(this);
             }
         });
@@ -83,13 +83,13 @@ class GardenState {
                     newLayout[id] = { type: 'stone', status: 'healthy', plantedAt: Date.now() };
                 }
             } else if (typeof item === 'object' && item !== null) {
-                // [FIX] Valida campos obrigatórios e sanitiza stage para evitar NaN
                 if (item.type === 'tree') {
                     newLayout[id] = {
                         type: 'tree',
                         stage: Math.max(1, Math.min(GARDEN_CONFIG.MAX_STAGE, Number(item.stage) || 1)),
                         status: (item.status === 'withered') ? 'withered' : 'healthy',
-                        plantedAt: Number(item.plantedAt) || Date.now()
+                        plantedAt: Number(item.plantedAt) || Date.now(),
+                        flowerType: item.flowerType || null
                     };
                 } else if (item.type === 'stone') {
                     newLayout[id] = {
@@ -106,11 +106,14 @@ class GardenState {
 
     _processGrowth(cycles) {
         let changed = false;
+        const flowerTypes = ['sunflower', 'rose', 'tulip', 'mushroom', 'fern'];
         for (const id in this.layout) {
             const item = this.layout[id];
             if (item.type === 'tree' && item.status !== 'withered' && item.stage < GARDEN_CONFIG.MAX_STAGE) {
-                // Chance de crescimento ou crescimento determinístico? Vamos determinístico.
                 item.stage = Math.min(GARDEN_CONFIG.MAX_STAGE, item.stage + cycles);
+                if (item.stage === GARDEN_CONFIG.MAX_STAGE && !item.flowerType) {
+                    item.flowerType = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
+                }
                 changed = true;
             }
         }
@@ -122,11 +125,13 @@ class GardenState {
         if (this.layout[cellId]) return false;
 
         this.inventory.seeds--;
+        this.inventory.spentSeeds = (this.inventory.spentSeeds || 0) + 1;
         this.layout[cellId] = {
             type: 'tree',
-            stage: 1, // Começa como broto (Stage 1)
+            stage: 1,
             status: 'healthy',
-            plantedAt: Date.now()
+            plantedAt: Date.now(),
+            flowerType: null
         };
         return true;
     }
@@ -208,7 +213,7 @@ class GardenRenderer {
     }
 
     _renderGrid(layout) {
-        this.gridEl.innerHTML = ''; // Limpa tudo (pode ser otimizado com Diffing se necessário)
+        this.gridEl.innerHTML = '';
 
         for (let i = 0; i < GARDEN_CONFIG.GRID_SIZE; i++) {
             const cell = document.createElement('div');
@@ -226,11 +231,19 @@ class GardenRenderer {
                 } else if (item.type === 'stone') {
                     content.classList.add('pixel-stone');
                 } else if (item.type === 'tree') {
-                    if (item.stage === 1) content.classList.add('pixel-sprout'); // Broto
-                    else if (item.stage === 2) content.classList.add('pixel-tree-small'); // Árvore pequena
-                    else if (item.stage === 3) content.classList.add('pixel-tree'); // Árvore grande
-                    else if (item.stage >= 4) content.classList.add('pixel-flowering-tree'); // Árvore florida
-                    else content.classList.add('pixel-tree'); // Fallback
+                    if (item.stage === 1) content.classList.add('pixel-sprout');
+                    else if (item.stage === 2) content.classList.add('pixel-tree-small');
+                    else if (item.stage === 3) content.classList.add('pixel-tree');
+                    else if (item.stage >= 4) {
+                        const flowerType = item.flowerType;
+                        if (flowerType === 'sunflower') content.classList.add('pixel-sunflower');
+                        else if (flowerType === 'rose') content.classList.add('pixel-rose');
+                        else if (flowerType === 'tulip') content.classList.add('pixel-tulip');
+                        else if (flowerType === 'mushroom') content.classList.add('pixel-mushroom');
+                        else if (flowerType === 'fern') content.classList.add('pixel-fern');
+                        else content.classList.add('pixel-flowering-tree');
+                    }
+                    else content.classList.add('pixel-tree');
                 }
 
                 cell.appendChild(content);
@@ -275,11 +288,11 @@ class GardenController {
 
         btn.onclick = () => {
             this._renderAchievements();
-            modal.classList.remove('hidden');
+            modal.classList.add('open');
         }
-        closeSpan.onclick = () => modal.classList.add('hidden');
+        closeSpan.onclick = () => modal.classList.remove('open');
         window.onclick = (event) => {
-            if (event.target == modal) modal.classList.add('hidden');
+            if (event.target == modal) modal.classList.remove('open');
         }
     }
 
@@ -290,12 +303,21 @@ class GardenController {
         const data = await chrome.storage.local.get(['achievements']);
         const unlockedIds = new Set(data.achievements || []);
 
-        // Define definitions here or share via config
         const ACHIEVEMENTS_DEF = [
             { id: 'first_bloom', title: chrome.i18n.getMessage('achievement_first_bloom_title'), desc: chrome.i18n.getMessage('achievement_first_bloom_desc'), icon: '🌱' },
             { id: 'consistency_3', title: chrome.i18n.getMessage('achievement_consistency_3_title'), desc: chrome.i18n.getMessage('achievement_consistency_3_desc'), icon: '📅' },
             { id: 'deep_focus', title: chrome.i18n.getMessage('achievement_deep_focus_title'), desc: chrome.i18n.getMessage('achievement_deep_focus_desc'), icon: '⏳' },
-            { id: 'level_5', title: chrome.i18n.getMessage('achievement_level_5_title'), desc: chrome.i18n.getMessage('achievement_level_5_desc'), icon: '⭐' }
+            { id: 'level_5', title: chrome.i18n.getMessage('achievement_level_5_title'), desc: chrome.i18n.getMessage('achievement_level_5_desc'), icon: '⭐' },
+            { id: 'seed_collector_10', title: chrome.i18n.getMessage('achievement_seed_collector_10_title'), desc: chrome.i18n.getMessage('achievement_seed_collector_10_desc'), icon: '🌰' },
+            { id: 'seed_collector_50', title: chrome.i18n.getMessage('achievement_seed_collector_50_title'), desc: chrome.i18n.getMessage('achievement_seed_collector_50_desc'), icon: '🌳' },
+            { id: 'seed_collector_100', title: chrome.i18n.getMessage('achievement_seed_collector_100_title'), desc: chrome.i18n.getMessage('achievement_seed_collector_100_desc'), icon: '🏆' },
+            { id: 'xp_500', title: chrome.i18n.getMessage('achievement_xp_500_title'), desc: chrome.i18n.getMessage('achievement_xp_500_desc'), icon: '✨' },
+            { id: 'xp_1000', title: chrome.i18n.getMessage('achievement_xp_1000_title'), desc: chrome.i18n.getMessage('achievement_xp_1000_desc'), icon: '💫' },
+            { id: 'xp_2500', title: chrome.i18n.getMessage('achievement_xp_2500_title'), desc: chrome.i18n.getMessage('achievement_xp_2500_desc'), icon: '🌟' },
+            { id: 'streak_7', title: chrome.i18n.getMessage('achievement_streak_7_title'), desc: chrome.i18n.getMessage('achievement_streak_7_desc'), icon: '📆' },
+            { id: 'streak_14', title: chrome.i18n.getMessage('achievement_streak_14_title'), desc: chrome.i18n.getMessage('achievement_streak_14_desc'), icon: '📅' },
+            { id: 'streak_30', title: chrome.i18n.getMessage('achievement_streak_30_title'), desc: chrome.i18n.getMessage('achievement_streak_30_desc'), icon: '🗓️' },
+            { id: 'garden_bloom', title: chrome.i18n.getMessage('achievement_garden_bloom_title'), desc: chrome.i18n.getMessage('achievement_garden_bloom_desc'), icon: '🌸' }
         ];
 
         listEl.innerHTML = '';
