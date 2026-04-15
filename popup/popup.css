@@ -421,6 +421,47 @@ body {
     color: var(--primary);
 }
 
+.sound-toggle.pulse-glow {
+    animation: pulseGlow 1s ease-in-out infinite;
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.sound-toggle.playing {
+    animation: none;
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.sound-toggle.playing svg {
+    animation: waveform 1.2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(16, 185, 129, 0.6);
+    }
+}
+
+@keyframes waveform {
+    0%, 100% {
+        opacity: 1;
+    }
+    25% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+    }
+    75% {
+        opacity: 0.8;
+    }
+}
+
 .sound-list {
     display: none;
     position: absolute;
@@ -472,6 +513,38 @@ body {
 .sound-option.active {
     background: var(--primary-light);
     color: var(--primary);
+}
+
+.sound-option .cloud-badge {
+    font-size: 9px;
+    padding: 2px 5px;
+    background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+    color: white;
+    border-radius: 8px;
+    margin-left: auto;
+    font-weight: 600;
+}
+
+.sound-skeleton {
+    padding: 8px;
+}
+
+.skeleton-line {
+    height: 20px;
+    background: linear-gradient(90deg, var(--border) 25%, var(--bg-secondary) 50%, var(--border) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.skeleton-line:last-child {
+    width: 60%;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 /* Buttons */

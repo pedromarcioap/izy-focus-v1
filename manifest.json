@@ -15,7 +15,9 @@
   ],
   "host_permissions": [
     "<all_urls>",
-    "https://izy-focus-assets.vercel.app/*"
+    "https://izy-focus-assets.vercel.app/*",
+    "https://api.github.com/*",
+    "https://raw.githubusercontent.com/*"
   ],
   "oauth2": {
     "client_id": "INSERT_YOUR_CLIENT_ID.apps.googleusercontent.com",

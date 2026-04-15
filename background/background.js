@@ -4,6 +4,7 @@ const BLOCK_RULE_ID = 1;
 let lastPlayedSound = 'rain.mp3';
 
 const AUDIO_BASE_URL = 'https://izy-focus-assets.vercel.app';
+const LOCAL_AUDIO_BASE = 'assets/sounds';
 
 function getRemoteAudioUrl(source) {
     if (source.startsWith('http')) {
@@ -14,13 +15,9 @@ function getRemoteAudioUrl(source) {
 }
 
 function getAudioSource(source) {
-    if (source.startsWith('http')) {
-        return source;
-    }
-    if (source.startsWith('/')) {
-        return chrome.runtime.getURL(source);
-    }
-    return getRemoteAudioUrl(source);
+    if (!source) return '';
+    if (source.startsWith('http') || source.startsWith('https')) return source;
+    return source;
 }
 
 // URLs que sempre devem ser permitidas (não bloqueadas)
@@ -159,11 +156,9 @@ chrome.runtime.onStartup.addListener(async () => {
 
 // --- OUVINTES DE MENSAGENS ---
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log('[IzyFocus] Background received command:', request.command);
-    
     if (request.command === 'getState') {
         chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE).then(data => {
-            sendResponse({ command: 'updateState', state: data[STORAGE_KEYS.TIMER_STATE] });
+            sendResponse({ state: data[STORAGE_KEYS.TIMER_STATE] });
         });
         return true;
     }
@@ -171,6 +166,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.command === 'startFocus') {
         startFocusSession(request.listId, request.dayIntention);
     } else if (request.command === 'interruptFocus') {
+        console.log('[IzyFocus] interruptFocus received');
         stopFocusSession(true);
     } else if (request.command === 'startNextSession') {
         const { sessionData } = request;
@@ -242,6 +238,7 @@ async function handleWitherPlant() {
 async function sendStateToPopup() {
     try {
         const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
+        console.log('[IzyFocus] sendStateToPopup:', timerState);
         await chrome.runtime.sendMessage({ command: 'updateState', state: timerState });
     } catch (error) { /* Ignora se popup fechado */ }
 }
@@ -308,6 +305,7 @@ async function startBreak(prevState) {
 }
 
 async function stopFocusSession(wasInterrupted) {
+    console.log('[IzyFocus] stopFocusSession called, interrupted:', wasInterrupted);
     try {
         if (wasInterrupted) {
             const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
@@ -318,12 +316,18 @@ async function stopFocusSession(wasInterrupted) {
             currentSessionIntention: ''
         });
         await synchronizeBlockingState();
-        await stopAudioInBackground();
-        await closeOffscreenDocument();
+        
+        try { await stopAudioInBackground(); } catch(e) {}
+        try { await closeOffscreenDocument(); } catch(e) {}
+        
         chrome.alarms.clear(ALARM_NAME);
+        
+        console.log('[IzyFocus] Calling sendStateToPopup');
         sendStateToPopup();
+        
+        console.log('[IzyFocus] stopFocusSession complete');
     } catch (error) {
-        console.warn('[IzyFocus] stopFocusSession falhou:', error.message);
+        console.error('[IzyFocus] stopFocusSession error:', error.message);
     }
 }
 
@@ -459,17 +463,26 @@ async function playAudioInBackground(source, volume) {
     try {
         const data = await chrome.storage.local.get(['soundEnabled', 'soundVolume']);
         if (data.soundEnabled === false) {
-            console.log('[IzyFocus] Sound disabled, not playing:', source);
+            console.log('[IzyFocus] Sound disabled');
             return;
         }
         const savedVolume = data.soundVolume !== undefined ? data.soundVolume / 100 : (volume || 0.5);
         
-        const remoteSource = getAudioSource(source);
-        console.log('[IzyFocus] Playing remote audio:', remoteSource);
+        const audioSource = getAudioSource(source);
+        console.log('[IzyFocus] playAudio source:', source, '-> resolved:', audioSource);
         
         await setupOffscreenDocument('offscreen.html');
-        await new Promise(resolve => setTimeout(resolve, 200));
-        await chrome.runtime.sendMessage({ command: 'offscreenPlay', source: remoteSource, volume: savedVolume });
+        
+        const offscreenSource = (source.startsWith('http') || source.startsWith('chrome-extension://')) 
+            ? source 
+            : `assets/sounds/${source}`;
+        console.log('[IzyFocus] sending to offscreen:', offscreenSource);
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
+        await chrome.runtime.sendMessage({ command: 'offscreenPlay', source: offscreenSource, volume: savedVolume });
+        
+        await chrome.storage.local.set({ audioPlaybackState: { isPlaying: true, source: audioSource } });
+        chrome.runtime.sendMessage({ command: 'updatePlaybackState', isPlaying: true });
     } catch (error) {
         console.warn('[IzyFocus] playAudioInBackground falhou:', error.message);
     }
@@ -480,6 +493,8 @@ async function stopAudioInBackground() {
         if (await hasOffscreenDocument()) {
             await chrome.runtime.sendMessage({ command: 'offscreenStop' });
         }
+        await chrome.storage.local.set({ audioPlaybackState: { isPlaying: false, source: null } });
+        chrome.runtime.sendMessage({ command: 'updatePlaybackState', isPlaying: false });
     } catch (error) {
         console.warn('[IzyFocus] stopAudioInBackground falhou:', error.message);
     }

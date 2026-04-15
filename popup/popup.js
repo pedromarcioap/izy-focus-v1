@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('[IzyFocus] DOMContentLoaded');
+    
     const elements = {
         app: document.getElementById('app'),
         mainHeaderTitle: document.getElementById('main-header-title'),
@@ -30,31 +32,57 @@ document.addEventListener('DOMContentLoaded', () => {
         nextLevelXp: document.getElementById('next-level-xp'),
         xpProgressFill: document.getElementById('xp-progress-fill')
     };
-
+    
+    console.log('[IzyFocus] Elements found:', Object.keys(elements).filter(k => elements[k]).length);
+    
     let timerInterval = null;
     let completedSessionData = null;
     let isDarkMode = false;
     let isSoundEnabled = true;
+    let isAudioPlaying = false;
+    let focusSessionStarted = false;
+    let availableSounds = [];
     const circumference = 2 * Math.PI * 100;
 
-    const SOUNDS = [
-        { file: 'rain.mp3', name: 'Chuva', emoji: '🌧️' },
-        { file: 'forest.mp3', name: 'Floresta', emoji: '🌳' }
-    ];
+    const LOCAL_SOUNDS = [
+        { file: 'rain.mp3', name: 'Chuva', emoji: '🌧️', isLocal: true },
+        { file: 'forest.mp3', name: 'Floresta', emoji: '🌳', isLocal: true }
+];
 
-    init();
+    (async () => {
+        await init();
+    })();
 
     async function init() {
+        console.log('[IzyFocus] Starting init');
+        
         try {
             localizeHtmlPage();
             await loadDarkMode();
             await loadSoundState();
-            buildSoundList();
+            await loadPlaybackState();
+            
+            availableSounds = LOCAL_SOUNDS;
+            buildSoundList(availableSounds);
+            
             await initializeHomePage();
+            
+            await setupEventListeners();
+            
+            console.log('[IzyFocus] listeners setup');
+            
             await requestInitialState();
-            setupEventListeners();
+            
+            console.log('[IzyFocus] Init complete');
         } catch (e) {
-            console.error('[IzyFocus] Init failed:', e);
+            console.error('[IzyFocus] Init error:', e);
+            
+            if (elements.homeContainer) {
+                elements.homeContainer.style.display = 'flex';
+                availableSounds = LOCAL_SOUNDS;
+                buildSoundList(availableSounds);
+                initializeHomePage();
+            }
         }
     }
 
@@ -139,7 +167,31 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.runtime.sendMessage({ command: 'toggleSound' });
     }
 
-    function buildSoundList() {
+    async function loadPlaybackState() {
+        try {
+            const data = await chrome.storage.local.get('audioPlaybackState');
+            if (data.audioPlaybackState) {
+                isAudioPlaying = data.audioPlaybackState.isPlaying;
+                updateSoundButtonState();
+            }
+        } catch (e) {
+            console.warn('[IzyFocus] Failed to load playback state:', e);
+        }
+    }
+
+    function updateSoundButtonState() {
+        if (!elements.soundToggleBtn) return;
+        
+        elements.soundToggleBtn.classList.remove('pulse-glow', 'playing');
+        
+        if (focusSessionStarted && !isAudioPlaying) {
+            elements.soundToggleBtn.classList.add('pulse-glow');
+        } else if (isAudioPlaying) {
+            elements.soundToggleBtn.classList.add('playing');
+        }
+    }
+
+    function buildSoundList(sounds) {
         elements.soundList.innerHTML = '';
         
         const stopOption = document.createElement('button');
@@ -148,11 +200,14 @@ document.addEventListener('DOMContentLoaded', () => {
         stopOption.innerHTML = `<span>🔇</span> Silêncio`;
         elements.soundList.appendChild(stopOption);
         
-        SOUNDS.forEach(sound => {
+        sounds.forEach(sound => {
             const option = document.createElement('button');
             option.className = 'sound-option';
             option.dataset.sound = sound.file;
-            option.innerHTML = `<span>${sound.emoji}</span> ${sound.name}`;
+            option.dataset.isLocal = sound.isLocal;
+            
+            const cloudBadge = !sound.isLocal ? `<span class="cloud-badge">Cloud</span>` : '';
+            option.innerHTML = `<span>${sound.emoji}</span> ${sound.name}${cloudBadge}`;
             elements.soundList.appendChild(option);
         });
     }
@@ -160,13 +215,25 @@ document.addEventListener('DOMContentLoaded', () => {
     async function requestInitialState() {
         try {
             console.log('[IzyFocus] Requesting initial state...');
+            
             const response = await chrome.runtime.sendMessage({ command: 'getState' });
+            
             console.log('[IzyFocus] Initial state response:', response);
-            if (response && response.state) {
+            
+            if (response && response.state && response.state.isActive) {
                 render(response.state);
             } else {
-                console.log('[IzyFocus] No state or state.isActive is false, rendering home');
-                render({ isActive: false });
+                chrome.storage.local.get('timerState').then(data => {
+                    console.log('[IzyFocus] local timerState:', data.timerState);
+                    if (data.timerState && data.timerState.isActive) {
+                        render(data.timerState);
+                    } else {
+                        console.log('[IzyFocus] Rendering home view');
+                        render({ isActive: false });
+                    }
+                }).catch(() => {
+                    render({ isActive: false });
+                });
             }
         } catch (e) {
             console.error('[IzyFocus] Failed to get initial state:', e);
@@ -182,6 +249,9 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.timerWrapper.classList.remove('active');
         elements.completedWrapper.classList.remove('active');
         elements.app.classList.remove('session-active');
+        
+        focusSessionStarted = false;
+        updateSoundButtonState();
 
         if (!state || !state.isActive) {
             console.log('[IzyFocus] Rendering home view');
@@ -264,6 +334,11 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.currentTaskLabel.textContent = isFocus 
             ? state.listName 
             : (chrome.i18n.getMessage('popup_break_message') || 'Descanse!');
+        
+        if (isFocus) {
+            focusSessionStarted = true;
+            updateSoundButtonState();
+        }
     }
 
     function startTimerUpdate(state) {
@@ -349,6 +424,10 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.emergencyStopBtn.addEventListener('click', () => {
             if (confirm(chrome.i18n.getMessage('popup_confirm_interrupt') || 'Interromper sessão?')) {
                 chrome.runtime.sendMessage({ command: 'interruptFocus' });
+                
+                chrome.storage.local.get('timerState').then(data => {
+                    render({ isActive: false });
+                });
             }
         });
         
@@ -408,14 +487,17 @@ document.addEventListener('DOMContentLoaded', () => {
             option.classList.add('active');
             
             const sound = option.dataset.sound;
+            const isLocal = option.dataset.isLocal === 'true';
             
             if (sound === 'stop') {
                 chrome.runtime.sendMessage({ command: 'stopSound' });
+                isAudioPlaying = false;
             } else {
-                const remoteSource = `https://izy-focus-assets.vercel.app/${sound}`;
-                chrome.runtime.sendMessage({ command: 'playSound', source: remoteSource });
+                chrome.runtime.sendMessage({ command: 'playSound', source: sound });
+                isAudioPlaying = true;
             }
             
+            updateSoundButtonState();
             elements.soundList.classList.remove('open');
         });
 
@@ -427,10 +509,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         chrome.runtime.onMessage.addListener((request) => {
             if (request.command === 'updateState') {
+                console.log('[IzyFocus] updateState received:', request.state);
                 render(request.state);
             } else if (request.command === 'updateSoundState') {
                 isSoundEnabled = request.enabled;
                 applySoundState();
+            } else if (request.command === 'updatePlaybackState') {
+                isAudioPlaying = request.isPlaying;
+                updateSoundButtonState();
             }
             return true;
         });

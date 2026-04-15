@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await renderAll();
     setupSyncUI();
     setupBackupUI();
+    setupSoundSyncUI();
 
     function localizeHtmlPage() {
         document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -662,5 +663,105 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (seconds < 3600) return `Há ${Math.floor(seconds / 60)} minutos`;
         if (seconds < 86400) return `Há ${Math.floor(seconds / 3600)} horas`;
         return `Há ${Math.floor(seconds / 86400)} dias`;
+    }
+
+    const GITHUB_API_URL = 'https://api.github.com/repos/pedromarcioap/izy-focus-assets/contents/public';
+    const CACHE_KEY = 'soundInventory';
+    const CACHE_TIMESTAMP_KEY = 'soundInventoryTimestamp';
+
+    async function setupSoundSyncUI() {
+        const syncBtn = document.getElementById('sync-sounds-btn');
+        const countDisplay = document.getElementById('sound-count-display');
+        
+        if (!syncBtn || !countDisplay) {
+            console.warn('[IzyFocus] Sound sync UI elements not found');
+            return;
+        }
+        
+        await loadSoundSyncStatus();
+
+        syncBtn.addEventListener('click', async () => {
+            syncBtn.disabled = true;
+            syncBtn.querySelector('span').textContent = 'Sincronizando...';
+            
+            try {
+                const remoteSounds = await fetchGitHubSounds();
+                console.log('[IzyFocus] Fetched sounds:', remoteSounds);
+                
+                if (remoteSounds && remoteSounds.length > 0) {
+                    await chrome.storage.local.set({
+                        [CACHE_KEY]: remoteSounds,
+                        [CACHE_TIMESTAMP_KEY]: Date.now()
+                    });
+                    countDisplay.textContent = `${remoteSounds.length} trilhas disponíveis`;
+                    syncBtn.querySelector('span').textContent = 'Sincronizado!';
+                    setTimeout(() => {
+                        syncBtn.querySelector('span').textContent = 'Sincronizar Sons';
+                    }, 2000);
+                } else {
+                    countDisplay.textContent = 'Nenhuma trilha encontrada no repositório';
+                    syncBtn.querySelector('span').textContent = 'Repositório vazio';
+                }
+            } catch (e) {
+                console.error('[IzyFocus] Sound sync failed:', e);
+                countDisplay.textContent = 'Erro: repositório indisponível';
+                syncBtn.querySelector('span').textContent = 'Erro - Tente novamente';
+            }
+            
+            syncBtn.disabled = false;
+        });
+    }
+
+    async function loadSoundSyncStatus() {
+        const countDisplay = document.getElementById('sound-count-display');
+        if (!countDisplay) return;
+        
+        const cached = await chrome.storage.local.get([CACHE_KEY, CACHE_TIMESTAMP_KEY]);
+        
+        if (cached[CACHE_KEY] && cached[CACHE_KEY].length > 0) {
+            const count = cached[CACHE_KEY].length;
+            const lastSync = cached[CACHE_TIMESTAMP_KEY];
+            const date = new Date(lastSync).toLocaleDateString('pt-BR');
+            countDisplay.textContent = `${count} trilhas disponíveis (${date})`;
+        } else {
+            countDisplay.textContent = 'Nenhuma trilha sincronizada';
+        }
+    }
+
+    async function fetchGitHubSounds() {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        try {
+            const response = await fetch(GITHUB_API_URL, {
+                signal: controller.signal,
+                headers: { 
+                    'Accept': 'application/vnd.github.v3+json',
+                    'X-GitHub-Api-Version': '2022-11-28'
+                }
+            });
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                throw new Error(`GitHub API error: ${response.status}`);
+            }
+            
+            const files = await response.json();
+            console.log('[IzyFocus] GitHub files response:', files);
+            
+            return files
+                .filter(f => f.name && f.name.toLowerCase().endsWith('.mp3'))
+                .map(f => ({
+                    file: f.name,
+                    name: f.name.replace('.mp3', '').replace(/-/g, ' '),
+                    emoji: '🎵',
+                    isLocal: false,
+                    sourceUrl: f.download_url
+                }));
+        } catch (e) {
+            clearTimeout(timeoutId);
+            console.error('[IzyFocus] fetchGitHubSounds error:', e.message);
+            throw e;
+        }
     }
 });

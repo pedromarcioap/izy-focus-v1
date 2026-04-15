@@ -661,6 +661,24 @@ body {
     color: var(--text-tertiary);
 }
 
+.sound-sync-status {
+    margin-bottom: 12px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+}
+
+.sound-count {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.card-description {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
 @media (max-width: 600px) {
     .container {
         padding: 16px;
