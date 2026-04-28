@@ -475,6 +475,14 @@
     "message": "Pedras",
     "description": "Ferramenta de pedras"
   },
+  "garden_seeds_label": {
+    "message": "Sementes",
+    "description": "Label de sementes"
+  },
+  "garden_stones_label": {
+    "message": "Pedras",
+    "description": "Label de pedras"
+  },
   "garden_reset_button": {
     "message": "Limpar Jardim",
     "description": "Botão de limpar jardim"

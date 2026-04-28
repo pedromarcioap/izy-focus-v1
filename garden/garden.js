@@ -181,6 +181,8 @@ class GardenRenderer {
         this.elements = {
             seedCount: document.getElementById('seed-count'),
             stoneCount: document.getElementById('stone-count'),
+            seedCountDisplay: document.getElementById('seed-count-display'),
+            stoneCountDisplay: document.getElementById('stone-count-display'),
             level: document.getElementById('level-display'),
             xpBar: document.getElementById('xp-bar-fill'),
             xpValue: document.getElementById('xp-value'),
@@ -198,6 +200,8 @@ class GardenRenderer {
     _renderInventory(inventory) {
         this.elements.seedCount.textContent = inventory.seeds;
         this.elements.stoneCount.textContent = inventory.stones;
+        this.elements.seedCountDisplay.textContent = inventory.seeds;
+        this.elements.stoneCountDisplay.textContent = inventory.stones;
 
         this.elements.toolSeed.classList.toggle('disabled', inventory.seeds === 0);
         this.elements.toolStone.classList.toggle('disabled', inventory.stones === 0);

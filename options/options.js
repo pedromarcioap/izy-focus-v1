@@ -1,3 +1,7 @@
+const GITHUB_API_URL = 'https://api.github.com/repos/pedromarcioap/izy-focus-assets/contents/public';
+const CACHE_KEY = 'soundInventory';
+const CACHE_TIMESTAMP_KEY = 'soundInventoryTimestamp';
+
 document.addEventListener('DOMContentLoaded', async () => {
     localizeHtmlPage();
     await loadDarkMode();
@@ -664,10 +668,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (seconds < 86400) return `Há ${Math.floor(seconds / 3600)} horas`;
         return `Há ${Math.floor(seconds / 86400)} dias`;
     }
-
-    const GITHUB_API_URL = 'https://api.github.com/repos/pedromarcioap/izy-focus-assets/contents/public';
-    const CACHE_KEY = 'soundInventory';
-    const CACHE_TIMESTAMP_KEY = 'soundInventoryTimestamp';
 
     async function setupSoundSyncUI() {
         const syncBtn = document.getElementById('sync-sounds-btn');

@@ -475,6 +475,14 @@
     "message": "Stones",
     "description": "Stones tool"
   },
+  "garden_seeds_label": {
+    "message": "Seeds",
+    "description": "Seeds label"
+  },
+  "garden_stones_label": {
+    "message": "Stones",
+    "description": "Stones label"
+  },
   "garden_reset_button": {
     "message": "Clear Garden",
     "description": "Clear garden button"
