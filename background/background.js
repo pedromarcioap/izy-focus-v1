@@ -31,6 +31,12 @@ function isUrlAlwaysAllowed(url) {
     // Notificações de extensões do Chrome (qualquer página da extensão específica)
     if (url.startsWith('chrome-extension://hkhggnncdpfibdhinjiegagmopldibha/')) return true;
     
+    // Arquivos locais (file://)
+    if (url.startsWith('file://')) return true;
+    
+    // Arquivos PDF locais
+    if (url.toLowerCase().endsWith('.pdf')) return true;
+    
     // Novas abas e páginas internas do navegador
     try {
         const urlObj = new URL(url);
@@ -192,8 +198,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else if (request.command === 'setVolume') {
         setAudioVolume(request.volume);
     }
-    
-    return true;
 });
 
 async function handleWitherPlant() {
