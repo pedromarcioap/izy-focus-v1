@@ -118,16 +118,25 @@ body {
 .card-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
     margin-bottom: 16px;
     color: var(--text-primary);
 }
 
-.card-header svg {
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-title svg,
+.card-header > svg {
     color: var(--primary);
 }
 
-.card-header h2 {
+.card-title h2,
+.card-header > h2 {
     font-size: 16px;
     font-weight: 600;
 }
@@ -551,6 +560,11 @@ body {
     transition: var(--transition);
     border: none;
     font-family: var(--font-family);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
 }
 
 .btn-primary {

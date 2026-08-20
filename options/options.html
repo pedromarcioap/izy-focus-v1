@@ -31,10 +31,19 @@
         <main>
             <section class="card">
                 <div class="card-header">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-                    </svg>
-                    <h2 data-i18n="options_focus_lists">Listas de Foco</h2>
+                    <div class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                        </svg>
+                        <h2 data-i18n="options_focus_lists">Listas de Foco</h2>
+                    </div>
+                    <button type="button" id="add-focus-list-btn" class="btn btn-primary btn-sm" data-i18n="options_new_focus_list_btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Nova Lista</span>
+                    </button>
                 </div>
                 <div id="focus-lists-container" class="lists-container"></div>
                 <form id="add-focus-list-form" class="add-form">
@@ -85,10 +94,19 @@
             
             <section class="card">
                 <div class="card-header">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l14.14 14.14"/>
-                    </svg>
-                    <h2 data-i18n="options_blocklists_title">Listas de Bloqueio</h2>
+                    <div class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l14.14 14.14"/>
+                        </svg>
+                        <h2 data-i18n="options_blocklists_title">Listas de Bloqueio</h2>
+                    </div>
+                    <button type="button" id="add-block-list-btn" class="btn btn-primary btn-sm" data-i18n="options_new_blocklist_btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Nova Blocklist</span>
+                    </button>
                 </div>
                 <div id="block-lists-container" class="lists-container"></div>
                 <form id="add-block-list-form" class="add-form">
@@ -110,10 +128,19 @@
 
             <section class="card">
                 <div class="card-header">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>
-                    </svg>
-                    <h2 data-i18n="options_whitelists_title">Listas de Permissão</h2>
+                    <div class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>
+                        </svg>
+                        <h2 data-i18n="options_whitelists_title">Listas de Permissão</h2>
+                    </div>
+                    <button type="button" id="add-white-list-btn" class="btn btn-primary btn-sm" data-i18n="options_new_whitelist_btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Nova Whitelist</span>
+                    </button>
                 </div>
                 <div id="white-lists-container" class="lists-container"></div>
                 <form id="add-white-list-form" class="add-form">

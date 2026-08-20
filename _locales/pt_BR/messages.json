@@ -133,6 +133,18 @@
     "message": "Listas de Foco",
     "description": "Seção de listas de foco"
   },
+  "options_new_focus_list_btn": {
+    "message": "Nova Lista",
+    "description": "Botão para criar nova lista de foco"
+  },
+  "options_new_blocklist_btn": {
+    "message": "Nova Blocklist",
+    "description": "Botão para criar nova blocklist"
+  },
+  "options_new_whitelist_btn": {
+    "message": "Nova Whitelist",
+    "description": "Botão para criar nova whitelist"
+  },
   "options_add_focus_list": {
     "message": "Adicionar Nova Lista de Foco",
     "description": "Título do formulário de lista de foco"

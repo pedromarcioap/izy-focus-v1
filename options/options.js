@@ -183,6 +183,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('cancel-edit-block-btn')?.addEventListener('click', cancelEditing);
         document.getElementById('cancel-edit-white-btn')?.addEventListener('click', cancelEditing);
 
+        document.getElementById('add-focus-list-btn')?.addEventListener('click', () => openAddForm('focus'));
+        document.getElementById('add-block-list-btn')?.addEventListener('click', () => openAddForm('block'));
+        document.getElementById('add-white-list-btn')?.addEventListener('click', () => openAddForm('white'));
+
         const focusForm = document.getElementById('add-focus-list-form');
         focusForm?.addEventListener('submit', handleFocusFormSubmit);
 
@@ -191,6 +195,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const whiteForm = document.getElementById('add-white-list-form');
         whiteForm?.addEventListener('submit', (e) => handleListForm(e, 'white'));
+    }
+
+    function openAddForm(type) {
+        let formId, nameInputId;
+        if (type === 'focus') {
+            formId = 'add-focus-list-form';
+            nameInputId = 'focus-list-name';
+        } else if (type === 'block') {
+            formId = 'add-block-list-form';
+            nameInputId = 'block-list-name';
+        } else if (type === 'white') {
+            formId = 'add-white-list-form';
+            nameInputId = 'white-list-name';
+        }
+
+        const form = document.getElementById(formId);
+        if (!form) return;
+
+        const isFormActive = form.classList.contains('active');
+        const isAddingNew = editingState.type === null;
+
+        if (isFormActive && isAddingNew) {
+            cancelEditing();
+        } else {
+            cancelEditing();
+            form.classList.add('active');
+            const nameInput = document.getElementById(nameInputId);
+            if (nameInput) {
+                nameInput.focus();
+            }
+        }
     }
 
     let editingState = { type: null, id: null };
@@ -284,6 +319,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             item.querySelector('.delete-btn')?.addEventListener('click', () => deleteList('block', list.id));
             container.appendChild(item);
         });
+
+        if (blockLists.length === 0) {
+            container.innerHTML = '<div class="empty-state">Nenhuma lista de bloqueio encontrada.</div>';
+        }
     }
 
     function renderWhiteLists(whitelists) {
@@ -317,6 +356,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             item.querySelector('.delete-btn')?.addEventListener('click', () => deleteList('white', list.id));
             container.appendChild(item);
         });
+
+        if (whitelists.length === 0) {
+            container.innerHTML = '<div class="empty-state">Nenhuma lista de permissão encontrada.</div>';
+        }
     }
 
     function populateAssociationSelects(blockLists, whitelists) {
@@ -364,6 +407,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             const blockSection = document.getElementById('blocklist-section');
             const whiteSection = document.getElementById('whitelist-section');
+            const blockSelect = document.getElementById('block-list-association');
+            const whiteSelect = document.getElementById('white-list-association');
             if (list.blockMode === 'whitelist') {
                 blockSection.style.display = 'none';
                 whiteSection.style.display = 'block';
@@ -400,22 +445,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function cancelEditing() {
-        document.getElementById('add-focus-list-form').classList.remove('active');
-        document.getElementById('add-focus-list-form').reset();
+        document.getElementById('add-focus-list-form')?.classList.remove('active');
+        document.getElementById('add-focus-list-form')?.reset();
         
-        document.getElementById('add-block-list-form').classList.remove('active');
-        document.getElementById('add-block-list-form').reset();
+        document.getElementById('add-block-list-form')?.classList.remove('active');
+        document.getElementById('add-block-list-form')?.reset();
         
-        document.getElementById('add-white-list-form').classList.remove('active');
-        document.getElementById('add-white-list-form').reset();
+        document.getElementById('add-white-list-form')?.classList.remove('active');
+        document.getElementById('add-white-list-form')?.reset();
 
-        document.getElementById('focus-form-title').textContent = chrome.i18n.getMessage('options_add_focus_list');
-        document.getElementById('submit-focus-form-btn').textContent = chrome.i18n.getMessage('options_submit_focus_list');
+        const focusTitle = document.getElementById('focus-form-title');
+        const focusSubmit = document.getElementById('submit-focus-form-btn');
+        if (focusTitle) focusTitle.textContent = chrome.i18n.getMessage('options_add_focus_list');
+        if (focusSubmit) focusSubmit.textContent = chrome.i18n.getMessage('options_submit_focus_list');
+
+        const blockTitle = document.getElementById('block-form-title');
+        const blockSubmit = document.getElementById('submit-block-form-btn');
+        if (blockTitle) blockTitle.textContent = chrome.i18n.getMessage('options_add_blocklist');
+        if (blockSubmit) blockSubmit.textContent = chrome.i18n.getMessage('options_submit_blocklist');
+
+        const whiteTitle = document.getElementById('white-form-title');
+        const whiteSubmit = document.getElementById('submit-white-form-btn');
+        if (whiteTitle) whiteTitle.textContent = chrome.i18n.getMessage('options_add_whitelist');
+        if (whiteSubmit) whiteSubmit.textContent = chrome.i18n.getMessage('options_submit_whitelist');
 
         editingState = { type: null, id: null };
         
-        document.getElementById('blocklist-section').style.display = 'block';
-        document.getElementById('whitelist-section').style.display = 'none';
+        const blockSection = document.getElementById('blocklist-section');
+        const whiteSection = document.getElementById('whitelist-section');
+        if (blockSection) blockSection.style.display = 'block';
+        if (whiteSection) whiteSection.style.display = 'none';
     }
 
     async function handleFocusFormSubmit(e) {

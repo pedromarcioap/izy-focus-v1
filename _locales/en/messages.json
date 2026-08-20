@@ -133,6 +133,18 @@
     "message": "Focus Lists",
     "description": "Focus lists section"
   },
+  "options_new_focus_list_btn": {
+    "message": "New List",
+    "description": "Button to create new focus list"
+  },
+  "options_new_blocklist_btn": {
+    "message": "New Blocklist",
+    "description": "Button to create new blocklist"
+  },
+  "options_new_whitelist_btn": {
+    "message": "New Allowlist",
+    "description": "Button to create new allowlist"
+  },
   "options_add_focus_list": {
     "message": "Add New Focus List",
     "description": "Add focus list form title"
