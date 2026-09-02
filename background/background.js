@@ -115,7 +115,7 @@ async function synchronizeBlockingState() {
     try {
     const data = await chrome.storage.local.get([STORAGE_KEYS.TIMER_STATE, STORAGE_KEYS.BLOCK_LISTS]);
     const timerState = data[STORAGE_KEYS.TIMER_STATE];
-    if (!timerState || !timerState.isActive || timerState.currentPhase === 'break' || timerState.blockMode === 'whitelist') {
+    if (!timerState || !timerState.isActive || timerState.currentPhase !== 'focus' || timerState.blockMode === 'whitelist') {
         await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [BLOCK_RULE_ID] });
         return;
     }
@@ -263,6 +263,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
             await processCompletedSession(timerState);
             const completedState = { ...timerState, currentPhase: 'completed' };
             await chrome.storage.local.set({ [STORAGE_KEYS.TIMER_STATE]: completedState });
+            await synchronizeBlockingState();
             sendStateToPopup();
         }
     } catch (error) {
