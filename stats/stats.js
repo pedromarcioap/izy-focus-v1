@@ -1,4 +1,12 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    // --- i18n ---
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const msg = chrome.i18n.getMessage(el.dataset.i18n);
+        if (msg) el.textContent = msg;
+    });
+    const titleMsg = chrome.i18n.getMessage('stats_title');
+    if (titleMsg) document.title = titleMsg;
+
     const totalCyclesEl = document.getElementById('total-cycles');
     const mostUsedEl = document.getElementById('most-used');
     const mostEffectiveEl = document.getElementById('most-effective');
@@ -58,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sortedLists = Object.entries(stats).sort((a, b) => (b[1].completions + b[1].interruptions) - (a[1].completions + a[1].interruptions));
 
     if (sortedLists.length === 0) {
-        detailedListContainer.innerHTML = `<div class="empty-state"><p>Seu progresso aparecerá aqui.<br>Complete seu primeiro ciclo de foco para começar!</p></div>`;
+        detailedListContainer.innerHTML = `<div class="empty-state"><p>${chrome.i18n.getMessage('stats_empty_state')}</p></div>`;
     } else {
         sortedLists.forEach(([listName, data]) => {
             const item = document.createElement('div');
@@ -71,16 +79,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="progress-bar-container">
                             <div class="progress-bar" style="width: ${completionRateFormatted}%"></div>
                         </div>
-                        <div class="progress-label">${completionRateFormatted}% de Taxa de Conclusão</div>
+                        <div class="progress-label">${chrome.i18n.getMessage('stats_completion_rate', [completionRateFormatted])}</div>
                     </div>
                 </div>
                 <div class="stat-item-metrics">
                     <div class="metric">
-                        <div class="metric-label">Concluídos</div>
+                        <div class="metric-label">${chrome.i18n.getMessage('stats_completed_label')}</div>
                         <div class="metric-value">${data.completions}</div>
                     </div>
                     <div class="metric">
-                        <div class="metric-label">Interrompidos</div>
+                        <div class="metric-label">${chrome.i18n.getMessage('stats_interrupted_label')}</div>
                         <div class="metric-value">${data.interruptions}</div>
                     </div>
                 </div>

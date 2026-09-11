@@ -1,38 +1,160 @@
 :root {
-    --dark-navy: #0F172A;
-    --text-color: #F8FAFC;
-    --font-family: 'Figtree', sans-serif; /* Lembre-se de importar a fonte */
+    --bg-primary: #000000;
+    --bg-secondary: #0A0A0A;
+    --bg-tertiary: #121212;
+    --accent-primary: #2563EB;
+    --accent-primary-hover: #1D4ED8;
+    --accent-secondary: #64748B;
+    --text-primary: #FFFFFF;
+    --text-secondary: #A0A0A0;
+    --text-tertiary: #666666;
+    --border-color: #1F1F1F;
+    --border-color-dark: #333333;
+    --danger: #EF4444;
+    --success: #10B981;
+    --font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-heading: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --border-radius: 8px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --accent-gold: #D97706;
+    --text-inverse: #0F172A;
+    --text-inverse-secondary: #475569;
+    --bg-gray: #0A0A0A;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
 }
 
 body {
-    background-color: var(--dark-navy);
-    color: var(--text-color);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     font-family: var(--font-family);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
     text-align: center;
+    padding: 40px 20px;
+    position: relative;
+}
+
+.intention-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 900px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    padding: 20px;
+    overflow: hidden;
+    max-height: 60vh;
+}
+
+.intention-text {
+    font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: clamp(32px, 8vw, 8vw);
+    font-weight: 900;
+    line-height: 1.1;
+    text-align: center;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    text-transform: none;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-shadow: 0 0 60px rgba(255, 255, 255, 0.15);
+    animation: intentionFadeIn 0.8s ease-out;
+}
+
+@keyframes intentionFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    max-width: 480px;
+    margin-top: auto;
+    padding-bottom: 40px;
+    opacity: 0.4;
+    transition: opacity 0.3s ease;
+}
+
+.content:hover,
+.content:focus-within {
+    opacity: 0.7;
 }
 
 .content h1 {
-    font-size: 3em;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--text-secondary);
 }
 
 .content p {
-    font-size: 1.2em;
-    color: #94A3B8;
-    max-width: 400px;
+    font-size: 14px;
+    color: var(--text-tertiary);
+    max-width: 360px;
+    margin: 0;
+    line-height: 1.5;
 }
 
 .plant-icon {
-    font-size: 4em;
-    margin: 20px 0;
-    animation: grow 1.5s ease-in-out infinite alternate;
+    font-size: 48px;
+    margin: 8px 0;
+    animation: grow 2s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 16px rgba(37, 99, 235, 0.2));
 }
 
 @keyframes grow {
-    from { transform: scale(1); }
-    to { transform: scale(1.1); }
+    from { transform: scale(1); filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.15)); }
+    to { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(37, 99, 235, 0.25)); }
+}
+
+strong {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .intention-text {
+        font-size: clamp(24px, 10vw, 10vw);
+    }
+    
+    .content h1 {
+        font-size: 18px;
+    }
+    
+    .content p {
+        font-size: 12px;
+    }
 }

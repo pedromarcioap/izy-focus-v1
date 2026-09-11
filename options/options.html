@@ -6,77 +6,296 @@
     <link rel="stylesheet" href="/options/options.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="/utils/config.js"></script>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Configurações e Listas</h1>
-            <p>Personalize suas sessões de foco, listas de bloqueio e de permissão.</p>
+        <header class="header">
+            <div class="header-logo">
+                <svg class="logo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2C7 2 3 7 3 10c0 4 3 7 9 9-1-6 0-12-6-14 0 0 3 2 6 3z"/>
+                </svg>
+                <h1 data-i18n="options_header">Configurações</h1>
+            </div>
+            <button id="dark-mode-btn" class="icon-btn" aria-label="Modo Escuro">
+                <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                    <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+                <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                </svg>
+            </button>
         </header>
+
         <main>
             <section class="card">
-                <h2>Listas de Foco</h2>
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+                        </svg>
+                        <h2 data-i18n="options_focus_lists">Listas de Foco</h2>
+                    </div>
+                    <button type="button" id="add-focus-list-btn" class="btn btn-primary btn-sm" data-i18n="options_new_focus_list_btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Nova Lista</span>
+                    </button>
+                </div>
                 <div id="focus-lists-container" class="lists-container"></div>
                 <form id="add-focus-list-form" class="add-form">
-                    <h3 id="focus-form-title">Adicionar Nova Lista de Foco</h3>
+                    <h3 id="focus-form-title" data-i18n="options_add_focus_list">Adicionar Nova Lista</h3>
                     <div class="form-grid">
-                        <label for="focus-list-name">Nome</label><input type="text" id="focus-list-name" placeholder="Ex: Estudo Profundo" required>
-                        <label for="focus-time">Foco (min)</label><input type="number" id="focus-time" placeholder="45" min="1" required>
-                        <label for="break-time">Pausa (min)</label><input type="number" id="break-time" placeholder="10" min="0" required>
+                        <div class="form-group">
+                            <label for="focus-list-name" data-i18n="options_focus_name_label">Nome</label>
+                            <input type="text" id="focus-list-name" data-i18n-placeholder="options_focus_name_placeholder" placeholder="Ex: Estudo Profundo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="focus-time" data-i18n="options_focus_time_label">Foco (min)</label>
+                            <input type="number" id="focus-time" value="45" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="break-time" data-i18n="options_break_time_label">Pausa (min)</label>
+                            <input type="number" id="break-time" value="10" min="0" required>
+                        </div>
                     </div>
                     <div class="form-section">
-                        <h4>Modo de Bloqueio</h4>
+                        <h4 data-i18n="options_block_mode">Modo de Bloqueio</h4>
                         <div class="radio-group">
-                            <input type="radio" id="mode-blocklist" name="block-mode" value="blocklist" checked><label for="mode-blocklist">Blocklist (Padrão)</label>
-                            <input type="radio" id="mode-whitelist" name="block-mode" value="whitelist"><label for="mode-whitelist">Whitelist (Foco Total)</label>
+                            <label class="radio-label">
+                                <input type="radio" id="mode-blocklist" name="block-mode" value="blocklist" checked>
+                                <span class="radio-custom"></span>
+                                <span data-i18n="options_blocklist_default">Blocklist (Bloqueia sites)</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" id="mode-whitelist" name="block-mode" value="whitelist">
+                                <span class="radio-custom"></span>
+                                <span data-i18n="options_whitelist_total_focus">Whitelist (Permite apenas)</span>
+                            </label>
                         </div>
                         <div id="blocklist-section" class="association-section">
-                            <label for="block-list-association">Bloquear sites da lista:</label>
+                            <label for="block-list-association" data-i18n="options_block_sites_from">Bloquear sites da lista:</label>
                             <select id="block-list-association"></select>
                         </div>
-                        <div id="whitelist-section" class="association-section" style="display: none;">
-                            <label for="white-list-association">Permitir apenas sites da lista:</label>
+                        <div id="whitelist-section" class="association-section">
+                            <label for="white-list-association" data-i18n="options_allow_sites_from">Permitir apenas sites da lista:</label>
                             <select id="white-list-association"></select>
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" id="submit-focus-form-btn">Adicionar Lista de Foco</button>
-                        <button type="button" id="cancel-edit-focus-btn" class="cancel-btn">Cancelar</button>
+                        <button type="submit" id="submit-focus-form-btn" class="btn btn-primary" data-i18n="options_submit_focus_list">Adicionar</button>
+                        <button type="button" id="cancel-edit-focus-btn" class="btn btn-ghost" data-i18n="options_cancel">Cancelar</button>
                     </div>
                 </form>
             </section>
             
             <section class="card">
-                <h2>Listas de Bloqueio (Blocklists)</h2>
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l14.14 14.14"/>
+                        </svg>
+                        <h2 data-i18n="options_blocklists_title">Listas de Bloqueio</h2>
+                    </div>
+                    <button type="button" id="add-block-list-btn" class="btn btn-primary btn-sm" data-i18n="options_new_blocklist_btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Nova Blocklist</span>
+                    </button>
+                </div>
                 <div id="block-lists-container" class="lists-container"></div>
-                 <form id="add-block-list-form" class="add-form">
-                    <h3 id="block-form-title">Adicionar Nova Blocklist</h3>
-                    <div class="form-grid single-column">
-                        <label for="block-list-name">Nome da Lista</label><input type="text" id="block-list-name" placeholder="Ex: Redes Sociais" required>
-                        <label for="block-list-sites">Sites para Bloquear (um por linha)</label><textarea id="block-list-sites" placeholder="facebook.com&#10;twitter.com&#10;youtube.com" rows="4" required></textarea>
+                <form id="add-block-list-form" class="add-form">
+                    <h3 id="block-form-title" data-i18n="options_add_blocklist">Adicionar Blocklist</h3>
+                    <div class="form-group">
+                        <label for="block-list-name" data-i18n="options_list_name_label">Nome da Lista</label>
+                        <input type="text" id="block-list-name" data-i18n-placeholder="options_blocklist_name_placeholder" placeholder="Ex: Redes Sociais" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="block-list-sites" data-i18n="options_blocklist_sites_label">Sites para Bloquear</label>
+                        <textarea id="block-list-sites" data-i18n-placeholder="options_blocklist_sites_placeholder" placeholder="facebook.com&#10;twitter.com&#10;youtube.com" rows="4" required></textarea>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" id="submit-block-form-btn">Adicionar Blocklist</button>
-                        <button type="button" id="cancel-edit-block-btn" class="cancel-btn">Cancelar</button>
+                        <button type="submit" id="submit-block-form-btn" class="btn btn-primary" data-i18n="options_submit_blocklist">Adicionar</button>
+                        <button type="button" id="cancel-edit-block-btn" class="btn btn-ghost" data-i18n="options_cancel">Cancelar</button>
                     </div>
                 </form>
             </section>
 
             <section class="card">
-                <h2>Listas de Permissão (Whitelists)</h2>
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>
+                        </svg>
+                        <h2 data-i18n="options_whitelists_title">Listas de Permissão</h2>
+                    </div>
+                    <button type="button" id="add-white-list-btn" class="btn btn-primary btn-sm" data-i18n="options_new_whitelist_btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Nova Whitelist</span>
+                    </button>
+                </div>
                 <div id="white-lists-container" class="lists-container"></div>
                 <form id="add-white-list-form" class="add-form">
-                    <h3 id="white-form-title">Adicionar Nova Whitelist</h3>
-                    <div class="form-grid single-column">
-                        <label for="white-list-name">Nome da Lista</label><input type="text" id="white-list-name" placeholder="Ex: Ferramentas de Trabalho" required>
-                        <label for="white-list-sites">Sites Permitidos (um por linha)</label><textarea id="white-list-sites" placeholder="docs.google.com&#10;github.com" rows="4" required></textarea>
+                    <h3 id="white-form-title" data-i18n="options_add_whitelist">Adicionar Whitelist</h3>
+                    <div class="form-group">
+                        <label for="white-list-name" data-i18n="options_list_name_label">Nome da Lista</label>
+                        <input type="text" id="white-list-name" data-i18n-placeholder="options_whitelist_name_placeholder" placeholder="Ex: Ferramentas de Trabalho" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="white-list-sites" data-i18n="options_whitelist_sites_label">Sites Permitidos</label>
+                        <textarea id="white-list-sites" data-i18n-placeholder="options_whitelist_sites_placeholder" placeholder="docs.google.com&#10;github.com" rows="4" required></textarea>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" id="submit-white-form-btn">Adicionar Whitelist</button>
-                        <button type="button" id="cancel-edit-white-btn" class="cancel-btn">Cancelar</button>
+                        <button type="submit" id="submit-white-form-btn" class="btn btn-primary" data-i18n="options_submit_whitelist">Adicionar</button>
+                        <button type="button" id="cancel-edit-white-btn" class="btn btn-ghost" data-i18n="options_cancel">Cancelar</button>
                     </div>
                 </form>
+            </section>
+
+            <section class="card">
+                <div class="card-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+                    </svg>
+                    <h2>Notificações</h2>
+                </div>
+                <div class="toggle-group">
+                    <label class="toggle-label">
+                        <span>Sons de notificação</span>
+                        <input type="checkbox" id="notification-sounds" checked>
+                        <span class="toggle-switch"></span>
+                    </label>
+                    <label class="toggle-label">
+                        <span>Notificações do sistema</span>
+                        <input type="checkbox" id="system-notifications" checked>
+                        <span class="toggle-switch"></span>
+                    </label>
+                </div>
+                <div class="volume-control">
+                    <label for="volume-slider" class="volume-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                            <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
+                        </svg>
+                        <span>Volume</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="volume-slider" min="0" max="100" value="50">
+                        <span id="volume-value" class="volume-value">50%</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="card-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+                    </svg>
+                    <h2>Trilhas Sonoras</h2>
+                </div>
+                <p class="card-description">Sincronize as trilhas disponíveis do repositório remoto.</p>
+                <div id="sound-sync-status" class="sound-sync-status">
+                    <span class="sound-count" id="sound-count-display">Carregando...</span>
+                </div>
+                <button id="sync-sounds-btn" class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                    </svg>
+                    <span>Sincronizar Sons</span>
+                </button>
+            </section>
+
+            <section class="card">
+                <div class="card-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                        <path d="M12 11h4"/>
+                        <path d="M12 16h4"/>
+                        <path d="M8 11h.01"/>
+                        <path d="M8 16h.01"/>
+                    </svg>
+                    <h2>Log de Performance</h2>
+                </div>
+                <p class="card-description">Histórico de sessões com intenção do dia e resultados.</p>
+                <div id="performance-log" class="performance-log">
+                    <div class="log-empty">Nenhuma sessão registrada ainda.</div>
+                </div>
+            </section>
+
+            <section class="card sync-card">
+                <div class="card-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/>
+                    </svg>
+                    <h2>Sincronização</h2>
+                </div>
+                <div id="sync-status" class="sync-status">
+                    <div class="sync-info">
+                        <span class="sync-label">Status:</span>
+                        <span id="sync-status-text" class="sync-state disconnected">Não conectado</span>
+                    </div>
+                    <div id="sync-last" class="sync-info" style="display:none">
+                        <span class="sync-label">Última sincronização:</span>
+                        <span id="sync-last-time">--</span>
+                    </div>
+                </div>
+                <div class="sync-actions">
+                    <button id="sync-toggle-btn" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+                        </svg>
+                        <span>Conectar Google Drive</span>
+                    </button>
+                    <button id="sync-now-btn" class="btn btn-secondary" style="display:none">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                        </svg>
+                        <span>Sincronizar Agora</span>
+                    </button>
+                </div>
+                <div class="sync-toggle">
+                    <label class="toggle-label">
+                        <span>Sincronização automática</span>
+                        <input type="checkbox" id="auto-sync">
+                        <span class="toggle-switch"></span>
+                    </label>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="card-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                        <path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/>
+                        <path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/>
+                    </svg>
+                    <h2>Backup Manual</h2>
+                </div>
+                <p class="card-description">Exporte seus dados para um arquivo JSON ou importe de um backup anterior.</p>
+                <div class="backup-actions">
+                    <button id="export-btn" class="btn btn-secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        <span>Exportar Dados</span>
+                    </button>
+                    <button id="import-btn" class="btn btn-secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                        </svg>
+                        <span>Importar Dados</span>
+                    </button>
+                </div>
+                <input type="file" id="import-file" accept=".json" style="display:none">
             </section>
         </main>
     </div>
