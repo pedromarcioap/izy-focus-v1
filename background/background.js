@@ -3,6 +3,19 @@ const ALARM_NAME = 'izyFocusTimer';
 const BLOCK_RULE_ID = 1;
 let lastPlayedSound = 'rain.mp3';
 
+// --- MENU DE CONTEXTO ESTADOS E CONSTANTES ---
+const CONTEXT_MENU_IDS = {
+    PARENT: 'izy_focus_parent',
+    BLOCK_PARENT: 'izy_focus_block_parent',
+    WHITE_PARENT: 'izy_focus_white_parent',
+    NEW_BLOCK: 'izy_focus_new_block',
+    NEW_WHITE: 'izy_focus_new_white',
+    BLOCK_ITEM_PREFIX: 'izy_focus_block_',
+    WHITE_ITEM_PREFIX: 'izy_focus_white_'
+};
+let isSettingUpMenus = false;
+let pendingMenuSetup = false;
+
 const AUDIO_BASE_URL = 'https://izy-focus-assets.vercel.app';
 const LOCAL_AUDIO_BASE = 'assets/sounds';
 
@@ -646,19 +659,6 @@ function createNotification(title, message) {
 }
 
 // --- MENU DE CONTEXTO (CLIQUE DIREITO) ---
-const CONTEXT_MENU_IDS = {
-    PARENT: 'izy_focus_parent',
-    BLOCK_PARENT: 'izy_focus_block_parent',
-    WHITE_PARENT: 'izy_focus_white_parent',
-    NEW_BLOCK: 'izy_focus_new_block',
-    NEW_WHITE: 'izy_focus_new_white',
-    BLOCK_ITEM_PREFIX: 'izy_focus_block_',
-    WHITE_ITEM_PREFIX: 'izy_focus_white_'
-};
-
-let isSettingUpMenus = false;
-let pendingMenuSetup = false;
-
 async function setupContextMenus() {
     if (!chrome.contextMenus) return;
 
