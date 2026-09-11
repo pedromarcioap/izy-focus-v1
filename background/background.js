@@ -656,16 +656,40 @@ const CONTEXT_MENU_IDS = {
     WHITE_ITEM_PREFIX: 'izy_focus_white_'
 };
 
+let isSettingUpMenus = false;
+let pendingMenuSetup = false;
+
 async function setupContextMenus() {
     if (!chrome.contextMenus) return;
+
+    if (isSettingUpMenus) {
+        pendingMenuSetup = true;
+        return;
+    }
+
+    isSettingUpMenus = true;
     try {
-        await new Promise(resolve => chrome.contextMenus.removeAll(resolve));
+        await new Promise(resolve => {
+            chrome.contextMenus.removeAll(() => {
+                if (chrome.runtime.lastError) {}
+                resolve();
+            });
+        });
 
         const { blockLists = [], whitelists = [] } = await chrome.storage.local.get(['blockLists', 'whitelists']);
 
+        const createMenuSafe = (createProperties) => {
+            return new Promise(resolve => {
+                chrome.contextMenus.create(createProperties, () => {
+                    if (chrome.runtime.lastError) {}
+                    resolve();
+                });
+            });
+        };
+
         // Item Pai: Izy Focus
         const parentTitle = chrome.i18n.getMessage('context_menu_parent') || 'Izy Focus';
-        chrome.contextMenus.create({
+        await createMenuSafe({
             id: CONTEXT_MENU_IDS.PARENT,
             title: parentTitle,
             contexts: ['page', 'link']
@@ -673,7 +697,7 @@ async function setupContextMenus() {
 
         // Submenu: Adicionar a Blocklist
         const blockTitle = chrome.i18n.getMessage('context_menu_add_blocklist') || '🚫 Adicionar a Blocklist';
-        chrome.contextMenus.create({
+        await createMenuSafe({
             id: CONTEXT_MENU_IDS.BLOCK_PARENT,
             parentId: CONTEXT_MENU_IDS.PARENT,
             title: blockTitle,
@@ -681,18 +705,18 @@ async function setupContextMenus() {
         });
 
         // Listar Blocklists existentes
-        blockLists.forEach(list => {
-            chrome.contextMenus.create({
+        for (const list of blockLists) {
+            await createMenuSafe({
                 id: `${CONTEXT_MENU_IDS.BLOCK_ITEM_PREFIX}${list.id}`,
                 parentId: CONTEXT_MENU_IDS.BLOCK_PARENT,
                 title: list.name,
                 contexts: ['page', 'link']
             });
-        });
+        }
 
         // Item: + Nova Blocklist...
         const newBlockTitle = chrome.i18n.getMessage('context_menu_new_blocklist') || '➕ Nova Blocklist...';
-        chrome.contextMenus.create({
+        await createMenuSafe({
             id: CONTEXT_MENU_IDS.NEW_BLOCK,
             parentId: CONTEXT_MENU_IDS.BLOCK_PARENT,
             title: newBlockTitle,
@@ -701,7 +725,7 @@ async function setupContextMenus() {
 
         // Submenu: Adicionar a Whitelist
         const whiteTitle = chrome.i18n.getMessage('context_menu_add_whitelist') || '✅ Adicionar a Whitelist';
-        chrome.contextMenus.create({
+        await createMenuSafe({
             id: CONTEXT_MENU_IDS.WHITE_PARENT,
             parentId: CONTEXT_MENU_IDS.PARENT,
             title: whiteTitle,
@@ -709,18 +733,18 @@ async function setupContextMenus() {
         });
 
         // Listar Whitelists existentes
-        whitelists.forEach(list => {
-            chrome.contextMenus.create({
+        for (const list of whitelists) {
+            await createMenuSafe({
                 id: `${CONTEXT_MENU_IDS.WHITE_ITEM_PREFIX}${list.id}`,
                 parentId: CONTEXT_MENU_IDS.WHITE_PARENT,
                 title: list.name,
                 contexts: ['page', 'link']
             });
-        });
+        }
 
         // Item: + Nova Whitelist...
         const newWhiteTitle = chrome.i18n.getMessage('context_menu_new_whitelist') || '➕ Nova Whitelist...';
-        chrome.contextMenus.create({
+        await createMenuSafe({
             id: CONTEXT_MENU_IDS.NEW_WHITE,
             parentId: CONTEXT_MENU_IDS.WHITE_PARENT,
             title: newWhiteTitle,
@@ -729,6 +753,12 @@ async function setupContextMenus() {
 
     } catch (error) {
         console.warn('[IzyFocus] setupContextMenus falhou:', error.message);
+    } finally {
+        isSettingUpMenus = false;
+        if (pendingMenuSetup) {
+            pendingMenuSetup = false;
+            setupContextMenus();
+        }
     }
 }
 
