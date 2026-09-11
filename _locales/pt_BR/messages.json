@@ -671,5 +671,54 @@
   "notif_wither_message": {
     "message": "Uma de suas plantas murchou devido à falta de foco. 🥀",
     "description": "Mensagem da notificação de planta murcha"
+  },
+
+  "context_menu_parent": {
+    "message": "Izy Focus",
+    "description": "Item principal do menu de contexto"
+  },
+  "context_menu_add_blocklist": {
+    "message": "🚫 Adicionar a Blocklist",
+    "description": "Submenu para adicionar a uma blocklist"
+  },
+  "context_menu_add_whitelist": {
+    "message": "✅ Adicionar a Whitelist",
+    "description": "Submenu para adicionar a uma whitelist"
+  },
+  "context_menu_new_blocklist": {
+    "message": "➕ Nova Blocklist...",
+    "description": "Opção para criar nova blocklist no menu"
+  },
+  "context_menu_new_whitelist": {
+    "message": "➕ Nova Whitelist...",
+    "description": "Opção para criar nova whitelist no menu"
+  },
+  "context_menu_site_added": {
+    "message": "Site \"$SITE$\" adicionado à lista \"$LIST$\".",
+    "description": "Notificação ao adicionar site a uma lista",
+    "placeholders": {
+      "site": { "content": "$1", "example": "example.com" },
+      "list": { "content": "$2", "example": "Redes Sociais" }
+    }
+  },
+  "context_menu_already_exists": {
+    "message": "O site \"$SITE$\" já está presente na lista \"$LIST$\".",
+    "description": "Notificação quando o site já existe na lista",
+    "placeholders": {
+      "site": { "content": "$1", "example": "example.com" },
+      "list": { "content": "$2", "example": "Redes Sociais" }
+    }
+  },
+  "context_menu_invalid_url": {
+    "message": "Não é possível adicionar esta página (páginas internas do sistema não suportadas).",
+    "description": "Notificação para URLs inválidas"
+  },
+  "context_menu_new_blocklist_default_name": {
+    "message": "Nova Blocklist",
+    "description": "Nome padrão de nova blocklist criada via menu"
+  },
+  "context_menu_new_whitelist_default_name": {
+    "message": "Nova Whitelist",
+    "description": "Nome padrão de nova whitelist criada via menu"
   }
 }

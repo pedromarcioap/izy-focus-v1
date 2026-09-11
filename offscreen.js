@@ -97,8 +97,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else if (cmd === 'offscreenSetVolume') {
         AudioController.setVolume(vol);
     }
-    
-    return true;
 });
 
 AudioController.init();

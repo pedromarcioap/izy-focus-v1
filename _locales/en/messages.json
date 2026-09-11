@@ -671,5 +671,54 @@
   "notif_wither_message": {
     "message": "One of your plants withered due to a loss of focus. 🥀",
     "description": "Wither notification message"
+  },
+
+  "context_menu_parent": {
+    "message": "Izy Focus",
+    "description": "Main context menu item"
+  },
+  "context_menu_add_blocklist": {
+    "message": "🚫 Add to Blocklist",
+    "description": "Submenu to add to a blocklist"
+  },
+  "context_menu_add_whitelist": {
+    "message": "✅ Add to Allowlist",
+    "description": "Submenu to add to an allowlist"
+  },
+  "context_menu_new_blocklist": {
+    "message": "➕ New Blocklist...",
+    "description": "Option to create new blocklist in menu"
+  },
+  "context_menu_new_whitelist": {
+    "message": "➕ New Allowlist...",
+    "description": "Option to create new allowlist in menu"
+  },
+  "context_menu_site_added": {
+    "message": "Site \"$SITE$\" added to list \"$LIST$\".",
+    "description": "Notification when site is added to a list",
+    "placeholders": {
+      "site": { "content": "$1", "example": "example.com" },
+      "list": { "content": "$2", "example": "Social Media" }
+    }
+  },
+  "context_menu_already_exists": {
+    "message": "Site \"$SITE$\" is already present in list \"$LIST$\".",
+    "description": "Notification when site already exists in list",
+    "placeholders": {
+      "site": { "content": "$1", "example": "example.com" },
+      "list": { "content": "$2", "example": "Social Media" }
+    }
+  },
+  "context_menu_invalid_url": {
+    "message": "Cannot add this page (internal system pages are not supported).",
+    "description": "Notification for invalid URLs"
+  },
+  "context_menu_new_blocklist_default_name": {
+    "message": "New Blocklist",
+    "description": "Default name for new blocklist created via menu"
+  },
+  "context_menu_new_whitelist_default_name": {
+    "message": "New Allowlist",
+    "description": "Default name for new allowlist created via menu"
   }
 }

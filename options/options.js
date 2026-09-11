@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         slider.addEventListener('change', async (e) => {
             const volume = parseInt(e.target.value);
             await chrome.storage.local.set({ soundVolume: volume });
-            chrome.runtime.sendMessage({ command: 'setVolume', volume: volume / 100 });
+            chrome.runtime.sendMessage({ command: 'setVolume', volume: volume / 100 }).catch(() => {});
         });
 
         const notificationSounds = document.getElementById('notification-sounds');

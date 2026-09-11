@@ -20,6 +20,36 @@ function getAudioSource(source) {
     return source;
 }
 
+function isTimerCounting(timerState) {
+    if (!timerState || !timerState.isActive) return false;
+    if (timerState.currentPhase !== 'focus') return false;
+    if (timerState.endTime && Date.now() >= timerState.endTime) return false;
+    return true;
+}
+
+async function checkTimerExpiration(timerState) {
+    if (!timerState || !timerState.isActive) return timerState;
+    if (timerState.endTime && Date.now() >= timerState.endTime) {
+        if (timerState.currentPhase === 'focus') {
+            playNotificationSound('focus_complete.mp3');
+            await startBreak(timerState);
+            const { [STORAGE_KEYS.TIMER_STATE]: newState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
+            return newState;
+        } else if (timerState.currentPhase === 'break') {
+            playNotificationSound('break_complete.mp3');
+            await logBreakCompletion(timerState);
+            await chrome.alarms.clear(ALARM_NAME);
+            await processCompletedSession(timerState);
+            const completedState = { ...timerState, currentPhase: 'completed' };
+            await chrome.storage.local.set({ [STORAGE_KEYS.TIMER_STATE]: completedState });
+            await synchronizeBlockingState();
+            sendStateToPopup();
+            return completedState;
+        }
+    }
+    return timerState;
+}
+
 // URLs que sempre devem ser permitidas (não bloqueadas)
 function isUrlAlwaysAllowed(url) {
     if (!url) return false;
@@ -68,9 +98,10 @@ function isUrlAlwaysAllowed(url) {
 // --- LÓGICA DE BLOQUEIO ATIVA ---
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (!changeInfo.url) return;
-    const { [STORAGE_KEYS.TIMER_STATE]: timerState, [STORAGE_KEYS.WHITELISTS]: whitelists } = await chrome.storage.local.get([STORAGE_KEYS.TIMER_STATE, STORAGE_KEYS.WHITELISTS]);
-    if (!timerState || !timerState.isActive || timerState.currentPhase !== 'focus' || timerState.blockMode !== 'whitelist') return;
-    const list = whitelists.find(l => l.id === timerState.associatedListId);
+    let { [STORAGE_KEYS.TIMER_STATE]: timerState, [STORAGE_KEYS.WHITELISTS]: whitelists } = await chrome.storage.local.get([STORAGE_KEYS.TIMER_STATE, STORAGE_KEYS.WHITELISTS]);
+    timerState = await checkTimerExpiration(timerState);
+    if (!isTimerCounting(timerState) || timerState.blockMode !== 'whitelist') return;
+    const list = (whitelists || []).find(l => l.id === timerState.associatedListId);
     if (!list || !list.sites || list.sites.length === 0) return;
     
     // Verificar se a URL deve ser sempre permitida
@@ -82,8 +113,9 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     }
 });
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
-    const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
-    if (!timerState || !timerState.isActive || timerState.currentPhase !== 'focus') return;
+    let { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
+    timerState = await checkTimerExpiration(timerState);
+    if (!isTimerCounting(timerState)) return;
     try {
         const tab = await chrome.tabs.get(activeInfo.tabId);
         if (!tab.url) return;
@@ -114,8 +146,9 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 async function synchronizeBlockingState() {
     try {
     const data = await chrome.storage.local.get([STORAGE_KEYS.TIMER_STATE, STORAGE_KEYS.BLOCK_LISTS]);
-    const timerState = data[STORAGE_KEYS.TIMER_STATE];
-    if (!timerState || !timerState.isActive || timerState.currentPhase !== 'focus' || timerState.blockMode === 'whitelist') {
+    let timerState = data[STORAGE_KEYS.TIMER_STATE];
+    timerState = await checkTimerExpiration(timerState);
+    if (!isTimerCounting(timerState) || timerState.blockMode === 'whitelist') {
         await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [BLOCK_RULE_ID] });
         return;
     }
@@ -134,7 +167,9 @@ async function synchronizeBlockingState() {
 
 // --- INICIALIZAÇÃO E CICLO DE VIDA ---
 synchronizeBlockingState();
+setupContextMenus();
 chrome.runtime.onInstalled.addListener(() => {
+    setupContextMenus();
     chrome.storage.local.get(null).then((result) => {
         if (!result.focusLists) {
             chrome.storage.local.set({
@@ -150,7 +185,9 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 chrome.runtime.onStartup.addListener(async () => {
     try {
-        const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
+        setupContextMenus();
+        let { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
+        timerState = await checkTimerExpiration(timerState);
         if (timerState && timerState.isActive) {
             const alarm = await chrome.alarms.get(ALARM_NAME);
             if (!alarm) await stopFocusSession(false);
@@ -162,13 +199,30 @@ chrome.runtime.onStartup.addListener(async () => {
 
 // --- OUVINTES DE MENSAGENS ---
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (!request || !request.command) return false;
+
     if (request.command === 'getState') {
         chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE).then(data => {
-            sendResponse({ state: data[STORAGE_KEYS.TIMER_STATE] });
+            let timerState = data[STORAGE_KEYS.TIMER_STATE];
+            sendResponse({ state: timerState });
+            if (timerState) {
+                checkTimerExpiration(timerState).catch(err => console.warn('[IzyFocus] checkTimerExpiration error:', err));
+            }
+        }).catch(err => {
+            sendResponse({ state: null, error: err.message });
         });
         return true;
     }
     
+    if (request.command === 'getSoundState') {
+        chrome.storage.local.get('soundEnabled').then(data => {
+            sendResponse({ command: 'updateSoundState', enabled: data.soundEnabled !== false });
+        }).catch(err => {
+            sendResponse({ command: 'updateSoundState', enabled: true, error: err.message });
+        });
+        return true;
+    }
+
     if (request.command === 'startFocus') {
         startFocusSession(request.listId, request.dayIntention);
     } else if (request.command === 'interruptFocus') {
@@ -190,50 +244,52 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else if (request.command === 'witherPlant') {
         console.log('[IzyFocus] Handling witherPlant command');
         handleWitherPlant();
-    } else if (request.command === 'getSoundState') {
-        chrome.storage.local.get('soundEnabled').then(data => {
-            sendResponse({ command: 'updateSoundState', enabled: data.soundEnabled !== false });
-        });
-        return true;
     } else if (request.command === 'setVolume') {
         setAudioVolume(request.volume);
     }
+
+    return false;
 });
 
 async function handleWitherPlant() {
     try {
-    const data = await chrome.storage.local.get(['gardenLayout']);
-    const gardenLayout = data.gardenLayout || {};
+        const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
+        if (!isTimerCounting(timerState)) {
+            console.log('[IzyFocus] handleWitherPlant skipped because timer is not counting');
+            return;
+        }
+        const data = await chrome.storage.local.get(['gardenLayout']);
+        const gardenLayout = data.gardenLayout || {};
 
-    // Encontrar a planta saudável mais recente
-    let targetId = null;
-    let latestTimestamp = 0;
+        // Encontrar a planta saudável mais recente
+        let targetId = null;
+        let latestTimestamp = 0;
 
-    for (const [id, item] of Object.entries(gardenLayout)) {
-        // Suporta formato antigo (string) e novo (objeto)
-        const isTree = (typeof item === 'string' && item === 'tree') || (typeof item === 'object' && item.type === 'tree');
-        const isHealthy = typeof item === 'object' ? (item.status !== 'withered') : true; // String antiga assume saudável
-        const timestamp = typeof item === 'object' ? (item.plantedAt || 0) : 0;
+        for (const [id, item] of Object.entries(gardenLayout)) {
+            // Suporta formato antigo (string) e novo (objeto)
+            const isTree = (typeof item === 'string' && item === 'tree') || (typeof item === 'object' && item.type === 'tree');
+            const isHealthy = typeof item === 'object' ? (item.status !== 'withered') : true; // String antiga assume saudável
+            const timestamp = typeof item === 'object' ? (item.plantedAt || 0) : 0;
 
-        if (isTree && isHealthy) {
-            if (timestamp >= latestTimestamp) {
-                latestTimestamp = timestamp;
-                targetId = id;
+            if (isTree && isHealthy) {
+                if (timestamp >= latestTimestamp) {
+                    latestTimestamp = timestamp;
+                    targetId = id;
+                }
             }
         }
-    }
 
-    if (targetId !== null) {
-        // Atualizar para formato de objeto se necessário e marcar como withered
-        const item = gardenLayout[targetId];
-        const newItem = typeof item === 'string'
-            ? { type: 'tree', stage: 3, status: 'withered', plantedAt: Date.now() } // Migração fallback
-            : { ...item, status: 'withered' };
+        if (targetId !== null) {
+            // Atualizar para formato de objeto se necessário e marcar como withered
+            const item = gardenLayout[targetId];
+            const newItem = typeof item === 'string'
+                ? { type: 'tree', stage: 3, status: 'withered', plantedAt: Date.now() } // Migração fallback
+                : { ...item, status: 'withered' };
 
-        gardenLayout[targetId] = newItem;
-        await chrome.storage.local.set({ gardenLayout });
-        createNotification(chrome.i18n.getMessage('notif_wither_title'), chrome.i18n.getMessage('notif_wither_message'));
-    }
+            gardenLayout[targetId] = newItem;
+            await chrome.storage.local.set({ gardenLayout });
+            createNotification(chrome.i18n.getMessage('notif_wither_title'), chrome.i18n.getMessage('notif_wither_message'));
+        }
     } catch (error) {
         console.warn('[IzyFocus] handleWitherPlant falhou:', error.message);
     }
@@ -243,7 +299,7 @@ async function sendStateToPopup() {
     try {
         const { [STORAGE_KEYS.TIMER_STATE]: timerState } = await chrome.storage.local.get(STORAGE_KEYS.TIMER_STATE);
         console.log('[IzyFocus] sendStateToPopup:', timerState);
-        await chrome.runtime.sendMessage({ command: 'updateState', state: timerState });
+        chrome.runtime.sendMessage({ command: 'updateState', state: timerState }).catch(() => {});
     } catch (error) { /* Ignora se popup fechado */ }
 }
 
@@ -484,10 +540,10 @@ async function playAudioInBackground(source, volume) {
         console.log('[IzyFocus] sending to offscreen:', offscreenSource);
         
         await new Promise(resolve => setTimeout(resolve, 300));
-        await chrome.runtime.sendMessage({ command: 'offscreenPlay', source: offscreenSource, volume: savedVolume });
+        await chrome.runtime.sendMessage({ command: 'offscreenPlay', source: offscreenSource, volume: savedVolume }).catch(() => {});
         
         await chrome.storage.local.set({ audioPlaybackState: { isPlaying: true, source: audioSource } });
-        chrome.runtime.sendMessage({ command: 'updatePlaybackState', isPlaying: true });
+        chrome.runtime.sendMessage({ command: 'updatePlaybackState', isPlaying: true }).catch(() => {});
     } catch (error) {
         console.warn('[IzyFocus] playAudioInBackground falhou:', error.message);
     }
@@ -496,10 +552,10 @@ async function playAudioInBackground(source, volume) {
 async function stopAudioInBackground() {
     try {
         if (await hasOffscreenDocument()) {
-            await chrome.runtime.sendMessage({ command: 'offscreenStop' });
+            await chrome.runtime.sendMessage({ command: 'offscreenStop' }).catch(() => {});
         }
         await chrome.storage.local.set({ audioPlaybackState: { isPlaying: false, source: null } });
-        chrome.runtime.sendMessage({ command: 'updatePlaybackState', isPlaying: false });
+        chrome.runtime.sendMessage({ command: 'updatePlaybackState', isPlaying: false }).catch(() => {});
     } catch (error) {
         console.warn('[IzyFocus] stopAudioInBackground falhou:', error.message);
     }
@@ -508,7 +564,7 @@ async function stopAudioInBackground() {
 async function setAudioVolume(volume) {
     try {
         if (await hasOffscreenDocument()) {
-            await chrome.runtime.sendMessage({ command: 'offscreenSetVolume', volume });
+            await chrome.runtime.sendMessage({ command: 'offscreenSetVolume', volume }).catch(() => {});
         }
     } catch (error) {
         console.warn('[IzyFocus] setAudioVolume falhou:', error.message);
@@ -541,7 +597,7 @@ async function playNotificationSound(file) {
         console.log('[IzyFocus] Playing remote notification:', remoteSource);
         
         await setupOffscreenDocument('offscreen.html');
-        await chrome.runtime.sendMessage({ command: 'offscreenPlayNotification', source: remoteSource, volume: 0.8 });
+        await chrome.runtime.sendMessage({ command: 'offscreenPlayNotification', source: remoteSource, volume: 0.8 }).catch(() => {});
     } catch (error) {
         console.warn('[IzyFocus] playNotificationSound falhou:', error.message);
     }
@@ -587,4 +643,204 @@ function createNotification(title, message) {
     } catch (error) {
         console.warn('[IzyFocus] createNotification falhou:', error.message);
     }
+}
+
+// --- MENU DE CONTEXTO (CLIQUE DIREITO) ---
+const CONTEXT_MENU_IDS = {
+    PARENT: 'izy_focus_parent',
+    BLOCK_PARENT: 'izy_focus_block_parent',
+    WHITE_PARENT: 'izy_focus_white_parent',
+    NEW_BLOCK: 'izy_focus_new_block',
+    NEW_WHITE: 'izy_focus_new_white',
+    BLOCK_ITEM_PREFIX: 'izy_focus_block_',
+    WHITE_ITEM_PREFIX: 'izy_focus_white_'
+};
+
+async function setupContextMenus() {
+    if (!chrome.contextMenus) return;
+    try {
+        await new Promise(resolve => chrome.contextMenus.removeAll(resolve));
+
+        const { blockLists = [], whitelists = [] } = await chrome.storage.local.get(['blockLists', 'whitelists']);
+
+        // Item Pai: Izy Focus
+        const parentTitle = chrome.i18n.getMessage('context_menu_parent') || 'Izy Focus';
+        chrome.contextMenus.create({
+            id: CONTEXT_MENU_IDS.PARENT,
+            title: parentTitle,
+            contexts: ['page', 'link']
+        });
+
+        // Submenu: Adicionar a Blocklist
+        const blockTitle = chrome.i18n.getMessage('context_menu_add_blocklist') || '🚫 Adicionar a Blocklist';
+        chrome.contextMenus.create({
+            id: CONTEXT_MENU_IDS.BLOCK_PARENT,
+            parentId: CONTEXT_MENU_IDS.PARENT,
+            title: blockTitle,
+            contexts: ['page', 'link']
+        });
+
+        // Listar Blocklists existentes
+        blockLists.forEach(list => {
+            chrome.contextMenus.create({
+                id: `${CONTEXT_MENU_IDS.BLOCK_ITEM_PREFIX}${list.id}`,
+                parentId: CONTEXT_MENU_IDS.BLOCK_PARENT,
+                title: list.name,
+                contexts: ['page', 'link']
+            });
+        });
+
+        // Item: + Nova Blocklist...
+        const newBlockTitle = chrome.i18n.getMessage('context_menu_new_blocklist') || '➕ Nova Blocklist...';
+        chrome.contextMenus.create({
+            id: CONTEXT_MENU_IDS.NEW_BLOCK,
+            parentId: CONTEXT_MENU_IDS.BLOCK_PARENT,
+            title: newBlockTitle,
+            contexts: ['page', 'link']
+        });
+
+        // Submenu: Adicionar a Whitelist
+        const whiteTitle = chrome.i18n.getMessage('context_menu_add_whitelist') || '✅ Adicionar a Whitelist';
+        chrome.contextMenus.create({
+            id: CONTEXT_MENU_IDS.WHITE_PARENT,
+            parentId: CONTEXT_MENU_IDS.PARENT,
+            title: whiteTitle,
+            contexts: ['page', 'link']
+        });
+
+        // Listar Whitelists existentes
+        whitelists.forEach(list => {
+            chrome.contextMenus.create({
+                id: `${CONTEXT_MENU_IDS.WHITE_ITEM_PREFIX}${list.id}`,
+                parentId: CONTEXT_MENU_IDS.WHITE_PARENT,
+                title: list.name,
+                contexts: ['page', 'link']
+            });
+        });
+
+        // Item: + Nova Whitelist...
+        const newWhiteTitle = chrome.i18n.getMessage('context_menu_new_whitelist') || '➕ Nova Whitelist...';
+        chrome.contextMenus.create({
+            id: CONTEXT_MENU_IDS.NEW_WHITE,
+            parentId: CONTEXT_MENU_IDS.WHITE_PARENT,
+            title: newWhiteTitle,
+            contexts: ['page', 'link']
+        });
+
+    } catch (error) {
+        console.warn('[IzyFocus] setupContextMenus falhou:', error.message);
+    }
+}
+
+function extractDomainFromUrl(rawUrl) {
+    if (!rawUrl) return null;
+    if (isUrlAlwaysAllowed(rawUrl)) return null;
+
+    try {
+        const urlObj = new URL(rawUrl);
+        if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') return null;
+        let hostname = urlObj.hostname.toLowerCase().trim();
+        hostname = hostname.replace(/^www\./, '');
+        return hostname || null;
+    } catch (e) {
+        return null;
+    }
+}
+
+async function handleContextMenuClick(info, tab) {
+    const menuItemId = info.menuItemId;
+    if (!menuItemId || typeof menuItemId !== 'string' || !menuItemId.startsWith('izy_focus_')) return;
+
+    const targetUrl = info.linkUrl || info.pageUrl || tab?.url;
+    const domain = extractDomainFromUrl(targetUrl);
+
+    if (!domain) {
+        createNotification('Izy Focus', chrome.i18n.getMessage('context_menu_invalid_url') || 'Não é possível adicionar esta página.');
+        return;
+    }
+
+    if (menuItemId === CONTEXT_MENU_IDS.NEW_BLOCK) {
+        await addDomainToNewList('block', domain);
+    } else if (menuItemId === CONTEXT_MENU_IDS.NEW_WHITE) {
+        await addDomainToNewList('white', domain);
+    } else if (menuItemId.startsWith(CONTEXT_MENU_IDS.BLOCK_ITEM_PREFIX)) {
+        const listId = parseInt(menuItemId.replace(CONTEXT_MENU_IDS.BLOCK_ITEM_PREFIX, ''), 10);
+        await addDomainToExistingList('block', listId, domain);
+    } else if (menuItemId.startsWith(CONTEXT_MENU_IDS.WHITE_ITEM_PREFIX)) {
+        const listId = parseInt(menuItemId.replace(CONTEXT_MENU_IDS.WHITE_ITEM_PREFIX, ''), 10);
+        await addDomainToExistingList('white', listId, domain);
+    }
+}
+
+async function addDomainToExistingList(type, listId, domain) {
+    const isBlock = type === 'block';
+    const key = isBlock ? 'blockLists' : 'whitelists';
+    const data = await chrome.storage.local.get(key);
+    const lists = data[key] || [];
+    const listIndex = lists.findIndex(l => l.id === listId);
+
+    if (listIndex === -1) return;
+
+    const list = lists[listIndex];
+    if (list.sites.includes(domain)) {
+        const msg = chrome.i18n.getMessage('context_menu_already_exists', [domain, list.name]) || `O site "${domain}" já está na lista "${list.name}".`;
+        createNotification('Izy Focus', msg);
+        return;
+    }
+
+    list.sites = [...list.sites, domain];
+    lists[listIndex] = list;
+
+    await chrome.storage.local.set({ [key]: lists });
+    await synchronizeBlockingState();
+
+    const successMsg = chrome.i18n.getMessage('context_menu_site_added', [domain, list.name]) || `Site "${domain}" adicionado à lista "${list.name}".`;
+    createNotification('Izy Focus', successMsg);
+}
+
+async function addDomainToNewList(type, domain) {
+    const isBlock = type === 'block';
+    const key = isBlock ? 'blockLists' : 'whitelists';
+    const nextIdKey = isBlock ? 'nextBlockListId' : 'nextWhiteListId';
+    const defaultNameKey = isBlock ? 'context_menu_new_blocklist_default_name' : 'context_menu_new_whitelist_default_name';
+
+    const data = await chrome.storage.local.get([key, nextIdKey]);
+    const lists = data[key] || [];
+    let nextId = data[nextIdKey];
+    if (!nextId) {
+        nextId = lists.length > 0 ? Math.max(...lists.map(l => l.id)) + 1 : 1;
+    }
+
+    const defaultName = chrome.i18n.getMessage(defaultNameKey) || (isBlock ? 'Nova Blocklist' : 'Nova Whitelist');
+    const newListName = `${defaultName} ${nextId}`;
+
+    const newList = {
+        id: nextId,
+        name: newListName,
+        sites: [domain]
+    };
+
+    const updatedLists = [...lists, newList];
+    await chrome.storage.local.set({
+        [key]: updatedLists,
+        [nextIdKey]: nextId + 1
+    });
+
+    await synchronizeBlockingState();
+
+    const successMsg = chrome.i18n.getMessage('context_menu_site_added', [domain, newListName]) || `Site "${domain}" adicionado à lista "${newListName}".`;
+    createNotification('Izy Focus', successMsg);
+}
+
+// Ouvintes de alteração de storage e cliques no menu de contexto
+chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'local') {
+        if (changes.blockLists || changes.whitelists) {
+            setupContextMenus();
+        }
+    }
+});
+
+if (chrome.contextMenus && chrome.contextMenus.onClicked) {
+    chrome.contextMenus.onClicked.addListener(handleContextMenuClick);
 }

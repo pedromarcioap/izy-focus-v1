@@ -11,7 +11,8 @@
     "declarativeNetRequest",
     "tabs",
     "offscreen",
-    "identity"
+    "identity",
+    "contextMenus"
   ],
   "host_permissions": [
     "<all_urls>",
