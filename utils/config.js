@@ -31,9 +31,9 @@ const APP_CONFIG = {
     }
 };
 
-// Verifica se a configuração está completa
-if (APP_CONFIG.GOOGLE.CLIENT_ID === '318877621394-nsls7hatdqbrmv81b6n7t4af701g71gs.apps.googleusercontent.com') {
-    console.warn('[IzyFocus] ATENÇÃO: Configure seu GOOGLE_CLIENT_ID no arquivo config.js');
+// Verifica se a credencial do Google existe
+if (!APP_CONFIG.GOOGLE.CLIENT_ID || APP_CONFIG.GOOGLE.CLIENT_ID === '318877621394-nsls7hatdqbrmv81b6n7t4af701g71gs.apps.googleusercontent.com') {
+    console.warn('[IzyFocus] Configuração pendente: GOOGLE_CLIENT_ID não informado.');
 }
 
 if (typeof module !== 'undefined' && module.exports) {
