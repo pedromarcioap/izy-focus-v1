@@ -7,7 +7,6 @@
     "message": "Calm, intentional focus for creative minds. Block distractions and grow your productivity garden.",
     "description": "Extension description"
   },
-
   "popup_title_default": {
     "message": "Izy Focus",
     "description": "Default popup title"
@@ -116,7 +115,6 @@
     "message": "Start Focus Session",
     "description": "Start session card"
   },
-
   "options_title": {
     "message": "Settings - Izy Focus",
     "description": "Settings page title"
@@ -299,6 +297,18 @@
     "message": "Are you sure you want to delete this allowlist?",
     "description": "Delete whitelist confirmation"
   },
+  "options_import_success": {
+    "message": "Data imported successfully!",
+    "description": "Backup import success message"
+  },
+  "options_import_invalid": {
+    "message": "Invalid file format.",
+    "description": "Backup import invalid file message"
+  },
+  "options_import_error": {
+    "message": "Error importing file: ",
+    "description": "Backup import error message prefix"
+  },
   "options_sites_count": {
     "message": "$COUNT$ site(s)",
     "description": "Sites count",
@@ -313,8 +323,14 @@
     "message": "$FOCUS$m Focus / $BREAK$m Break",
     "description": "Focus list summary",
     "placeholders": {
-      "focus": { "content": "$1", "example": "45" },
-      "break": { "content": "$2", "example": "10" }
+      "focus": {
+        "content": "$1",
+        "example": "45"
+      },
+      "break": {
+        "content": "$2",
+        "example": "10"
+      }
     }
   },
   "options_association_none": {
@@ -325,17 +341,22 @@
     "message": "Allowing: $NAME$",
     "description": "Whitelist association",
     "placeholders": {
-      "name": { "content": "$1", "example": "Work Tools" }
+      "name": {
+        "content": "$1",
+        "example": "Work Tools"
+      }
     }
   },
   "options_association_blocking": {
     "message": "Blocking: $NAME$",
     "description": "Blocklist association",
     "placeholders": {
-      "name": { "content": "$1", "example": "Social Media" }
+      "name": {
+        "content": "$1",
+        "example": "Social Media"
+      }
     }
   },
-
   "blocked_title": {
     "message": "Focus Active",
     "description": "Blocked page title"
@@ -348,7 +369,6 @@
     "message": "This site is on your blocklist. You can access it again after your session.",
     "description": "Blocked page message"
   },
-
   "stats_title": {
     "message": "Statistics - Izy Focus",
     "description": "Statistics page title"
@@ -389,7 +409,10 @@
     "message": "$RATE$% Completion Rate",
     "description": "Completion rate label",
     "placeholders": {
-      "rate": { "content": "$1", "example": "75" }
+      "rate": {
+        "content": "$1",
+        "example": "75"
+      }
     }
   },
   "stats_completed_label": {
@@ -400,7 +423,6 @@
     "message": "Interrupted",
     "description": "Interrupted label"
   },
-
   "history_title": {
     "message": "History - Izy Focus",
     "description": "History page title"
@@ -425,29 +447,40 @@
     "message": "Focus completed: <strong>$NAME$</strong> ($TIME$ min)",
     "description": "Focus completed item",
     "placeholders": {
-      "name": { "content": "$1", "example": "Deep Study" },
-      "time": { "content": "$2", "example": "45" }
+      "name": {
+        "content": "$1",
+        "example": "Deep Study"
+      },
+      "time": {
+        "content": "$2",
+        "example": "45"
+      }
     }
   },
   "history_break_completed": {
     "message": "Break completed ($TIME$ min)",
     "description": "Break completed item",
     "placeholders": {
-      "time": { "content": "$1", "example": "10" }
+      "time": {
+        "content": "$1",
+        "example": "10"
+      }
     }
   },
   "history_session_interrupted": {
     "message": "Session interrupted: <strong>$NAME$</strong>",
     "description": "Session interrupted item",
     "placeholders": {
-      "name": { "content": "$1", "example": "Deep Study" }
+      "name": {
+        "content": "$1",
+        "example": "Deep Study"
+      }
     }
   },
   "history_confirm_clear": {
     "message": "Are you sure you want to clear all your history? This action cannot be undone.",
     "description": "Clear history confirmation"
   },
-
   "garden_title": {
     "message": "My Garden - Izy Focus",
     "description": "Garden page title"
@@ -460,7 +493,10 @@
     "message": "Level $LEVEL$",
     "description": "Level display",
     "placeholders": {
-      "level": { "content": "$1", "example": "3" }
+      "level": {
+        "content": "$1",
+        "example": "3"
+      }
     }
   },
   "garden_achievements_btn": {
@@ -519,7 +555,6 @@
     "message": "Place Stone",
     "description": "Stone tool tooltip"
   },
-
   "achievement_first_bloom_title": {
     "message": "First Sprout",
     "description": "Achievement title"
@@ -632,7 +667,6 @@
     "message": "Have 10 flowering trees in your garden.",
     "description": "Achievement description"
   },
-
   "notif_break_title": {
     "message": "Break Time!",
     "description": "Break notification title"
@@ -641,7 +675,10 @@
     "message": "Great work! Rest for $MINUTES$ minutes.",
     "description": "Break notification message",
     "placeholders": {
-      "minutes": { "content": "$1", "example": "10" }
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
     }
   },
   "notif_cycle_completed_title": {
@@ -672,7 +709,6 @@
     "message": "One of your plants withered due to a loss of focus. 🥀",
     "description": "Wither notification message"
   },
-
   "context_menu_parent": {
     "message": "Izy Focus",
     "description": "Main context menu item"
@@ -697,16 +733,28 @@
     "message": "Site \"$SITE$\" added to list \"$LIST$\".",
     "description": "Notification when site is added to a list",
     "placeholders": {
-      "site": { "content": "$1", "example": "example.com" },
-      "list": { "content": "$2", "example": "Social Media" }
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "list": {
+        "content": "$2",
+        "example": "Social Media"
+      }
     }
   },
   "context_menu_already_exists": {
     "message": "Site \"$SITE$\" is already present in list \"$LIST$\".",
     "description": "Notification when site already exists in list",
     "placeholders": {
-      "site": { "content": "$1", "example": "example.com" },
-      "list": { "content": "$2", "example": "Social Media" }
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "list": {
+        "content": "$2",
+        "example": "Social Media"
+      }
     }
   },
   "context_menu_invalid_url": {
